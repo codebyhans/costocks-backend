@@ -1,4 +1,5 @@
 import os
+from waitress import serve
 import pathlib
 from flask import Flask
 import datetime as dt
@@ -6,6 +7,10 @@ from dateutil.relativedelta import relativedelta
 from components.fetch_data_component import Common
 from pip._vendor import cachecontrol
 from flask_oauthlib.client import OAuth
+from paste.translogger import TransLogger
+import logging
+logger = logging.getLogger('waitress')
+logger.setLevel(logging.INFO)
 
 
 app = Flask(__name__)
@@ -225,4 +230,5 @@ from routes import *
 
 if __name__ == "__main__":
     #app.run(debug=True)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    #app.run(host='0.0.0.0', port=5000, debug=True)
+    serve(app, host='0.0.0.0', port=5000)
