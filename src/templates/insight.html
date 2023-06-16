@@ -17,15 +17,21 @@
         {{ script|safe }}
     </script>
     {% endfor %}
+    {% if js_file %}
+      <script src="{{ url_for('static', filename=js_file) }}"></script>
+    {% endif %}
 </head>
 <body>
   <div id="loading-message">{{loadingtext}}</div>
 
 <div id="index-page" style="display: none;">
     <div id="top">
-      <div id="logo"><a href="{{ url_for('index', **request.args) }}">PortfolioInsight</a></div>
+      <div id="logo"><a href="{{ url_for('home', **request.args) }}">PortfolioInsight</a></div>
       <div id="tab">
         {{ tabs|safe }}
+      </div>
+      <div id="logout">
+        <a href='/logout'><button class="btn btn-primary">Logout</button></a>
       </div>
     </div>
     <div id="content">

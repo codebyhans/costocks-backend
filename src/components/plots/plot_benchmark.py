@@ -77,7 +77,6 @@ class plotBenchmark:
             #ensure everything is compared to first day of period 
             summed_weighted_returns.iloc[0] = 1
 
-            #print(summed_weighted_returns/100+1)
             # Extract unique pairs of level_1 indices
             # Create traces
             

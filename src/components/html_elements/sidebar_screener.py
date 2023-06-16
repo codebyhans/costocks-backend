@@ -9,9 +9,9 @@ class sidebarScreener:
         self.html += f"""
         <label for="tickers">Select ticker symbols:</label><br>
         <input type="text" name="tickers" id="tickers" value='{', '.join(tickers)}' />
-        <button type='clear' id='button0'>clear all</button><br>
-        <button type='add' id='button1'>C20</button>
-        <button type='add' id='button2'>DOW</button><br><br>
+        <button type='add' id='button1' class="btn btn-primary">C20</button>
+        <button type='add' id='button2' class="btn btn-primary">DOW</button>
+        <button type='clear' id='button0' class="btn btn-secondary">Clear</button><br><br>
         <label for="benchmarks">Select benchmark tickers:</label><br>
         <input type="text" name="benchmarks" id="benchmarks" value='{', '.join(benchmark)}' /><br><br>
         <label for='lookback'>The past number of trading days for the analysis</label><br>
@@ -20,13 +20,11 @@ class sidebarScreener:
             <input type='number' name='extrapolate' id='extrapolate' placeholder='Enter number of days' value='{settings.extrapolate}'/><br><br>
             <label for='rfr'>Risk free rate</label><br>
             <input type='number' name='rfr' id='rfr' placeholder='Enter the risk free rate' value='{settings.rfr}' min='0' max='1' step ='0.01'/><br><br>
-            <label for='capacity'>Maximum Portfolio value</label><br>
-            <input type='number' name='capacity' id='capacity' placeholder='Amount of funds to invest' value='{settings.capacity}' min='0'/><br><br>
             <!-- Add an input field for the datepicker -->
             <!--<label for="datepicker">Date of last rebalance</label><br>-->
             <!--<input type="text" id="datepicker" name="rebalance">-->
             <div id='error-msg'></div>
-            <button type='submit' id='submit-btn'>Submit</button>
+            <button type='submit' id='submit-btn' class='btn btn-primary'>Submit</button>
         </form></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -107,16 +105,7 @@ class sidebarScreener:
                 errorDiv.innerText = 'The risk-free-rate should be between 0 and 1.';
             }}
 
-            // check if extrapolate is a non-negative integer
-            var capacityInput = document.getElementById('capacity');
-            var capacityValue = parseInt(capacityInput.value);
-            console.log(capacityValue);
-            if (isNaN(capacityValue) || capacityValue <= 0) {{
-                event.preventDefault();
-                var errorDiv = document.getElementById('error-msg');
-                errorDiv.innerText = 'Maximum portfolio value is not meaningful';
-            }}
-        }});
+            }});
     </script>
 
     

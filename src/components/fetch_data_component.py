@@ -35,24 +35,22 @@ class DataFetcher:
         start_day = current_app.last_year  # dt.datetime.today()-relativedelta(years=1)
         end_day = current_app.today  # dt.datetime.today()
         #Find unique currencies 
-        unique_currencies = []
-        for item in info:
-            for value in item.values():
-                currency = value['currency']
-                if currency not in unique_currencies and currency not in 'DKK':
-                    unique_currencies.append(currency)
-        tickers_rates = [f'{currency}DKK=X' for currency in unique_currencies]  # List of Yahoo Finance ticker symbols
+        #unique_currencies = []
+        #for item in info:
+        #    for value in item.values():
+        #        currency = value['currency']
+        #        if currency not in unique_currencies and currency not in 'DKK':
+        #            unique_currencies.append(currency)
+        #tickers_rates = [f'{currency}DKK=X' for currency in unique_currencies]  # List of Yahoo Finance ticker symbols
 
         #Find exchange rates 
-        exchange_rates = yf.download(tickers=tickers_rates, period='1d')[
-            "Adj Close"
-        ].tail(1)
-        print(exchange_rates)
-        if isinstance(exchange_rates, pd.Series):
-            exchange_rates = exchange_rates.to_frame().rename(columns={'Adj Close': tickers_rates[0]})
-        exchange_rates["DKKDKK=X"] = 1
-        exchange_rates = exchange_rates.squeeze().to_dict()
-        print(exchange_rates)
+        #exchange_rates = yf.download(tickers=tickers_rates, period='1d')[
+        #    "Adj Close"
+        #].tail(1)
+        #if isinstance(exchange_rates, pd.Series):
+        #    exchange_rates = exchange_rates.to_frame().rename(columns={'Adj Close': tickers_rates[0]})
+        #exchange_rates["DKKDKK=X"] = 1
+        #exchange_rates = exchange_rates.squeeze().to_dict()
         
         #Find stock prices 
         data = yf.download(tickers, start=start_day, end=end_day)[
@@ -70,12 +68,12 @@ class DataFetcher:
         weekday_mask = data_daily.index.weekday < 5
         data_weekdays = data_daily[weekday_mask]
         
-        exchangerate = []
-        for ticker in data_weekdays.columns:
-            currency = self.currencies[ticker]
-            exchangerate.append(exchange_rates[f'{currency}DKK=X'])
+        #exchangerate = []
+        #for ticker in data_weekdays.columns:
+        #    currency = self.currencies[ticker]
+        #    exchangerate.append(exchange_rates[f'{currency}DKK=X'])
 
-        data_weekdays = data_weekdays * exchangerate
+        data_weekdays = data_weekdays #* exchangerate
         return data_weekdays
 
 
@@ -111,7 +109,7 @@ class Common:
     def core_standard_deviation(self, returns, extrapolate):
         return returns.std() * np.sqrt(extrapolate)
 
-    def append_to_df(self, df, data, lookback, extrapolate, tickers, capacity):
+    def append_to_df(self, df, data, lookback, extrapolate, tickers):
         # Only take ticker columns of total data
         prices = data.prices[tickers]
         returns = data.returns[tickers]
@@ -160,7 +158,7 @@ class Common:
             right_index=True,
         )
 
-        return {"df": df, "prices": prices, "returns": returns, "cov": cov, "rolling_cov": rolling_cov,"capacity": capacity}
+        return {"df": df, "prices": prices, "returns": returns, "cov": cov, "rolling_cov": rolling_cov}
 
 
 class html:
@@ -242,73 +240,23 @@ class Financial:
         volatility = self.portfolio_volatility(weights, cov_matrix)
         return self.sharpe_ratio_scalar(expected_return, volatility, rf)
     
-    #def random_portfolios(capacity, prices):
-    #    combinations = []
-    #    max_units = [int(capacity // price) for price in prices]
-    #    for units in itertools.product(*(range(max_unit + 1) for max_unit in max_units)):
-    #        total_cost = sum(unit * price for unit, price in zip(units, prices))
-    #        if (total_cost < capacity) and (total_cost > 0):
-    #            list_units = list(units)
-    #            normalized_units = [i/sum(list_units) for i in list_units] 
-    #            test = [(unit * price)/capacity for unit, price in zip(units, prices)]
-    #            print(test)
-    #            combinations.append(test)
-    #    print(combinations)
-    #    return combinations    
-    
-    def random_portfolios(capacity,prices):
-        def weighted_portfolio(combinations, total_amount, prices):
-            weighted_portfolio = []
-            for combination in combinations:
-                portfolio = [(x * y)/total_amount for x, y in zip(combination, prices)]
-                weighted_portfolio.append(portfolio)
-            return weighted_portfolio
-
-        def generate_combinations(capacity, prices):
-            divisors = [int(capacity//prices[i]) for i in range(len(prices))]
+    def random_portfolios(n, m):
+        random_portfolios = []
+        
+        for _ in range(n):
+            portfolio = []
             
-            result = []
-            for p in prices:
-                divs = [i for i in range(0, int(capacity // p) + 1) if i <= divisors[prices.index(p)]] 
-                result.append(divs)
-
-            return list(itertools.product(*result))
-
-        def filter_combinations(combinations, capacity, prices):
-            #Filter for total amount
-            T = [c for c in combinations if sum(x * y for x, y in zip(prices, c)) <= capacity]
-
-            #Filter for max utilization
-            A = [True]*len(T)
-            for i, t in enumerate(T): 
-                if A[i] == True:
-                    #All elements t is compared to. 
-                    C = T[i+1:]
-                    for n, c in enumerate(C):
-                        if A[i+n+1] == True:
-                            #Find comparison values 
-                            comparison = tuple(x - y for x, y in zip(t, c))
-
-                            #Check if the comparison tuple contains any positive values
-                            nonzeros = 0
-                            for element in comparison:
-                                if element != 0:
-                                    nonzeros += 1
-                                    nonzero_element = element
-                                if nonzeros == 2:
-                                    break
-                            if nonzeros == 1:
-                                if nonzero_element > 0:
-                                    A[i+n+1] = False
-                                elif nonzero_element < 0: 
-                                    A[i] = False
-
-            T = [x for i, x in enumerate(T) if A[i] == True]
-            return T
-        combinations=generate_combinations(capacity,prices)
-        filtered_combinations = filter_combinations(combinations, capacity, prices)
-        weighted_combinations = weighted_portfolio(filtered_combinations, capacity, prices)
-        return weighted_combinations
+            # Generate m random values between 0 and 1
+            for _ in range(m):
+                value = random.uniform(0, 1)
+                portfolio.append(value)
+            
+            # Normalize the portfolio
+            total = sum(portfolio)
+            normalized_portfolio = [value / total for value in portfolio]
+            
+            random_portfolios.append(normalized_portfolio)
+        return random_portfolios
 
     def all_in_one_portfolios(n):
         lists = []
@@ -463,18 +411,15 @@ class Settings:
         self.benchmarks = self.read_tickers('benchmarks')
         self.extrapolate = self.read_extrapolate()
         self.lookback = self.read_lookback()
-        #self.rebalance = self.read_rebalance()
         self.rfr = self.read_rfr()
-        self.capacity = self.read_capacity()
         if self.benchmarks is not None:
             self.url_index = url_for(
-                "index",
+                "home",
                 tickers=request.args.get("tickers"),
                 benchmarks=request.args.get("benchmarks"),
                 lookback=request.args.get("lookback"),
                 extrapolate=request.args.get("extrapolate"),
                 rfr=request.args.get("rfr"),
-                #rebalance=request.args.get("rebalance"),
             )
             self.url_crunch = url_for(
                 "crunch_data",
@@ -483,16 +428,14 @@ class Settings:
                 lookback=request.args.get("lookback"),
                 extrapolate=request.args.get("extrapolate"),
                 rfr=request.args.get("rfr"),
-                #rebalance=request.args.get("rebalance"),
             )
         else:
             self.url_index = url_for(
-                "index",
+                "home",
                 tickers=request.args.get("tickers"),
                 lookback=request.args.get("lookback"),
                 extrapolate=request.args.get("extrapolate"),
                 rfr=request.args.get("rfr"),
-                #rebalance=request.args.get("rebalance"),
             )
             self.url_crunch = url_for(
                 "crunch_data",
@@ -500,7 +443,6 @@ class Settings:
                 lookback=request.args.get("lookback"),
                 extrapolate=request.args.get("extrapolate"),
                 rfr=request.args.get("rfr"),
-                #rebalance=request.args.get("rebalance"),
             )
 
         if self.tickers is not None:
@@ -531,7 +473,6 @@ class Settings:
             tickers = [
                 (ticker["value"], float(ticker["weight"])) for ticker in tickers_dict
             ]
-
         else:
             tickers = None
             # tickers = [
@@ -587,29 +528,6 @@ class Settings:
                 print("rfr must be a floating point number")
         else:
             return 0
-        
-    def read_capacity(self):
-        capacity = request.args.get("capacity")
-        print('Capacity:')
-        print(capacity)
-        if capacity is not None:
-            try:
-                return float(capacity)
-            except:
-                print("Capacity must be a floating point number")
-        else:
-            return 0
-
-    #def read_rebalance(self):
-    #    date = request.args.get("rebalance")
-    #    if date is not None:
-    #        try:
-    #            return dt.datetime.strptime(date, "%d-%m-%Y").date()
-    #        except:
-    #            print("date must be a date format")
-    #    else:
-    #        return current_app.today
-
 
 class PreWeighted:
     def __init__(self, returns, cov_matrix, constrain=None, counter=None,mode=None):

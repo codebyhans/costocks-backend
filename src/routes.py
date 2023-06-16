@@ -1,5 +1,5 @@
 from app import app
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, abort, redirect, request
 from flask import render_template, request, jsonify, current_app
 import pandas as pd
 import plotly.offline as pyo
@@ -9,6 +9,8 @@ from components.fetch_data_component import InfoFetcher
 from components.fetch_data_component import html
 from components.fetch_data_component import Common
 from components.fetch_data_component import Settings
+from dateutil.relativedelta import relativedelta
+from functools import wraps
 
 from components.markets import Markets
 from components.html_elements.sidebar_insight import sidebarInsights
@@ -19,9 +21,42 @@ from components.plots.plot_prices import plotPrices
 from components.plots.plot_returns import plotReturns
 from components.plots.plot_benchmark import plotBenchmark
 import time
+import requests
+from google.oauth2 import id_token
+from google_auth_oauthlib.flow import Flow
+from pip._vendor import cachecontrol
+import google.auth.transport.requests
+
 from flask import session
 import json
 
+
+#def login_is_required(function):
+#    @wraps(function)
+#    def wrapper(*args, **kwargs):
+#        if "google_id" not in session:
+#            return redirect("/")  # Authorization required
+#        else:
+#            if session.get("email") == "hansotto.kristiansen@gmail.com":
+#                return function(*args, **kwargs)
+#            else:
+#                return redirect("unauthorized")  # Not an authorized name
+#
+#    return wrapper
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'google_token' not in session :
+            return redirect(url_for('index'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+flow = Flow.from_client_secrets_file(
+    client_secrets_file=app.client_secrets_file,
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    redirect_uri="http://localhost/callback"
+)
 
 @app.route("/favicon.ico")
 def favicon():
@@ -30,10 +65,16 @@ def favicon():
 
 @app.route("/fetch_data")
 def fetch_data():
-    if not hasattr(current_app, "info"):
-        current_app.info = InfoFetcher(app.available_tickers)
-    if not hasattr(current_app, "data"):
+    #if not hasattr(current_app, "info"):
+    current_app.info = InfoFetcher(app.available_tickers)
+    
+    if not hasattr(current_app, "last_data_retrival"):
+        current_app.last_data_retrival = dt.date.today()-relativedelta(days=1)
+    
+    days_since_last_retrival = current_app.last_data_retrival-dt.date.today()
+    if not hasattr(current_app, "data") or days_since_last_retrival > dt.timedelta(days=1):
         current_app.data = DataFetcher(app.available_tickers,app.info.info)
+        current_app.last_data_retrival = dt.date.today()
     return "success"
 
 
@@ -185,89 +226,77 @@ def create_table():
     return table_html
 
 
+# Define the global error handler
+#@app.errorhandler(Exception)
+#def handle_error(e):
+#    # Log the error or perform any desired actions
+#    app.logger.error(f"Error occurred: {e}")
+#
+#    # Redirect the user to the fail-safe site with a notice
+#    return redirect("/failsafe")
+
 # Define the routes
-@app.route("/")
-def index():
+@app.route("/home")
+@login_required
+
+def home():
     # Read settings from url
     settings = Settings()
-    js_scripts = [
-        f"""
-    // Function to fetch the data using AJAX and create an HTML table
-    function fetchData() {{
-        $.get('/fetch_data', function() {{
-            // When the data is fetched, hide the loading message and display the table
-            $.get('/create_table', function(html_table) {{
-                // When the table is created, display it in the main div
-                $('#main').html(html_table);
-            }});
-            $('#loading-message').hide();
-            $('#index-page').show();
-        }});
-    }}
-    // Call the fetchData function when the page is loaded
-    $(document).ready(function() {{
-        fetchData();
-    }});""",
-        f"""  function sortTable(column) {{
-    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-    table = document.getElementById("myTable");
-    switching = true;
-    dir = "asc";
-    while (switching) {{
-      switching = false;
-      rows = table.getElementsByTagName("tr");
-      for (i = 1; i < (rows.length - 1); i++) {{
-        shouldSwitch = false;
-        x = rows[i].getElementsByTagName("td")[column];
-        y = rows[i + 1].getElementsByTagName("td")[column];
-        if (isNaN(x.innerHTML)) {{
-          if (dir == "asc") {{
-            if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {{
-              shouldSwitch= true;
-              break;
-            }}
-          }} else if (dir == "desc") {{
-            if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {{
-              shouldSwitch = true;
-              break;
-            }}
-          }}
-        }} else {{
-          if (dir == "asc") {{
-            if (Number(x.innerHTML) > Number(y.innerHTML)) {{
-              shouldSwitch= true;
-              break;
-            }}
-          }} else if (dir == "desc") {{
-            if (Number(x.innerHTML) < Number(y.innerHTML)) {{
-              shouldSwitch = true;
-              break;
-            }}
-          }}
-        }}
-      }}
-      if (shouldSwitch) {{
-        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-        switching = true;
-        switchcount ++;
-      }} else {{
-        if (switchcount == 0 && dir == "asc") {{
-          dir = "desc";
-          switching = true;
-        }}
-      }}
-    }}
-  }}
-"""
-    ]
-
-    return render_template(
-        "insight.html",
+    return render_template("insight.html",
         sidebar1=sidebarScreener(settings).html,
         indexlink=settings.url_index,
         loadingtext="Preparing",
-        js_scripts=js_scripts,
+        js_file="javascript/js_index.js",
     )
+
+@app.route("/insight")
+@login_required
+def insight():
+    # Read settings from url
+    settings = Settings()
+
+    # Redirect to index if data does not exist for the app
+    if not hasattr(current_app, "data"):
+        return redirect(url_for("home"))
+
+    js_scripts = [f"""function createElements() {{
+    $.get('{settings.url_crunch}', function(data) {{
+     // Loop through the list of divs and create the corresponding HTML elements
+        $.each(data, function(index, div) {{
+            var tabcontent = $('<div>').addClass('tabcontent').attr('id', 'tab' + (index + 1));
+            tabcontent.append(div.content);
+            $('#main').append(tabcontent);
+        }});
+     $.each(data, function(index, div) {{    
+            var tabitem = $('<button>').addClass('tabitem').attr('data-tabid', 'tab' + (index + 1));
+            tabitem.text(div.title); // Set the text of the button to the value of the 'text' variable
+            console.log(div.title);
+            $('#tab').append(tabitem);
+        }});
+     // Add the 'active' class to the first tabcontent div
+        $('#main .tabcontent:first').addClass('active');
+        // Hide the loading message and show the index page
+        $('#loading-message').hide();
+        $('#index-page').show();
+     // Call the function to modify the classes after the elements are created
+        modifyClasses();
+        }});
+    }}"""]
+
+    return render_template(
+        "insight.html",
+        sidebar1=sidebarInsights(settings).html,
+        loadingtext="Crunching data",
+        js_scripts = js_scripts,
+        js_file="javascript/js_insight.js",
+    )
+
+
+# Define the routes
+@app.route("/failsafe")
+def failsafe():
+    # Read settings from url
+    return f"Something went wrong. You may try to <a href='/'>jump back and restart</a>"
 
 
 @app.route("/crunch_data")
@@ -280,7 +309,6 @@ def crunch_data():
         lookback=settings.lookback,
         extrapolate=settings.extrapolate,
         tickers=[ticker[0] for ticker in settings.tickers],
-        capacity = settings.capacity
     )
     if settings.comparison is not None: 
         comparison = Common().append_to_df(
@@ -335,92 +363,103 @@ def crunch_data():
     
     return figs
 
+#@app.route("/callback")
+#def callback():
+#    flow.fetch_token(authorization_response=request.url)
+#
+#    if not session["state"] == request.args["state"]:
+#        abort(500)  # State does not match!
+#
+#    credentials = flow.credentials
+#    request_session = requests.session()
+#
+#    cached_session = cachecontrol.CacheControl(request_session)
+#    token_request = google.auth.transport.requests.Request(session=cached_session)
+#
+#    id_info = id_token.verify_oauth2_token(
+#        id_token=credentials._id_token,
+#        request=token_request,
+#        audience=app.GOOGLE_CLIENT_ID,
+#        clock_skew_in_seconds=5,
+#    )
+#
+#    session["google_id"] = id_info.get("sub")
+#    session["email"] = id_info.get("email")
+#    #session["name"] = id_info.get("name")
+#    return redirect("home")
 
-@app.route("/insight")
-def insight():
-    # Read settings from url
-    settings = Settings()
+@app.route('/callback')
+def callback():
+    resp = app.google.authorized_response()
+    if resp is None:
+        return 'Access denied: reason={}&error={}'.format(
+            request.args['error_reason'],
+            request.args['error_description']
+        )
+    session['google_token'] = (resp['access_token'], '')
+    me = app.google.get('userinfo')
+    if me.data['email'] in app.aurhorized_emails:
+        return redirect(url_for('home'))
+    else:
+        return redirect(url_for('unauthorized'))
 
-    # Redirect to index if data does not exist for the app
-    if not hasattr(current_app, "data"):
-        return redirect(url_for("index"))
+#@app.route("/login")
+#def login():
+#    authorization_url, state = flow.authorization_url()
+#    session["state"] = state
+#    
+#    return redirect(authorization_url)
+@app.route('/login')
+def login():
+    return app.google.authorize(callback=url_for('callback', _external=True))
 
-    print()
-    js_scripts = [
-        f"""
-    // Function to fetch the data using AJAX and create HTML elements
-    function createElements() {{
-        $.get('{settings.url_crunch}', function(data) {{
+#@app.route("/logout")
+#def logout():
+#    session.clear()
+#    session.clear()
+#    response = redirect("/")
+#    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+#    response.headers["Pragma"] = "no-cache"
+#    response.headers["Expires"] = "0"
+    #return response
 
-            // Loop through the list of divs and create the corresponding HTML elements
-            $.each(data, function(index, div) {{
-                var tabcontent = $('<div>').addClass('tabcontent').attr('id', 'tab' + (index + 1));
-                tabcontent.append(div.content);
-                $('#main').append(tabcontent);
-            }});
+@app.route('/logout')
+def logout():
+    access_token = session.pop('google_token', None)
+    if access_token:
+        revoke_url = 'https://accounts.google.com/o/oauth2/revoke'
+        params = {'token': access_token[0]}
+        requests.post(revoke_url, params=params)
+    response = redirect("/")
+    return response
 
-            $.each(data, function(index, div) {{    
-                var tabitem = $('<button>').addClass('tabitem').attr('data-tabid', 'tab' + (index + 1));
-                tabitem.text(div.title); // Set the text of the button to the value of the 'text' variable
-                console.log(div.title);
-                $('#tab').append(tabitem);
-            }});
-
-            // Add the 'active' class to the first tabcontent div
-            $('#main .tabcontent:first').addClass('active');
-            // Hide the loading message and show the index page
-            $('#loading-message').hide();
-            $('#index-page').show();
-
-            // Call the function to modify the classes after the elements are created
-            modifyClasses();
-        }});
-    }}
-
-    // Function to modify the classes of the HTML elements
-    function modifyClasses() {{
-        // Get all the tab links and content divs
-        const tablinks = $(".tabitem");
-        const tabcontent = $(".tabcontent");
-
-
-        // Set the width of all tab content divs to match the main content area
-        tabcontent.width($(".main").width());
-
-        // Add click event listener to each tab link
-        tablinks.click(function() {{
-
-            // Hide all tab content divs and show the one corresponding to the clicked tab
-            tabcontent.removeClass("active");
-            const tabid = $(this).attr("data-tabid");
-            $("#" + tabid).addClass("active");
-
-            // Set the clicked tab to active and deactivate all others
-            tablinks.removeClass("active");
-            $(this).addClass("active");
-
-        }});
-
-        // Resize event listener to adjust the width of tab content divs when the window is resized
-        $(window).resize(function() {{
-            tabcontent.width($(".main").width());
-        }});
-    }}
-
-    // Call the createElements function when the page is loaded
-    $(document).ready(function() {{
-        createElements();
-    }});
-"""
-    ]
-
-    return render_template(
-        "insight.html",
-        sidebar1=sidebarInsights(settings).html,
-        loadingtext="Crunching data",
-        js_scripts=js_scripts,
+@app.route("/")
+def index():
+    if 'google_token' in session:
+        return redirect(url_for("home"))
+    else:
+        return render_template(
+        "simple.html",
+        body=f"""<div style="width=100%; text-align: center; vertical-align: middle;">
+        <a href="/login" class="google-login-button">
+  <span class="google-logo"></span>
+  <span class="google-button-text">Continue with Google</span>
+</a></div>""",
     )
 
+@app.google.tokengetter
+def get_google_oauth_token():
+    return session.get('google_token')
 
+@app.route("/unauthorized")
+def unauthorized():
+    session.clear()
+    return render_template(
+        "simple.html",
+        body=f"""<div style="width=100%; text-align: center; vertical-align: middle;">
+        You're not authorized.<br> 
+        <a href='/logout'><button>logout</button></a>
+        </div>"""
+    )
 if __name__ == "__main__":
     app.run(debug=True)

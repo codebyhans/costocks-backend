@@ -127,7 +127,7 @@ body {
   justify-content: space-between;
   align-items: center;
   color: #333;
-  box-shadow: inset 0px 0px 20px 0px rgba(0, 0, 0, 0.2);
+  background-color: #f2f2f2;
 }
 
 #logo {
@@ -234,4 +234,37 @@ body {
         text-shadow: .25em 0 0 #000,
                      .5em 0 0 #000;
     }
+}
+
+.google-login-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 50px;
+  padding: 10px 20px;
+  background-color: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.google-login-button:hover {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.google-logo {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-image: url('https://developers.google.com/identity/images/g-logo.png');
+  background-size: cover;
+  background-color: transparent; /* Added transparency */
+  margin-right: 10px;
+}
+
+.google-button-text {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
 }

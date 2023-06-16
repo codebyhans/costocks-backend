@@ -17,13 +17,11 @@ class sidebarInsights:
             <input type='number' name='extrapolate' id='extrapolate' placeholder='Enter number of days' value='{settings.extrapolate}'/><br><br>
             <label for='rfr'>Risk free rate</label><br>
             <input type='number' name='rfr' id='rfr' placeholder='Enter the risk free rate' value='{settings.rfr}' min='0' max='1' step ='0.01'/><br><br>
-            <label for='capacity'>Maximum Portfolio value</label><br>
-            <input type='number' name='capacity' id='capacity' placeholder='Amount of funds to invest' value='{settings.capacity}' min='0'/><br><br>
             <!-- Add an input field for the datepicker -->
             <!--<label for="datepicker">Date of last rebalance</label><br>-->
             <!--<input type="text" id="datepicker" name="rebalance">-->
             <div id='error-msg'></div>
-            <button type='submit' id='submit-btn'>Submit</button>
+            <button type='submit' id='submit-btn' class='btn btn-primary'>Submit</button>
         </form></div>"""
         self.html += f"""<script>
             const form = document.querySelector('#sidebarform');
@@ -60,10 +58,9 @@ class sidebarInsights:
         {f"benchmarksInput.value = JSON.stringify(benchmarks)" if settings.benchmarks is not None else ""};
             // Update form action URL
         const lookbackInput = document.querySelector('#lookback');
-        const capacityInput = document.querySelector('#capacity');
         const extrapolateInput = document.querySelector('#extrapolate');
         const rfrInput = document.querySelector('#rfr');
-        const url = `/insight?tickers=${{encodeURIComponent(tickersInput.value)}}{benchmarks}&lookback=${{lookbackInput.value}}&extrapolate=${{extrapolateInput.value}}&rfr=${{rfrInput.value}}&rfr=${{capacityInput.value}}`;
+        const url = `/insight?tickers=${{encodeURIComponent(tickersInput.value)}}{benchmarks}&lookback=${{lookbackInput.value}}&extrapolate=${{extrapolateInput.value}}&rfr=${{rfrInput.value}}`;
         console.log(url);
         form.action = url;
 

@@ -84,17 +84,14 @@ class ploteffecientFrontier:
             color="red",
             size=10,
         )
-        capacity = 10000
-        prices = analysis['prices'].tail(1).values.tolist()[0]
         random_portfolios = Financial.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             constructor=PreWeighted,
             name="Random portfolios",
-            constrains=Financial.random_portfolios(capacity, prices),
+            constrains=Financial.random_portfolios(100,len(analysis["df"])),
             plotas="markers",
         )
-        print(random_portfolios.portfolios[0])
         analysis_portfolios = Financial.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],

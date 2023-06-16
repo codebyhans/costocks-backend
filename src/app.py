@@ -1,12 +1,40 @@
-import sqlite3
-from flask import Flask, session, current_app
+import os
+import pathlib
+from flask import Flask
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 from components.fetch_data_component import Common
+from pip._vendor import cachecontrol
+from flask_oauthlib.client import OAuth
 
 
 app = Flask(__name__)
-app.secret_key = "asiudhasiduaksndkn"
+app.secret_key = "***REMOVED***"
+
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for local dev
+
+app.GOOGLE_CLIENT_ID = "***REMOVED***"
+app.client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
+app.aurhorized_emails = ["hansotto.kristiansen@gmail.com"]
+
+
+# Configure OAuth
+oauth = OAuth(app)
+
+app.google = oauth.remote_app(
+    'google',
+    consumer_key='***REMOVED***',
+    consumer_secret='***REMOVED***',
+    request_token_params={
+        'scope': 'email'
+    },
+    base_url='https://www.googleapis.com/oauth2/v1/',
+    request_token_url=None,
+    access_token_method='POST',
+    access_token_url='https://accounts.google.com/o/oauth2/token',
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+)
+
 
 # set variables
 app.year = dt.datetime.now().year
@@ -196,4 +224,5 @@ from routes import *
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host='0.0.0.0', port=80, debug=True)
