@@ -9,9 +9,9 @@ from components.fetch_data_component import Sharpe
 
 
 class ploteffecientFrontier:
-    def __init__(self, analysis,comparison):
+    def __init__(self, analysis, comparison):
         # Prepare data
-        data = self.crunch(analysis,comparison)
+        data = self.crunch(analysis, comparison)
 
         # Define figure
         self.fig = go.Figure(data=data)
@@ -19,7 +19,10 @@ class ploteffecientFrontier:
             height=600,
             width=1600,
             title="Efficient Frontier",
-            xaxis=dict(range=[min(data["xmins"]), max(data["xmaxs"])], title="Standard deviation, %"),
+            xaxis=dict(
+                range=[min(data["xmins"]), max(data["xmaxs"])],
+                title="Standard deviation, %",
+            ),
             yaxis=dict(
                 range=[
                     min(data["ymins"]),
@@ -29,9 +32,7 @@ class ploteffecientFrontier:
             ),
         )
 
-
-
-    def crunch(self, analysis,comparison):
+    def crunch(self, analysis, comparison):
         sharpe_portfolio = Financial.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
@@ -43,7 +44,7 @@ class ploteffecientFrontier:
             size=10,
         )
 
-        #sharpe_portfolio_int = Financial.create_portfolio(
+        # sharpe_portfolio_int = Financial.create_portfolio(
         #    df=analysis["df"],
         #    cov_matrix=analysis["cov"],
         #    constructor=Sharpe,
@@ -52,7 +53,7 @@ class ploteffecientFrontier:
         #    symbol="cross",
         #    color="blue",
         #    size=8,
-        #)
+        # )
 
         min_variance_portfolio = Financial.create_portfolio(
             df=analysis["df"],
@@ -89,7 +90,7 @@ class ploteffecientFrontier:
             cov_matrix=analysis["cov"],
             constructor=PreWeighted,
             name="Random portfolios",
-            constrains=Financial.random_portfolios(100,len(analysis["df"])),
+            constrains=Financial.random_portfolios(100, len(analysis["df"])),
             plotas="markers",
         )
         analysis_portfolios = Financial.create_portfolio(
@@ -114,7 +115,6 @@ class ploteffecientFrontier:
         else:
             comparison_returns = [0]
 
-
         # Generate the second scatter graph
         if comparison is not None:
             data = [
@@ -126,7 +126,7 @@ class ploteffecientFrontier:
                 analysis_portfolios.plot,
                 comparison_portfolios.plot,
             ]
-        else: 
+        else:
             data = [
                 efficient_frontier.plot,
                 random_portfolios.plot,
@@ -135,9 +135,9 @@ class ploteffecientFrontier:
                 sharpe_portfolio.plot,
                 analysis_portfolios.plot,
             ]
-        min_return = min(efficient_frontier.expected_returns+comparison_returns+[0])
-        max_return = max(efficient_frontier.expected_returns+comparison_returns)
-        
+        min_return = min(efficient_frontier.expected_returns + comparison_returns + [0])
+        max_return = max(efficient_frontier.expected_returns + comparison_returns)
+
         diff = 0.25 * max_return - min_return
         ymins = min_return - diff
         ymaxs = max_return + diff

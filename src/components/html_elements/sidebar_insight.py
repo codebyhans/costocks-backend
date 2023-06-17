@@ -7,7 +7,11 @@ class sidebarInsights:
         self.html += f"<label for='tickers'>Tickers</label><br><span class='ticker'>Ticker</span><span class='weight'>Weight</span><br>"
         for i, ticker in enumerate(settings.tickers):
             self.html += f"<input type='text' id='tickers{str(i)}' name='tickers' class='ticker' value='{ticker[0]}' readonly><input type='number' step='0.01' min='0.0' max='1.0' class='weight' id='weight{str(i)}' value='{ticker[1]}'><br>"
-        self.html += f"<label for='benchmarks'>Benchmarks</label><br><span class='ticker'>Ticker</span><span class='weight'>Weight</span><br>" if settings.benchmarks is not None else ""
+        self.html += (
+            f"<label for='benchmarks'>Benchmarks</label><br><span class='ticker'>Ticker</span><span class='weight'>Weight</span><br>"
+            if settings.benchmarks is not None
+            else ""
+        )
         if settings.benchmarks is not None:
             for i, benchmark in enumerate(settings.benchmarks):
                 self.html += f"<input type='text' id='benchmarks{str(i)}' name='benchmarks' class='ticker' value='{benchmark[0]}' readonly><input type='number' step='0.01' min='0.0' max='1.0' class='weight' id='benchweight{str(i)}' value='{benchmark[1]}'><br>"
@@ -45,14 +49,16 @@ class sidebarInsights:
         self.html += f"]"
 
         if settings.benchmarks is not None:
-            self.html+=f"const benchmarks = ["
+            self.html += f"const benchmarks = ["
             for i, benchmark in enumerate(settings.benchmarks):
-                self.html += (
-                    f"{{ value: '{benchmark[0]}', weight: benchweight{str(i)}Input.value }},"
-                )
+                self.html += f"{{ value: '{benchmark[0]}', weight: benchweight{str(i)}Input.value }},"
             self.html += f"]"
 
-        benchmarks = f"&benchmarks=${{encodeURIComponent(benchmarksInput.value)}}" if settings.benchmarks is not None else ""
+        benchmarks = (
+            f"&benchmarks=${{encodeURIComponent(benchmarksInput.value)}}"
+            if settings.benchmarks is not None
+            else ""
+        )
         self.html += f"""
         tickersInput.value = JSON.stringify(tickers);
         {f"benchmarksInput.value = JSON.stringify(benchmarks)" if settings.benchmarks is not None else ""};

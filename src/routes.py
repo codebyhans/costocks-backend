@@ -6,13 +6,11 @@ import plotly.offline as pyo
 import datetime as dt
 from components.fetch_data_component import DataFetcher
 from components.fetch_data_component import InfoFetcher
-from components.fetch_data_component import html
 from components.fetch_data_component import Common
 from components.fetch_data_component import Settings
 from dateutil.relativedelta import relativedelta
 from functools import wraps
 
-from components.markets import Markets
 from components.html_elements.sidebar_insight import sidebarInsights
 from components.html_elements.sidebar_screener import sidebarScreener
 from components.plots.plot_covariances import plotCovariances
@@ -20,18 +18,14 @@ from components.plots.plot_effecient_frontier import ploteffecientFrontier
 from components.plots.plot_prices import plotPrices
 from components.plots.plot_returns import plotReturns
 from components.plots.plot_benchmark import plotBenchmark
-import time
 import requests
-from google.oauth2 import id_token
 from google_auth_oauthlib.flow import Flow
 from pip._vendor import cachecontrol
-import google.auth.transport.requests
 
 from flask import session
-import json
 
 
-#def login_is_required(function):
+# def login_is_required(function):
 #    @wraps(function)
 #    def wrapper(*args, **kwargs):
 #        if "google_id" not in session:
@@ -44,19 +38,27 @@ import json
 #
 #    return wrapper
 
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'google_token' not in session :
-            return redirect(url_for('index'))
+        if "google_token" not in session:
+            return redirect(url_for("index"))
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 flow = Flow.from_client_secrets_file(
     client_secrets_file=app.client_secrets_file,
-    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
-    redirect_uri="http://localhost/callback"
+    scopes=[
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email",
+        "openid",
+    ],
+    redirect_uri="http://localhost/callback",
 )
+
 
 @app.route("/favicon.ico")
 def favicon():
@@ -65,15 +67,20 @@ def favicon():
 
 @app.route("/fetch_data")
 def fetch_data():
-    #if not hasattr(current_app, "info"):
-    current_app.info = InfoFetcher(app.available_tickers)
-    
     if not hasattr(current_app, "last_data_retrival"):
-        current_app.last_data_retrival = dt.date.today()-relativedelta(days=1)
-    
-    days_since_last_retrival = current_app.last_data_retrival-dt.date.today()
-    if not hasattr(current_app, "data") or days_since_last_retrival > dt.timedelta(days=1):
-        current_app.data = DataFetcher(app.available_tickers,app.info.info)
+        current_app.last_data_retrival = dt.date.today() - relativedelta(days=1)
+
+    days_since_last_retrival = current_app.last_data_retrival - dt.date.today()
+
+    if not hasattr(current_app, "info") or days_since_last_retrival > dt.timedelta(
+        days=1
+    ):
+        current_app.info = InfoFetcher(app.available_tickers)
+
+    if not hasattr(current_app, "data") or days_since_last_retrival > dt.timedelta(
+        days=1
+    ):
+        current_app.data = DataFetcher(app.available_tickers, app.info.info)
         current_app.last_data_retrival = dt.date.today()
     return "success"
 
@@ -227,27 +234,29 @@ def create_table():
 
 
 # Define the global error handler
-#@app.errorhandler(Exception)
-#def handle_error(e):
+# @app.errorhandler(Exception)
+# def handle_error(e):
 #    # Log the error or perform any desired actions
 #    app.logger.error(f"Error occurred: {e}")
 #
 #    # Redirect the user to the fail-safe site with a notice
 #    return redirect("/failsafe")
 
+
 # Define the routes
 @app.route("/home")
 @login_required
-
 def home():
     # Read settings from url
     settings = Settings()
-    return render_template("insight.html",
+    return render_template(
+        "insight.html",
         sidebar1=sidebarScreener(settings).html,
         indexlink=settings.url_index,
         loadingtext="Preparing",
         js_file="javascript/js_index.js",
     )
+
 
 @app.route("/insight")
 @login_required
@@ -259,7 +268,8 @@ def insight():
     if not hasattr(current_app, "data"):
         return redirect(url_for("home"))
 
-    js_scripts = [f"""function createElements() {{
+    js_scripts = [
+        f"""function createElements() {{
     $.get('{settings.url_crunch}', function(data) {{
      // Loop through the list of divs and create the corresponding HTML elements
         $.each(data, function(index, div) {{
@@ -281,13 +291,14 @@ def insight():
      // Call the function to modify the classes after the elements are created
         modifyClasses();
         }});
-    }}"""]
+    }}"""
+    ]
 
     return render_template(
         "insight.html",
         sidebar1=sidebarInsights(settings).html,
         loadingtext="Crunching data",
-        js_scripts = js_scripts,
+        js_scripts=js_scripts,
         js_file="javascript/js_insight.js",
     )
 
@@ -310,7 +321,7 @@ def crunch_data():
         extrapolate=settings.extrapolate,
         tickers=[ticker[0] for ticker in settings.tickers],
     )
-    if settings.comparison is not None: 
+    if settings.comparison is not None:
         comparison = Common().append_to_df(
             df=settings.comparison,
             data=current_app.data,
@@ -318,7 +329,7 @@ def crunch_data():
             extrapolate=settings.extrapolate,
             tickers=[benchmark[0] for benchmark in settings.benchmarks],
         )
-    else: 
+    else:
         comparison = None
 
     figs = [
@@ -343,7 +354,7 @@ def crunch_data():
         {
             "title": "Efficient Frontier",
             "content": pyo.plot(
-                ploteffecientFrontier(analysis,comparison).fig,
+                ploteffecientFrontier(analysis, comparison).fig,
                 include_plotlyjs=False,
                 output_type="div",
             ),
@@ -354,17 +365,18 @@ def crunch_data():
             {
                 "title": "Benchmark",
                 "content": pyo.plot(
-                    plotBenchmark(analysis,comparison).fig,
+                    plotBenchmark(analysis, comparison).fig,
                     include_plotlyjs=False,
                     output_type="div",
                 ),
             }
-        ) 
-    
+        )
+
     return figs
 
-#@app.route("/callback")
-#def callback():
+
+# @app.route("/callback")
+# def callback():
 #    flow.fetch_token(authorization_response=request.url)
 #
 #    if not session["state"] == request.args["state"]:
@@ -388,68 +400,74 @@ def crunch_data():
 #    #session["name"] = id_info.get("name")
 #    return redirect("home")
 
-@app.route('/callback')
+
+@app.route("/callback")
 def callback():
     resp = app.google.authorized_response()
     if resp is None:
-        return 'Access denied: reason={}&error={}'.format(
-            request.args['error_reason'],
-            request.args['error_description']
+        return "Access denied: reason={}&error={}".format(
+            request.args["error_reason"], request.args["error_description"]
         )
-    session['google_token'] = (resp['access_token'], '')
-    me = app.google.get('userinfo')
-    if me.data['email'] in app.aurhorized_emails:
-        return redirect(url_for('home'))
+    session["google_token"] = (resp["access_token"], "")
+    me = app.google.get("userinfo")
+    if me.data["email"] in app.aurhorized_emails:
+        return redirect(url_for("home"))
     else:
-        return redirect(url_for('unauthorized'))
+        return redirect(url_for("unauthorized"))
 
-#@app.route("/login")
-#def login():
+
+# @app.route("/login")
+# def login():
 #    authorization_url, state = flow.authorization_url()
 #    session["state"] = state
-#    
+#
 #    return redirect(authorization_url)
-@app.route('/login')
+@app.route("/login")
 def login():
-    return app.google.authorize(callback=url_for('callback', _external=True))
+    return app.google.authorize(callback=url_for("callback", _external=True))
 
-#@app.route("/logout")
-#def logout():
+
+# @app.route("/logout")
+# def logout():
 #    session.clear()
 #    session.clear()
 #    response = redirect("/")
 #    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
 #    response.headers["Pragma"] = "no-cache"
 #    response.headers["Expires"] = "0"
-    #return response
+# return response
 
-@app.route('/logout')
+
+@app.route("/logout")
 def logout():
-    access_token = session.pop('google_token', None)
+    access_token = session.pop("google_token", None)
     if access_token:
-        revoke_url = 'https://accounts.google.com/o/oauth2/revoke'
-        params = {'token': access_token[0]}
+        revoke_url = "https://accounts.google.com/o/oauth2/revoke"
+        params = {"token": access_token[0]}
         requests.post(revoke_url, params=params)
     response = redirect("/")
     return response
 
+
 @app.route("/")
 def index():
-    if 'google_token' in session:
+    if "google_token" in session:
         return redirect(url_for("home"))
     else:
         return render_template(
-        "simple.html",
-        body=f"""<div style="width=100%; text-align: center; vertical-align: middle;">
+            "simple.html",
+            body=f"""<div style="width=100%; text-align: center; vertical-align: middle;">
         <a href="/login" class="google-login-button">
   <span class="google-logo"></span>
   <span class="google-button-text">Continue with Google</span>
 </a></div>""",
-    )
+        )
+
 
 @app.google.tokengetter
 def get_google_oauth_token():
-    return session.get('google_token')
+    return session.get("google_token")
+
 
 @app.route("/unauthorized")
 def unauthorized():
@@ -459,7 +477,9 @@ def unauthorized():
         body=f"""<div style="width=100%; text-align: center; vertical-align: middle;">
         You're not authorized.<br> 
         <a href='/logout'><button>logout</button></a>
-        </div>"""
+        </div>""",
     )
+
+
 if __name__ == "__main__":
     app.run(debug=True)

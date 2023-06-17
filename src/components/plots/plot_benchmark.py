@@ -6,9 +6,9 @@ from app import app
 
 
 class plotBenchmark:
-    def __init__(self, analysis,comparison):
+    def __init__(self, analysis, comparison):
         # Prepare data
-        data = self.crunch(analysis,comparison)
+        data = self.crunch(analysis, comparison)
 
         # Define figure
         self.fig = go.Figure(data=data)
@@ -44,8 +44,8 @@ class plotBenchmark:
             ),
         )
 
-    def crunch(self, analysis,comparison):
-        # Create the analysis portfolio 
+    def crunch(self, analysis, comparison):
+        # Create the analysis portfolio
         analysis_portfolios = Financial.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
@@ -65,23 +65,25 @@ class plotBenchmark:
         data = []
         ymaxs = []
         ymins = []
-        for portfolio, dict in [(analysis_portfolios,analysis), (comparison_portfolios,comparison)]:
-
+        for portfolio, dict in [
+            (analysis_portfolios, analysis),
+            (comparison_portfolios, comparison),
+        ]:
             weights = portfolio.portfolios[0].weights
-            returns  = dict["returns"]
-                    
+            returns = dict["returns"]
+
             weighted_returns = weights.multiply(returns)
-            
-            summed_weighted_returns = 1+weighted_returns.sum(axis=1)/100
-            
-            #ensure everything is compared to first day of period 
+
+            summed_weighted_returns = 1 + weighted_returns.sum(axis=1) / 100
+
+            # ensure everything is compared to first day of period
             summed_weighted_returns.iloc[0] = 1
 
             # Extract unique pairs of level_1 indices
             # Create traces
-            
+
             x = summed_weighted_returns.index
-            y = (summed_weighted_returns.cumprod()-1)*100
+            y = (summed_weighted_returns.cumprod() - 1) * 100
             ymins.append(np.nanmin(y.values))
             ymaxs.append(np.nanmax(y.values))
 

@@ -5,39 +5,48 @@ from flask import Flask
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 from components.fetch_data_component import Common
-from pip._vendor import cachecontrol
 from flask_oauthlib.client import OAuth
-from paste.translogger import TransLogger
 import logging
-logger = logging.getLogger('waitress')
+
+logger = logging.getLogger("waitress")
 logger.setLevel(logging.INFO)
 
 
 app = Flask(__name__)
 app.secret_key = "***REMOVED***"
 
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for local dev
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for local dev
 
-app.GOOGLE_CLIENT_ID = "***REMOVED***"
-app.client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
-app.aurhorized_emails = ["hansotto.kristiansen@gmail.com", "Mikaelnorup@gmail.com", "Slsparre09@gmail.com", "Thyssenjacob@gmail.com", "frejprahl@gmail.com","morten.halberg1@gmail.com"]
+app.GOOGLE_CLIENT_ID = (
+    "***REMOVED***"
+)
+app.client_secrets_file = os.path.join(
+    pathlib.Path(__file__).parent, "client_secret.json"
+)
+app.aurhorized_emails = [
+    "hansotto.kristiansen@gmail.com",
+    "mikaelnorup@gmail.com",
+    "slsparre09@gmail.com",
+    "thyssenjacob@gmail.com",
+    "frejprahl@gmail.com",
+    "morten.halberg1@gmail.com",
+    "feldthaus.nina@gmail.com",
+]
 
 
 # Configure OAuth
 oauth = OAuth(app)
 
 app.google = oauth.remote_app(
-    'google',
-    consumer_key='***REMOVED***',
-    consumer_secret='***REMOVED***',
-    request_token_params={
-        'scope': 'email'
-    },
-    base_url='https://www.googleapis.com/oauth2/v1/',
+    "google",
+    consumer_key="***REMOVED***",
+    consumer_secret="***REMOVED***",
+    request_token_params={"scope": "email"},
+    base_url="https://www.googleapis.com/oauth2/v1/",
     request_token_url=None,
-    access_token_method='POST',
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    access_token_method="POST",
+    access_token_url="https://accounts.google.com/o/oauth2/token",
+    authorize_url="https://accounts.google.com/o/oauth2/auth",
 )
 
 
@@ -67,8 +76,8 @@ app.tickers_c20 = [
     "RBREW.CO",
     "TRYG.CO",
     "VWS.CO",
-    "ORSTED.CO"
-    ]
+    "ORSTED.CO",
+]
 app.tickers_others = [
     "AAB.CO",
     "AAK.ST",
@@ -183,41 +192,44 @@ app.tickers_others = [
     "MSFT",
     "TSLA",
     "META",
-    #"^DJI",
-    #"^OMXC20",
-    ]
-app.tickers_dji = ["AXP",
-"AMGN",
-"AAPL",
-"BA",
-"CAT",
-"CSCO",
-"CVX",
-"GS",
-"HD",
-"HON",
-"IBM",
-"INTC",
-"JNJ",
-"KO",
-"JPM",
-"MCD",
-"MMM",
-"MRK",
-"MSFT",
-"NKE",
-"PG",
-"TRV",
-"UNH",
-"CRM",
-"VZ",
-"V",
-"WBA",
-"WMT",
-"DIS",
-"DOW"
+    # "^DJI",
+    # "^OMXC20",
 ]
-app.available_tickers = Common().union_lists(app.tickers_c20,app.tickers_others, app.tickers_dji)
+app.tickers_dji = [
+    "AXP",
+    "AMGN",
+    "AAPL",
+    "BA",
+    "CAT",
+    "CSCO",
+    "CVX",
+    "GS",
+    "HD",
+    "HON",
+    "IBM",
+    "INTC",
+    "JNJ",
+    "KO",
+    "JPM",
+    "MCD",
+    "MMM",
+    "MRK",
+    "MSFT",
+    "NKE",
+    "PG",
+    "TRV",
+    "UNH",
+    "CRM",
+    "VZ",
+    "V",
+    "WBA",
+    "WMT",
+    "DIS",
+    "DOW",
+]
+app.available_tickers = Common().union_lists(
+    app.tickers_c20, app.tickers_others, app.tickers_dji
+)
 
 app.available_tickers_json = [
     {"value": ticker, "weight": "0"} for ticker in app.available_tickers
@@ -229,6 +241,6 @@ from routes import *
 
 
 if __name__ == "__main__":
-    #app.run(debug=True)
-    #app.run(host='0.0.0.0', port=5000, debug=True)
-    serve(app, host='0.0.0.0', port=5000)
+    # app.run(debug=True)
+    # app.run(host='0.0.0.0', port=5000, debug=True)
+    serve(app, host="0.0.0.0", port=5000)

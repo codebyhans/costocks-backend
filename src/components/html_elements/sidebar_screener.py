@@ -3,8 +3,16 @@ from flask import current_app
 
 class sidebarScreener:
     def __init__(self, settings):
-        tickers = [ticker[0] for ticker in settings.tickers] if settings.tickers is not None else []
-        benchmark =  [ticker[0] for ticker in settings.benchmarks] if settings.benchmarks is not None else []
+        tickers = (
+            [ticker[0] for ticker in settings.tickers]
+            if settings.tickers is not None
+            else []
+        )
+        benchmark = (
+            [ticker[0] for ticker in settings.benchmarks]
+            if settings.benchmarks is not None
+            else []
+        )
         self.html = f"<div id='sidebardiv'><form method='GET' action='/insight' id='sidebarform'>"
         self.html += f"""
         <label for="tickers">Select ticker symbols:</label><br>

@@ -30,9 +30,7 @@ class plotReturns:
             yaxis=dict(
                 title="Frequency (count)",
             ),
-            xaxis=dict(
-                title="Daily return, %"
-            )
+            xaxis=dict(title="Daily return, %"),
         )
 
     def crunch(self, analysis):
@@ -42,7 +40,7 @@ class plotReturns:
         ymins = None
         for tick in analysis["returns"].columns:
             x = analysis["returns"][tick]
-                        
+
             # Create a scatter trace for each pair
             data.append(go.Histogram(x=x, name=f"{tick}"))
 
