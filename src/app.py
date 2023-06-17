@@ -20,7 +20,7 @@ os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1" # to allow Http traffic for loca
 
 app.GOOGLE_CLIENT_ID = "***REMOVED***"
 app.client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
-app.aurhorized_emails = ["hansotto.kristiansen@gmail.com", "Mikaelnorup@gmail.com", "Slsparre09@gmail.com"]
+app.aurhorized_emails = ["hansotto.kristiansen@gmail.com", "Mikaelnorup@gmail.com", "Slsparre09@gmail.com", "Thyssenjacob@gmail.com", "frejprahl@gmail.com"]
 
 
 # Configure OAuth
