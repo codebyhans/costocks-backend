@@ -456,11 +456,16 @@ def index():
     else:
         return render_template(
             "simple.html",
-            body=f"""<div style="width=100%; text-align: center; vertical-align: middle;">
-        <a href="/login" class="google-login-button">
+            body=f"""
+            <div class="container">
+    <h1 class="heading">Leverage the Markowitz analysis for better trading</h1>
+    <p class="subtext">Discover the key to confident trading decisions with the Markowitz analysis. Finetune your portfolio, navigate risks, and discover new of financial strategies.</p>
+    <a href="/login" class="google-login-button">
   <span class="google-logo"></span>
   <span class="google-button-text">Continue with Google</span>
-</a></div>""",
+</a>
+    <a href="terms" class="simplelink">By logging in you accept this site's terms.</a>
+  </div>"""
         )
 
 
@@ -478,6 +483,23 @@ def unauthorized():
         You're not authorized.<br> 
         <a href='/logout'><button>logout</button></a>
         </div>""",
+    )
+
+@app.route("/terms")
+def terms():
+    return render_template(
+        "simple.html",
+        body=f"""<div class='outer'><h1>Terms of use</h1>
+        The information provided on this website is intended for general 
+        informational purposes only and should not be construed as financial advice. 
+        The owner of this website cannot be held responsible or liable for any financial
+        losses, damages, or inconveniences incurred by users who rely on the 
+        information presented on this site. Users are advised to exercise their 
+        own judgment and seek professional financial advice before making any 
+        investment decisions or taking any financial actions. 
+        The use of this website and its content is solely at the user's own risk.
+        </div>
+        """,
     )
 
 

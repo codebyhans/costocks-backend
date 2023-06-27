@@ -31,6 +31,7 @@ app.aurhorized_emails = [
     "frejprahl@gmail.com",
     "morten.halberg1@gmail.com",
     "feldthaus.nina@gmail.com",
+    "posgog@gmail.com"
 ]
 
 
