@@ -489,15 +489,16 @@ def unauthorized():
 def terms():
     return render_template(
         "simple.html",
-        body=f"""<div class='outer'><h1>Terms of use</h1>
-        The information provided on this website is intended for general 
+        body=f"""
+        <div class='container'><h1>Terms of use</h1>
+        <p class="subtext">The information provided on this website is intended for general 
         informational purposes only and should not be construed as financial advice. 
         The owner of this website cannot be held responsible or liable for any financial
         losses, damages, or inconveniences incurred by users who rely on the 
         information presented on this site. Users are advised to exercise their 
         own judgment and seek professional financial advice before making any 
         investment decisions or taking any financial actions. 
-        The use of this website and its content is solely at the user's own risk.
+        The use of this website and its content is solely at the user's own risk.</p>
         </div>
         """,
     )
