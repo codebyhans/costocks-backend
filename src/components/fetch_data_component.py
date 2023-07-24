@@ -18,11 +18,10 @@ class InfoFetcher:
         tickers_data = [Ticker(ticker) for ticker in tickers]
         self.info = [ticker.summary_detail for ticker in tickers_data]
 
-
 class DataFetcher:
     def __init__(self, tickers, info):
         self.tickers = tickers
-        self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
+        #self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
         self.prices = self.get_data(self.tickers, info)
         self.returns = (self.prices - self.prices.shift(1)) / self.prices.shift(1) * 100
 
