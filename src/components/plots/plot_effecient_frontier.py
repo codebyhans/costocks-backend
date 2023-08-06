@@ -1,5 +1,6 @@
 import plotly.graph_objs as go
 import numpy as np
+import json
 import datetime as dt
 from app import app
 from components.fetch_data_component import Financial
@@ -11,26 +12,7 @@ from components.fetch_data_component import Sharpe
 class ploteffecientFrontier:
     def __init__(self, analysis, comparison):
         # Prepare data
-        data = self.crunch(analysis, comparison)
-
-        # Define figure
-        self.fig = go.Figure(data=data)
-        self.fig.update_layout(
-            height=600,
-            width=1600,
-            title="Efficient Frontier",
-            xaxis=dict(
-                range=[min(data["xmins"]), max(data["xmaxs"])],
-                title="Standard deviation, %",
-            ),
-            yaxis=dict(
-                range=[
-                    min(data["ymins"]),
-                    max(data["ymaxs"]),
-                ],
-                title="Mean return, %",
-            ),
-        )
+        self.data = self.crunch(analysis, comparison)
 
     def crunch(self, analysis, comparison):
         sharpe_portfolio = Financial.create_portfolio(
@@ -39,29 +21,17 @@ class ploteffecientFrontier:
             constructor=Sharpe,
             mode=None,
             name="Sharpe ratio optimal portfolio",
-            symbol="cross",
-            color="red",
-            size=10,
+            backgroundColor="rgba(255, 99, 132, 0.6)",
+            borderColor="rgba(255, 99, 132, 1)",
         )
-
-        # sharpe_portfolio_int = Financial.create_portfolio(
-        #    df=analysis["df"],
-        #    cov_matrix=analysis["cov"],
-        #    constructor=Sharpe,
-        #    mode = 'int',
-        #    name="Sharpe ratio optimal portfolio (int)",
-        #    symbol="cross",
-        #    color="blue",
-        #    size=8,
-        # )
 
         min_variance_portfolio = Financial.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             constructor=VolatilityMinimizer,
             name="Minimal variance portfolio",
-            color="orange",
-            size=10,
+            backgroundColor="rgba(75, 192, 192, 0.6)",
+            borderColor="rgba(75, 192, 192, 1)",
         )
         efficient_frontier = Financial.create_portfolio(
             df=analysis["df"],
@@ -73,7 +43,9 @@ class ploteffecientFrontier:
                 max(analysis["df"]["expected_return"]),
                 100,
             ),
-            plotas="lines",
+            connected=True,
+            backgroundColor="rgba(54, 162, 235, 0.6)",
+            borderColor="rgba(54, 162, 235, 1)",
         )
         all_in_one_portfolios = Financial.create_portfolio(
             df=analysis["df"],
@@ -81,9 +53,8 @@ class ploteffecientFrontier:
             constructor=PreWeighted,
             name="All-in-one portfolios",
             constrains=Financial.all_in_one_portfolios(len(analysis["df"])),
-            plotas="markers",
-            color="red",
-            size=10,
+            backgroundColor="rgba(255, 205, 86, 0.6)",
+            borderColor="rgba(255, 205, 86, 1)",
         )
         random_portfolios = Financial.create_portfolio(
             df=analysis["df"],
@@ -91,15 +62,15 @@ class ploteffecientFrontier:
             constructor=PreWeighted,
             name="Random portfolios",
             constrains=Financial.random_portfolios(100, len(analysis["df"])),
-            plotas="markers",
+            backgroundColor="rgba(201, 203, 207, 0.6)",
+            borderColor="rgba(204, 203, 207, 1)",
         )
         analysis_portfolios = Financial.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             name="Analysis portfolio",
-            plotas="markers",
-            symbol="x",
-            color="black",
+            backgroundColor="rgba(153, 102, 255, 0.6)",
+            borderColor="rgba(153, 102, 255, 1)",
         )
 
         if comparison is not None:
@@ -107,45 +78,45 @@ class ploteffecientFrontier:
                 df=comparison["df"],
                 cov_matrix=comparison["cov"],
                 name="Benchmark portfolio",
-                plotas="markers",
-                symbol="circle-dot",
-                color="black",
             )
             comparison_returns = comparison_portfolios.expected_returns
         else:
             comparison_returns = [0]
 
         # Generate the second scatter graph
-        if comparison is not None:
-            data = [
-                efficient_frontier.plot,
-                random_portfolios.plot,
-                all_in_one_portfolios.plot,
-                min_variance_portfolio.plot,
-                sharpe_portfolio.plot,
-                analysis_portfolios.plot,
-                comparison_portfolios.plot,
-            ]
-        else:
-            data = [
-                efficient_frontier.plot,
-                random_portfolios.plot,
-                all_in_one_portfolios.plot,
-                min_variance_portfolio.plot,
-                sharpe_portfolio.plot,
-                analysis_portfolios.plot,
-            ]
-        min_return = min(efficient_frontier.expected_returns + comparison_returns + [0])
-        max_return = max(efficient_frontier.expected_returns + comparison_returns)
-
-        diff = 0.25 * max_return - min_return
-        ymins = min_return - diff
-        ymaxs = max_return + diff
-
-        return {
-            "data": data,
-            "ymins": [ymins],
-            "ymaxs": [ymaxs],
-            "xmins": [0],
-            "xmaxs": [1.10 * max([max(efficient_frontier.volatilities)])],
+        data = {
+            "Your portfolio": analysis_portfolios,
+            "Portfolio of maximum sharpe-ratio": sharpe_portfolio,
+            "Portfolio of minimum variance": min_variance_portfolio,
+            "All invested in one stock": all_in_one_portfolios,
+            "The effecient frontier": efficient_frontier,
+            "Random portfolios": random_portfolios,
         }
+        if comparison is not None:
+            data["comparison"] = comparison_portfolios
+
+        formatted_data = []
+
+        # Reorganize the computed properties so it's ready for plotting in the front-end
+        for key, portfolios in data.items():
+            formatted_data_dict = {}
+            datapoints = []
+            for portfolio in portfolios["portfolios"]:
+                datapoint = {
+                    "x": portfolio["volatility"],
+                    "y": portfolio["expected_return"],
+                    "c": portfolio["sharpe_ratio"],
+                    "tooltip": portfolio["tooltip"],
+                }
+                datapoints.append(datapoint)
+
+            # determine if data should be connected
+            formatted_data_dict["seriesName"] = key
+            formatted_data_dict["connected"] = portfolios["connected"]
+            formatted_data_dict["backgroundColor"] = portfolios["backgroundColor"]
+            formatted_data_dict["borderColor"] = portfolios["borderColor"]
+            formatted_data_dict["data"] = datapoints
+
+            formatted_data.append(formatted_data_dict)
+
+        return formatted_data

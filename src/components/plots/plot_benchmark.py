@@ -47,20 +47,12 @@ class plotBenchmark:
     def crunch(self, analysis, comparison):
         # Create the analysis portfolio
         analysis_portfolios = Financial.create_portfolio(
-            df=analysis["df"],
-            cov_matrix=analysis["cov"],
-            name="Analysis portfolio",
-            plotas="markers",
-            symbol="x",
-            color="black",
+            df=analysis["df"], cov_matrix=analysis["cov"], name="Analysis portfolio"
         )
         comparison_portfolios = Financial.create_portfolio(
             df=comparison["df"],
             cov_matrix=comparison["cov"],
             name="Comparison portfolio",
-            plotas="markers",
-            symbol="x",
-            color="red",
         )
         data = []
         ymaxs = []

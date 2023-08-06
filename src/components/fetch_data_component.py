@@ -10,6 +10,7 @@ import json
 from flask import url_for
 from yahooquery import Ticker
 import itertools
+from dateutil.relativedelta import relativedelta
 
 
 class InfoFetcher:
@@ -22,7 +23,7 @@ class InfoFetcher:
 class DataFetcher:
     def __init__(self, tickers, info):
         self.tickers = tickers
-        self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
+        # self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
         self.prices = self.get_data(self.tickers, info)
         self.returns = (self.prices - self.prices.shift(1)) / self.prices.shift(1) * 100
 
@@ -70,6 +71,26 @@ class DataFetcher:
 
         data_weekdays = data_weekdays  # * exchangerate
         return data_weekdays
+
+
+class Fetcher:
+    def __init__(self, app):
+        # fetch data if not already exist
+        if not hasattr(current_app, "last_data_retrival"):
+            current_app.last_data_retrival = dt.date.today() - relativedelta(days=1)
+
+        days_since_last_retrival = current_app.last_data_retrival - dt.date.today()
+
+        if not hasattr(current_app, "info") or days_since_last_retrival > dt.timedelta(
+            days=1
+        ):
+            current_app.info = InfoFetcher(app.available_tickers)
+
+        if not hasattr(current_app, "data") or days_since_last_retrival > dt.timedelta(
+            days=1
+        ):
+            current_app.data = DataFetcher(app.available_tickers, app.info.info)
+            current_app.last_data_retrival = dt.date.today()
 
 
 class Common:
@@ -298,10 +319,9 @@ class Financial:
         mode=None,
         name=None,
         constrains=[None],
-        plotas="markers",
-        color=None,
-        size=6,
-        symbol=None,
+        connected=False,
+        backgroundColor=False,
+        borderColor=False,
     ):
         portfolios = []
         for constrain in constrains:
@@ -315,8 +335,12 @@ class Financial:
                 ).optimize()
             portfolios.append(Portfolio(portfolio_df, cov_matrix=cov_matrix))
         return Portfolios(
-            portfolios, name=name, plotas=plotas, color=color, size=size, symbol=symbol
-        )
+            portfolios,
+            name=name,
+            connected=connected,
+            backgroundColor=backgroundColor,
+            borderColor=borderColor,
+        ).data
 
 
 class Portfolio:
@@ -333,50 +357,54 @@ class Portfolio:
         self.sharpe_ratio = Financial().sharpe_ratio_scalar(
             self.expected_return, self.volatility, risk_free_rate
         )
+        # Initialize tooltip with the common part
+        self.tooltip = f"""Mean return: {self.expected_return:.2%}\n
+        Standard deviation: {self.volatility:.2%}\n
+        Sharpe-ratio: {self.sharpe_ratio:.2f}\n"""
+
+        # Check if any weight is larger than 0
+        if any(weight > 0 for weight in self.weights):
+            self.tooltip += f"""Weights:\n"""
+            # Iterate through tickers and weights, and add to the tooltip if weight > 0
+            for ticker, weight in zip(self.tickers, self.weights):
+                if weight > 0:
+                    self.tooltip += f"""{ticker}: {weight:.2%}\n"""
+
+        self.data = {
+            "expected_return": self.expected_return,  # y
+            "volatility": self.volatility,  # x
+            "tooltip": self.tooltip,  # tooltip
+            "sharpe_ratio": self.sharpe_ratio,  # for coluring/scaling/rating
+        }
 
 
 class Portfolios:
     def __init__(
-        self, portfolios, plotas="markers", name=None, size=6, color=None, symbol=None
+        self,
+        portfolios,
+        name=None,
+        connected=False,
+        backgroundColor=False,
+        borderColor=False,
     ):
-        self.portfolios = portfolios
-        self.expected_returns = [portfolio.expected_return for portfolio in portfolios]
-        self.volatilities = [portfolio.volatility for portfolio in portfolios]
-        self.sharpe_ratios = [portfolio.sharpe_ratio for portfolio in portfolios]
+        self.portfolios = [portfolio.data for portfolio in portfolios]
+        # self.expected_returns = [portfolio.expected_return for portfolio in portfolios]
+        # self.volatilities = [portfolio.volatility for portfolio in portfolios]
+        # self.sharpe_ratios = [portfolio.sharpe_ratio for portfolio in portfolios]
         self.name = name
-
-        # Create a list to store the tooltip text for each point
-        self.tooltip_text = []
-        for portfolio in self.portfolios:
-            self.tooltip_text.append(
-                f"Expected return: {portfolio.expected_return:2.4}%<br>"
-                + f"Volatility: {portfolio.volatility:2.4}%<br>"
-                + f"Sharpe-ratio: {portfolio.sharpe_ratio}<br>"
-                + "".join(
-                    [
-                        f"<br>{asset}: {weight:.2%}" if round(weight, 2) > 0.00 else ""
-                        for asset, weight in zip(
-                            portfolio.weights.index, portfolio.weights.values
-                        )
-                    ]
-                )
-                + f"<b><a href='www.google.com'>test</a></b>"
-            )
-        self.plot = go.Scatter(
-            x=self.volatilities,
-            y=self.expected_returns,
-            mode=plotas,
-            marker=dict(
-                symbol=symbol,
-                size=size,
-                color=self.sharpe_ratios if color is None else color,
-                colorscale="Viridis",
-                showscale=False,
-            ),
-            name=name,
-            text=self.tooltip_text,
-            hoverinfo="text",
-        )
+        self.data = {
+            "tickers": portfolios[0].tickers.tolist(),
+            "risk_free_rate": portfolios[0].risk_free_rate,
+            "portfolios": self.portfolios,
+            "connected": connected,
+            "backgroundColor": backgroundColor,
+            "borderColor": borderColor,
+        }
+        #            'expected_returns': self.expected_returns,
+        #            'volatilities': self.volatilities,
+        #            'sharpe_ratios': self.sharpe_ratios,
+        #'name': self.name
+        # }
 
 
 class Sharpe:

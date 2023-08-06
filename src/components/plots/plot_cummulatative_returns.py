@@ -8,7 +8,7 @@ from components.fetch_data_component import PreWeighted
 from components.fetch_data_component import Sharpe
 
 
-class ploteffecientFrontier:
+class plotCummulitativeReturns:
     def __init__(self, analysis):
         # Prepare data
         self.data = self.crunch(analysis)
@@ -25,9 +25,6 @@ class ploteffecientFrontier:
             cov_matrix=analysis["cov"],
             constructor=Sharpe,
             name="Sharpe ratio optimal portfolio",
-            symbol="cross",
-            color="red",
-            size=10,
         )
 
         for port in sharpe_portfolio.portfolios:
