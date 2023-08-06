@@ -3,7 +3,6 @@ from flask import Flask, redirect, url_for, abort, redirect, request
 from flask import render_template, request, jsonify, current_app
 import pandas as pd
 from waitress import serve
-import datetime as dt
 from components.fetch_data_component import DataFetcher
 from components.fetch_data_component import Fetcher
 from components.fetch_data_component import Common
@@ -40,8 +39,9 @@ def home():
 #    return 'Request processed successfully'
 
 
-@app.route("/crunch_data_test", methods=["POST"])
-def crunch_data_test():
+@app.route("/crunch_data", methods=["POST"])
+def crunch_data():
+    print('Hello')
     try:
         Fetcher(app)
 
@@ -99,6 +99,8 @@ def crunch_data_test():
         # Handle any errors that may occur during data processing
         traceback_info = traceback.format_exc()  # Get the traceback as a string
         error_message = str(e)
+        print(traceback_info)
+        print(error_message)
         return jsonify({"error": error_message, "traceback": traceback_info}), 500
 
 

@@ -13,13 +13,8 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from all origins (not recommended for production)
+CORS(app, resources={r"/crunch_data": {"origins": ["http://localhost:9000","https://qp-invest-frontend.web.app/"]}})
 
-os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for local dev
-
-app.client_secrets_file = os.path.join(
-    pathlib.Path(__file__).parent, "client_secret.json"
-)
 app.aurhorized_emails = [
     "hansotto.kristiansen@gmail.com",
     "mikaelnorup@gmail.com",

@@ -48,7 +48,8 @@ class DataFetcher:
         # Find stock prices
         data = yf.download(tickers, start=start_day, end=end_day)[
             "Adj Close"
-        ].tz_convert("CET")
+        ]#.tz_convert("CET")
+        print(data)
         data = data[tickers]
 
         # Resample the data to a daily frequency
@@ -78,15 +79,15 @@ class Fetcher:
 
         days_since_last_retrival = current_app.last_data_retrival - dt.date.today()
 
-        if not hasattr(current_app, "info") or days_since_last_retrival > dt.timedelta(
-            days=1
-        ):
-            current_app.info = InfoFetcher(app.available_tickers)
+        #if not hasattr(current_app, "info") or days_since_last_retrival > dt.timedelta(
+        #    days=1
+        #):
+        #    current_app.info = InfoFetcher(app.available_tickers)
 
         if not hasattr(current_app, "data") or days_since_last_retrival > dt.timedelta(
             days=1
         ):
-            current_app.data = DataFetcher(app.available_tickers, app.info.info)
+            current_app.data = DataFetcher(app.available_tickers, None)
             current_app.last_data_retrival = dt.date.today()
 
 
