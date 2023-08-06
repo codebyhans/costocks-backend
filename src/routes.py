@@ -3,6 +3,7 @@ from flask import Flask, redirect, url_for, abort, redirect, request
 from flask import render_template, request, jsonify, current_app
 import pandas as pd
 import plotly.offline as pyo
+from waitress import serve
 import datetime as dt
 from components.fetch_data_component import DataFetcher
 from components.fetch_data_component import InfoFetcher
@@ -109,10 +110,8 @@ def crunch_data_test():
         # Handle any errors that may occur during data processing
         traceback_info = traceback.format_exc()  # Get the traceback as a string
         error_message = str(e)
-        print(error_message)
-        print(traceback_info)
         return jsonify({"error": error_message, "traceback": traceback_info}), 500
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    serve(app, host="0.0.0.0", port=5000)

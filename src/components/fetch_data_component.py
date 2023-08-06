@@ -22,11 +22,7 @@ class InfoFetcher:
 class DataFetcher:
     def __init__(self, tickers, info):
         self.tickers = tickers
-<<<<<<< HEAD
         # self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
-=======
-        #self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
->>>>>>> 821ee37627ce741d6d9ed4d3509ca6cb9ed5d297
         self.prices = self.get_data(self.tickers, info)
         self.returns = (self.prices - self.prices.shift(1)) / self.prices.shift(1) * 100
 
