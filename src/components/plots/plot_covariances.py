@@ -1,8 +1,3 @@
-import plotly.graph_objs as go
-import numpy as np
-import datetime as dt
-from app import app
-
 
 class plotCovariances:
     def __init__(self, analysis):

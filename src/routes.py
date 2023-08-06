@@ -2,17 +2,11 @@ from app import app
 from flask import Flask, redirect, url_for, abort, redirect, request
 from flask import render_template, request, jsonify, current_app
 import pandas as pd
-import plotly.offline as pyo
 from waitress import serve
 import datetime as dt
 from components.fetch_data_component import DataFetcher
-from components.fetch_data_component import InfoFetcher
 from components.fetch_data_component import Fetcher
 from components.fetch_data_component import Common
-from components.fetch_data_component import Settings
-from dateutil.relativedelta import relativedelta
-from functools import wraps
-import json
 import traceback
 
 from components.plots.plot_covariances import plotCovariances
@@ -20,11 +14,6 @@ from components.plots.plot_effecient_frontier import ploteffecientFrontier
 from components.plots.plot_prices import plotPrices
 from components.plots.plot_returns import plotReturns
 from components.plots.plot_benchmark import plotBenchmark
-import requests
-from google_auth_oauthlib.flow import Flow
-from pip._vendor import cachecontrol
-
-from flask import session
 
 
 @app.route("/favicon.ico")

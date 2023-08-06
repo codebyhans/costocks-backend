@@ -5,7 +5,6 @@ from flask import Flask
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 from components.fetch_data_component import Common
-from flask_oauthlib.client import OAuth
 import logging
 
 logger = logging.getLogger("waitress")
@@ -15,13 +14,9 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)  # Allow requests from all origins (not recommended for production)
-app.secret_key = "***REMOVED***"
 
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # to allow Http traffic for local dev
 
-app.GOOGLE_CLIENT_ID = (
-    "***REMOVED***"
-)
 app.client_secrets_file = os.path.join(
     pathlib.Path(__file__).parent, "client_secret.json"
 )
@@ -35,23 +30,6 @@ app.aurhorized_emails = [
     "feldthaus.nina@gmail.com",
     "posgog@gmail.com",
 ]
-
-
-# Configure OAuth
-oauth = OAuth(app)
-
-app.google = oauth.remote_app(
-    "google",
-    consumer_key="***REMOVED***",
-    consumer_secret="***REMOVED***",
-    request_token_params={"scope": "email"},
-    base_url="https://www.googleapis.com/oauth2/v1/",
-    request_token_url=None,
-    access_token_method="POST",
-    access_token_url="https://accounts.google.com/o/oauth2/token",
-    authorize_url="https://accounts.google.com/o/oauth2/auth",
-)
-
 
 # set variables
 app.year = dt.datetime.now().year

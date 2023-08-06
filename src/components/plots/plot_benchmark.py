@@ -1,4 +1,3 @@
-import plotly.graph_objs as go
 from components.fetch_data_component import Financial
 import numpy as np
 import datetime as dt

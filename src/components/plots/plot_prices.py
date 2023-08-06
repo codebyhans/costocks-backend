@@ -1,8 +1,3 @@
-import plotly.graph_objs as go
-import numpy as np
-import datetime as dt
-from app import app
-
 
 class plotPrices:
     def __init__(self, analysis):

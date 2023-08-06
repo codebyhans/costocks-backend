@@ -4,20 +4,18 @@ import numpy as np
 from scipy.optimize import minimize
 import pandas as pd
 import random
-import plotly.graph_objs as go
 from flask import request, current_app
 import json
 from flask import url_for
-from yahooquery import Ticker
 import itertools
 from dateutil.relativedelta import relativedelta
 
 
-class InfoFetcher:
-    def __init__(self, tickers):
-        self.tickers = tickers
-        tickers_data = [Ticker(ticker) for ticker in tickers]
-        self.info = [ticker.summary_detail for ticker in tickers_data]
+#class InfoFetcher:
+    #def __init__(self, tickers):
+        #self.tickers = tickers
+        #tickers_data = [Ticker(ticker) for ticker in tickers]
+        #self.info = [ticker.summary_detail for ticker in tickers_data]
 
 class DataFetcher:
     def __init__(self, tickers, info):

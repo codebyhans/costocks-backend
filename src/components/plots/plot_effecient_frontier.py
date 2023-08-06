@@ -1,8 +1,4 @@
-import plotly.graph_objs as go
 import numpy as np
-import json
-import datetime as dt
-from app import app
 from components.fetch_data_component import Financial
 from components.fetch_data_component import VolatilityMinimizer
 from components.fetch_data_component import PreWeighted
