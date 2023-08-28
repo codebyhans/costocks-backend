@@ -13,7 +13,31 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app, resources={r"/crunch_data": {"origins": ["http://localhost:9000","https://qp-invest-frontend.web.app/"]}})
+CORS(
+    app,
+    supports_credentials=True,
+    resources={
+        r"/crunch_data": {
+            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app/"]
+        },
+        r"/valid_tickers": {
+            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app/"]
+        },
+        r"/auth/verify-token": {
+            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app"]
+        },
+        r"/auth/logout": {
+            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app"]
+        },
+        r"/account/updateFields": {
+            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app"]
+        },
+        r"/account/delete": {
+            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app"]
+        },
+        
+    },
+)
 
 app.aurhorized_emails = [
     "hansotto.kristiansen@gmail.com",

@@ -1,4 +1,3 @@
-
 class plotPrices:
     def __init__(self, analysis):
         # Prepare data

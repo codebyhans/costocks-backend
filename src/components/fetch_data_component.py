@@ -11,11 +11,12 @@ import itertools
 from dateutil.relativedelta import relativedelta
 
 
-#class InfoFetcher:
-    #def __init__(self, tickers):
-        #self.tickers = tickers
-        #tickers_data = [Ticker(ticker) for ticker in tickers]
-        #self.info = [ticker.summary_detail for ticker in tickers_data]
+# class InfoFetcher:
+# def __init__(self, tickers):
+# self.tickers = tickers
+# tickers_data = [Ticker(ticker) for ticker in tickers]
+# self.info = [ticker.summary_detail for ticker in tickers_data]
+
 
 class DataFetcher:
     def __init__(self, tickers, info):
@@ -48,7 +49,7 @@ class DataFetcher:
         # Find stock prices
         data = yf.download(tickers, start=start_day, end=end_day)[
             "Adj Close"
-        ]#.tz_convert("CET")
+        ]  # .tz_convert("CET")
         print(data)
         data = data[tickers]
 
@@ -79,9 +80,9 @@ class Fetcher:
 
         days_since_last_retrival = current_app.last_data_retrival - dt.date.today()
 
-        #if not hasattr(current_app, "info") or days_since_last_retrival > dt.timedelta(
+        # if not hasattr(current_app, "info") or days_since_last_retrival > dt.timedelta(
         #    days=1
-        #):
+        # ):
         #    current_app.info = InfoFetcher(app.available_tickers)
 
         if not hasattr(current_app, "data") or days_since_last_retrival > dt.timedelta(

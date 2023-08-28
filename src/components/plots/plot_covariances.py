@@ -1,4 +1,3 @@
-
 class plotCovariances:
     def __init__(self, analysis):
         # Prepare data
