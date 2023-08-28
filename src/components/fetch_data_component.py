@@ -50,7 +50,6 @@ class DataFetcher:
         data = yf.download(tickers, start=start_day, end=end_day)[
             "Adj Close"
         ]  # .tz_convert("CET")
-        print(data)
         data = data[tickers]
 
         # Resample the data to a daily frequency

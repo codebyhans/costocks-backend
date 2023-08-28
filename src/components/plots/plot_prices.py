@@ -8,7 +8,6 @@ class plotPrices:
         # Create traces
         data = []
         for tick in analysis["prices"].columns:
-            print(tick)
             xs = analysis["prices"].index
             ys = analysis["prices"][tick]
             datapoints = []
