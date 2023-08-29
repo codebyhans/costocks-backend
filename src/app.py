@@ -6,49 +6,46 @@ import datetime as dt
 from dateutil.relativedelta import relativedelta
 from components.fetch_data_component import Common
 import logging
+from config import get_config
 
 logger = logging.getLogger("waitress")
 logger.setLevel(logging.INFO)
 from flask_cors import CORS
 
+# Read the value of the ENV_NODE environment variable
+env_node = os.environ.get('ENV_NODE', 'development')  # Default to development
+
+# Get the selected configuration based on the environment node
+selected_config = get_config(env_node)
 
 app = Flask(__name__)
+app.config.from_object(selected_config)
+
 CORS(
     app,
     supports_credentials=True,
     resources={
         r"/crunch_data": {
-            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app/"]
+            "origins": [f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}"]
         },
         r"/valid_tickers": {
-            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app/"]
+            "origins": [f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}"]
         },
         r"/auth/verify-token": {
-            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app"]
+            "origins": [f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}"]
         },
         r"/auth/logout": {
-            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app"]
+            "origins": [f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}"]
         },
         r"/account/updateFields": {
-            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app"]
+            "origins": [f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}"]
         },
         r"/account/delete": {
-            "origins": ["http://localhost:9000", "https://qp-invest-frontend.web.app"]
+            "origins": [f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}"]
         },
-        
     },
 )
 
-app.aurhorized_emails = [
-    "hansotto.kristiansen@gmail.com",
-    "mikaelnorup@gmail.com",
-    "slsparre09@gmail.com",
-    "thyssenjacob@gmail.com",
-    "frejprahl@gmail.com",
-    "morten.halberg1@gmail.com",
-    "feldthaus.nina@gmail.com",
-    "posgog@gmail.com",
-]
 
 # set variables
 app.year = dt.datetime.now().year
@@ -243,4 +240,5 @@ from routes import *
 if __name__ == "__main__":
     # app.run(debug=True)
     # app.run(host='0.0.0.0', port=5000, debug=True)
-    serve(app, host="0.0.0.0", port=5000)
+    serve(app, host=app.config['HOST'], port=app.config['PORT'])
+

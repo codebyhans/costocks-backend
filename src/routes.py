@@ -163,8 +163,8 @@ def delete_user_data(user_id):
 
         # Clear cookies to log the user out
         response = jsonify({'status': 'success'})
-        response.delete_cookie('jwt_refresh_token', path='/', domain='localhost', secure=True, httponly=True)
-        response.delete_cookie('jwt_access_token', path='/', domain='localhost', secure=True, httponly=True)
+        response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BASE_URL']}", secure=True, httponly=True)
+        response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BASE_URL']}", secure=True, httponly=True)
 
         return response, 200
 
@@ -225,7 +225,7 @@ def google_callback():
     exclude_fields = ["payment_plan", "payment_plan_price", "slots"]
     store_user_info(user_info, exclude_fields)
 
-    redirect_uri = "http://localhost:9000/#/"
+    redirect_uri = f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}/#/"
     expiration_refresh = datetime.utcnow() + timedelta(minutes=60)
     expiration_access = datetime.utcnow() + timedelta(minutes=15)
 
@@ -236,7 +236,7 @@ def google_callback():
         generate_token(user_info["id"], "refresh",expiration_refresh),
         httponly=True,
         secure=True,
-        domain='localhost',
+        domain=f"{app.config['BASE_URL']}",
         path='/',
         expires=expiration_refresh,  # Set the expiration time
     )
@@ -245,7 +245,7 @@ def google_callback():
         generate_token(user_info["id"], "access",expiration_access),
         httponly=True,
         secure=True,
-        domain='localhost',
+        domain=f"{app.config['BASE_URL']}",
         path='/',
         expires=expiration_access,  # Set the expiration time
     )
@@ -259,8 +259,8 @@ def auth_logout(user_id):
     
     response = jsonify({'message': 'Logged out'})
 
-    response.delete_cookie('jwt_refresh_token', path='/', domain='localhost', secure=True, httponly=True)
-    response.delete_cookie('jwt_access_token', path='/', domain='localhost', secure=True, httponly=True)
+    response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BASE_URL']}", secure=True, httponly=True)
+    response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BASE_URL']}", secure=True, httponly=True)
 
     return response, 200
 
