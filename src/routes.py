@@ -92,7 +92,7 @@ def get_user_data_from_firebase(user_id):
     user_data = user_ref.get()
 
     if user_data:
-        return user_data
+        return user_data 
     else:
         return {}  # Return an empty dictionary or handle as needed
 
