@@ -97,7 +97,6 @@ def get_user_data_from_firebase(user_id):
         return {}  # Return an empty dictionary or handle as needed
 
 def store_user_info(user_info, exclude_fields=None):
-    print(user_info)
     user_id = user_info["id"]  # Assuming 'id' is the user's unique identifier
     db_ref = db.reference("users")
     user_ref = db_ref.child(user_id)
@@ -198,7 +197,6 @@ def update_fields(user_id):
 def google_callback():
     # Extract the authorization code from the query parameters
     authorization_code = request.args.get("code")
-    print(authorization_code)
     # Set up the token exchange request
     token_url = "https://oauth2.googleapis.com/token"
     token_params = {
@@ -208,14 +206,12 @@ def google_callback():
         "redirect_uri": f"{app.config['BACKEND_PROTOCOL']}{app.config['BACKEND_URL']}{app.config['BACKEND_PORT']}{secretsgoogle['redirect_path']}",
         "grant_type": "authorization_code",
     }
-    print(token_params)
 
     # Exchange authorization code for access token and refresh token
     token_response = requests.post(token_url, data=token_params)
     token_data = token_response.json()
     # print('Token Data:', token_data)  # Add this line to see the token data
     access_token = token_data.get("access_token")
-    print(access_token)
     #refresh_token = token_data.get("refresh_token")  # Get the refresh token
 
     # Use the access token to fetch user data
@@ -271,7 +267,6 @@ def auth_logout(user_id):
 @app.route('/auth/verify-token', methods=['GET'])
 @authenticate_and_get_user_data
 def auth_verify_token(user_id):
-
     # Access token is valid, fetch user data from Firebase
     user_data = get_user_data_from_firebase(user_id)
 

@@ -26,22 +26,22 @@ CORS(
     supports_credentials=True,
     resources={
         r"/crunch_data": {
-            "origins": [f"{app.config['FRONTEND_PROTOCOL']}://{app.config['FRONTEND_URL']}"]
+            "origins": [f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"]
         },
         r"/valid_tickers": {
-            "origins": [f"{app.config['FRONTEND_PROTOCOL']}://{app.config['FRONTEND_URL']}"]
+            "origins": [f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"]
         },
         r"/auth/verify-token": {
-            "origins": [f"{app.config['FRONTEND_PROTOCOL']}://{app.config['FRONTEND_URL']}"]
+            "origins": [f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"]
         },
         r"/auth/logout": {
-            "origins": [f"{app.config['FRONTEND_PROTOCOL']}://{app.config['FRONTEND_URL']}"]
+            "origins": [f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"]
         },
         r"/account/updateFields": {
-            "origins": [f"{app.config['FRONTEND_PROTOCOL']}://{app.config['FRONTEND_URL']}"]
+            "origins": [f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"]
         },
         r"/account/delete": {
-            "origins": [f"{app.config['FRONTEND_PROTOCOL']}://{app.config['FRONTEND_URL']}"]
+            "origins": [f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"]
         },
     },
 )
