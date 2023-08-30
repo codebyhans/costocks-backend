@@ -204,7 +204,7 @@ def google_callback():
         "code": authorization_code,
         "client_id": secretsgoogle["client_id"],
         "client_secret": secretsgoogle["client_secret"],
-        "redirect_uri": secretsgoogle["redirect_uri"],
+        "redirect_uri": f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}{secretsgoogle['redirect_path']}",
         "grant_type": "authorization_code",
     }
 
