@@ -32,7 +32,7 @@ class ProductionConfig(Config):
     FRONTEND_PORT = 'https://'
     
     BACKEND_URL = "qpinvest-nbdj-main-i4enuayvva-lz.a.run.app"
-    FRONTEND_PROTOCOL = 'https://'
+    BACKEND_PROTOCOL = 'https://'
     BACKEND_PORT = ''
 
 # Function to get the selected configuration based on env_node
