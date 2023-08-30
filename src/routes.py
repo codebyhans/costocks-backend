@@ -248,6 +248,7 @@ def google_callback():
         path='/',
         expires=expiration_access,  # Set the expiration time
     )
+    print('Domain: ', f"{app.config['FRONTEND_URL']}")
     return response
 
 
