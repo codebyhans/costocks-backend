@@ -17,12 +17,17 @@ class Config:
     
 class DevelopmentConfig(Config):
     DEBUG = True
-    BASE_URL = 'localhost:9000'
+    BASE_URL = 'localhost'
     PROTOCOL = 'http'
+    FRONTEND_PORT = ':9000'
+    BACKEND_PORT = ':5000'
+
 class ProductionConfig(Config):
     DEBUG = False
     BASE_URL = 'qp-invest-frontend.web.app'
     PROTOCOL = 'https'
+    FRONTEND_PORT = ''
+    BACKEND_PORT = ''
 
 # Function to get the selected configuration based on env_node
 def get_config(env_node):

@@ -149,7 +149,8 @@ def favicon():
 
 @app.route("/")
 def home():
-    return "Running"
+    return f"""Running
+    URL: {app.config["BASE_URL"]}"""
 
 
 @app.route('/account/delete', methods=['POST'])
@@ -204,7 +205,7 @@ def google_callback():
         "code": authorization_code,
         "client_id": secretsgoogle["client_id"],
         "client_secret": secretsgoogle["client_secret"],
-        "redirect_uri": f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}{secretsgoogle['redirect_path']}",
+        "redirect_uri": f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}{app.config['BACKEND_PORT']}{secretsgoogle['redirect_path']}",
         "grant_type": "authorization_code",
     }
 
@@ -225,7 +226,7 @@ def google_callback():
     exclude_fields = ["payment_plan", "payment_plan_price", "slots"]
     store_user_info(user_info, exclude_fields)
 
-    redirect_uri = f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}/#/"
+    redirect_uri = f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}{app.config['FRONTEND_PORT']}/#/"
     expiration_refresh = datetime.utcnow() + timedelta(minutes=60)
     expiration_access = datetime.utcnow() + timedelta(minutes=15)
 
