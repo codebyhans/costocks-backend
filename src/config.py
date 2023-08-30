@@ -2,7 +2,7 @@ class Config:
     DEBUG = False  # Set to True to enable debugging mode
     PORT = 5000  # Set the port you want your app to run on
     HOST = '0.0.0.0'  # Set the host IP address
-    BASE_URL = None
+    FRONTEND_URL = None
     # Define other configuration parameters here
 
     TICKERS_C20 = [
@@ -17,16 +17,22 @@ class Config:
     
 class DevelopmentConfig(Config):
     DEBUG = True
-    BASE_URL = 'localhost'
-    PROTOCOL = 'http'
     FRONTEND_PORT = ':9000'
+    FRONTEND_URL = 'localhost'
+    FRONTEND_PROTOCOL = 'http://'
+
+    BACKEND_URL = 'localhost'
     BACKEND_PORT = ':5000'
+    BACKEND_PROTOCOL = 'http://'
 
 class ProductionConfig(Config):
     DEBUG = False
-    BASE_URL = 'qp-invest-frontend.web.app'
-    PROTOCOL = 'https'
-    FRONTEND_PORT = ''
+    FRONTEND_PROTOCOL = 'https'
+    FRONTEND_URL = 'qp-invest-frontend.web.app'
+    FRONTEND_PORT = 'https://'
+    
+    BACKEND_URL = "qpinvest-nbdj-main-i4enuayvva-lz.a.run.app"
+    FRONTEND_PROTOCOL = 'https://'
     BACKEND_PORT = ''
 
 # Function to get the selected configuration based on env_node

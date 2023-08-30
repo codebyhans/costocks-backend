@@ -97,6 +97,7 @@ def get_user_data_from_firebase(user_id):
         return {}  # Return an empty dictionary or handle as needed
 
 def store_user_info(user_info, exclude_fields=None):
+    print(user_info)
     user_id = user_info["id"]  # Assuming 'id' is the user's unique identifier
     db_ref = db.reference("users")
     user_ref = db_ref.child(user_id)
@@ -149,8 +150,7 @@ def favicon():
 
 @app.route("/")
 def home():
-    return f"""Running
-    URL: {app.config["BASE_URL"]}"""
+    return f"""Running"""
 
 
 @app.route('/account/delete', methods=['POST'])
@@ -164,8 +164,8 @@ def delete_user_data(user_id):
 
         # Clear cookies to log the user out
         response = jsonify({'status': 'success'})
-        response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BASE_URL']}", secure=True, httponly=True)
-        response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BASE_URL']}", secure=True, httponly=True)
+        response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['FRONTEND_URL']}", secure=True, httponly=True)
+        response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['FRONTEND_URL']}", secure=True, httponly=True)
 
         return response, 200
 
@@ -198,22 +198,24 @@ def update_fields(user_id):
 def google_callback():
     # Extract the authorization code from the query parameters
     authorization_code = request.args.get("code")
-
+    print(authorization_code)
     # Set up the token exchange request
     token_url = "https://oauth2.googleapis.com/token"
     token_params = {
         "code": authorization_code,
         "client_id": secretsgoogle["client_id"],
         "client_secret": secretsgoogle["client_secret"],
-        "redirect_uri": f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}{app.config['BACKEND_PORT']}{secretsgoogle['redirect_path']}",
+        "redirect_uri": f"{app.config['BACKEND_PROTOCOL']}{app.config['BACKEND_URL']}{app.config['BACKEND_PORT']}{secretsgoogle['redirect_path']}",
         "grant_type": "authorization_code",
     }
+    print(token_params)
 
     # Exchange authorization code for access token and refresh token
     token_response = requests.post(token_url, data=token_params)
     token_data = token_response.json()
     # print('Token Data:', token_data)  # Add this line to see the token data
     access_token = token_data.get("access_token")
+    print(access_token)
     #refresh_token = token_data.get("refresh_token")  # Get the refresh token
 
     # Use the access token to fetch user data
@@ -226,7 +228,7 @@ def google_callback():
     exclude_fields = ["payment_plan", "payment_plan_price", "slots"]
     store_user_info(user_info, exclude_fields)
 
-    redirect_uri = f"{app.config['PROTOCOL']}://{app.config['BASE_URL']}{app.config['FRONTEND_PORT']}/#/"
+    redirect_uri = f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}/#/"
     expiration_refresh = datetime.utcnow() + timedelta(minutes=60)
     expiration_access = datetime.utcnow() + timedelta(minutes=15)
 
@@ -237,7 +239,7 @@ def google_callback():
         generate_token(user_info["id"], "refresh",expiration_refresh),
         httponly=True,
         secure=True,
-        domain=f"{app.config['BASE_URL']}",
+        domain=f"{app.config['FRONTEND_URL']}",
         path='/',
         expires=expiration_refresh,  # Set the expiration time
     )
@@ -246,7 +248,7 @@ def google_callback():
         generate_token(user_info["id"], "access",expiration_access),
         httponly=True,
         secure=True,
-        domain=f"{app.config['BASE_URL']}",
+        domain=f"{app.config['FRONTEND_URL']}",
         path='/',
         expires=expiration_access,  # Set the expiration time
     )
@@ -260,8 +262,8 @@ def auth_logout(user_id):
     
     response = jsonify({'message': 'Logged out'})
 
-    response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BASE_URL']}", secure=True, httponly=True)
-    response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BASE_URL']}", secure=True, httponly=True)
+    response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['FRONTEND_URL']}", secure=True, httponly=True)
+    response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['FRONTEND_URL']}", secure=True, httponly=True)
 
     return response, 200
 
