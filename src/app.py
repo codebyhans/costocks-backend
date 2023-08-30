@@ -14,7 +14,7 @@ from flask_cors import CORS
 
 # Read the value of the ENV_NODE environment variable
 env_node = os.environ.get('ENV_NODE', 'development')  # Default to development
-env_node = 'production'
+
 # Get the selected configuration based on the environment node
 selected_config = get_config(env_node)
 
