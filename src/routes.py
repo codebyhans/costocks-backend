@@ -279,11 +279,21 @@ def auth_verify_token(user_id):
 @authenticate_and_get_user_data
 def get_valid_tickers(user_id):
     try:
+        Fetcher(app)
+
+        df = current_app.data.prices.tail(1)
+
+        # Reorder columns in alphabetical order
+        df_sorted = df.sort_index(axis=1)
+
         valid_tickers = [
-            { 'ticker': "DANSKE.CO", 'price': 2 },
-            { 'ticker': "DEMANT.CO", 'price': 3 },
-            { 'ticker': "DSV.CO", 'price': 4 }
+            {'ticker': ticker, 'price': round(price,2)}
+            for ticker, price in df_sorted.iloc[0].items()
         ]
+
+        #valid_tickers = [
+        #    { 'ticker': ticker, "price": } for ticker in app.available_tickers
+        #]
         
         response_data = {
             'status': 'success',

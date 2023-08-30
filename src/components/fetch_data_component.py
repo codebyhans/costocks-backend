@@ -19,14 +19,14 @@ from dateutil.relativedelta import relativedelta
 
 
 class DataFetcher:
-    def __init__(self, tickers, info):
+    def __init__(self, tickers, info, start=dt.datetime.today()-relativedelta(years=1)):
         self.tickers = tickers
         # self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
-        self.prices = self.get_data(self.tickers, info)
+        self.prices = self.get_data(self.tickers, info, start=start)
         self.returns = (self.prices - self.prices.shift(1)) / self.prices.shift(1) * 100
 
-    def get_data(self, tickers, info):
-        start_day = current_app.last_year  # dt.datetime.today()-relativedelta(years=1)
+    def get_data(self, tickers, info, start):
+        start_day = start  # dt.datetime.today()-relativedelta(years=1)
         end_day = current_app.today  # dt.datetime.today()
         # Find unique currencies
         # unique_currencies = []
@@ -72,7 +72,7 @@ class DataFetcher:
 
 
 class Fetcher:
-    def __init__(self, app):
+    def __init__(self, app,):
         # fetch data if not already exist
         if not hasattr(current_app, "last_data_retrival"):
             current_app.last_data_retrival = dt.date.today() - relativedelta(days=1)
