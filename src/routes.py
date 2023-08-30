@@ -163,8 +163,8 @@ def delete_user_data(user_id):
 
         # Clear cookies to log the user out
         response = jsonify({'status': 'success'})
-        response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite=None, httponly=True)
-        response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite=None, httponly=True)
+        response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite="None", httponly=True)
+        response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite="None", httponly=True)
 
         return response, 200
 
@@ -237,7 +237,7 @@ def google_callback():
         secure=True,
         domain=f"{app.config['BACKEND_URL']}",
         path='/',
-        samesite=None,
+        samesite="None",
         expires=expiration_refresh,  # Set the expiration time
     )
     response.set_cookie(
@@ -247,7 +247,7 @@ def google_callback():
         secure=True,
         domain=f"{app.config['BACKEND_URL']}",
         path='/',
-        samesite=None,
+        samesite="None",
         expires=expiration_access,  # Set the expiration time
     )
     return response
@@ -260,8 +260,8 @@ def auth_logout(user_id):
     
     response = jsonify({'message': 'Logged out'})
 
-    response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite=None, httponly=True)
-    response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite=None, httponly=True)
+    response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite="None", httponly=True)
+    response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite="None", httponly=True)
 
     return response, 200
 
