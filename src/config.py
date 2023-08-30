@@ -21,7 +21,7 @@ class DevelopmentConfig(Config):
     PROTOCOL = 'http'
 class ProductionConfig(Config):
     DEBUG = False
-    BASE_URL = 'your-production-domain.com'
+    BASE_URL = 'qp-invest-frontend.web.app'
     PROTOCOL = 'https'
 
 # Function to get the selected configuration based on env_node
