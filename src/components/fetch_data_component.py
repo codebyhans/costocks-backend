@@ -356,8 +356,8 @@ class Portfolio:
             self.expected_return, self.volatility, risk_free_rate
         )
         # Initialize tooltip with the common part
-        self.tooltip = f"""Mean return: {self.expected_return:.2%}\n
-        Standard deviation: {self.volatility:.2%}\n
+        self.tooltip = f"""Mean return: {self.expected_return:.2}%\n
+        Standard deviation: {self.volatility:.2}%\n
         Sharpe-ratio: {self.sharpe_ratio:.2f}\n"""
 
         # Check if any weight is larger than 0
