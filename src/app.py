@@ -225,8 +225,15 @@ app.tickers_dji = [
     # "DIS",
     # "DOW",
 ]
+app.tickers_funds = [
+    "0P0001M5YR.CO",
+    "0P0001K6NG.CO",
+    "0P0001K6NK.CO",
+    "0P0001K6NO.CO",
+    "DKIGI.CO"
+]
 app.available_tickers = Common().union_lists(
-    app.tickers_c20, app.tickers_others, app.tickers_dji
+    app.tickers_c20, app.tickers_others, app.tickers_dji, app.tickers_funds
 )
 
 app.available_tickers_json = [
