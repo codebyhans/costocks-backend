@@ -180,60 +180,60 @@ class Common:
         }
 
 
-class html:
-    def __init__(self):
-        pass
-
-    def dataframe_to_html(df):
-        # Format all values in the DataFrame with two significant digits
-        df = df.applymap(lambda x: f"{x:.4g}")
-
-        table_html = "<table><thead><tr><th></th>"
-
-        # add column headers
-        for col in df.columns:
-            table_html += f"<th>{col}</th>"
-        table_html += "</tr></thead><tbody>"
-
-        # add index and data rows
-        for i, idx in enumerate(df.index):
-            table_html += "<tr>"
-            table_html += f"<td>{idx}</td>"
-            for col in df.columns:
-                table_html += f"<td>{df.iloc[i][col]}</td>"
-            table_html += "</tr>"
-
-        table_html += "</tbody></table>"
-        return f"<div>{table_html}</div>"
-
-    def portfolio_comparison(p1, p2):
-        # subtract the two dataframes
-        w1 = p1.portfolios[0].weights
-        w2 = p2.portfolios[0].weights
-        diff = w2 - w1
-        df = diff.to_frame()
-
-        # add column headers
-        table_html = "<table><thead><tr><th></th>"
-        table_html += f"<th>Difference (%)</th>"
-        table_html += "</tr></thead><tbody>"
-
-        # add index and data rows
-        for i, idx in enumerate(df.index):
-            table_html += "<tr>"
-            table_html += f"<td>{idx}</td>"
-            for col in df.columns:
-                # table_html += f'<td>{df.iloc[i][col]}</td>'
-                if df.iloc[i][col] > 0:
-                    action = "buy"
-                elif df.iloc[i][col] < 0:
-                    action = "sell"
-                else:
-                    action = "hold"
-                table_html += f"<td>{action} {np.abs(df.iloc[i][col]):.4g}%</td>"
-            table_html += "</tr>"
-        table_html += "</tbody></table>"
-        return f"<div>{table_html}</div>"
+#class html:
+#    def __init__(self):
+#        pass
+#
+#    def dataframe_to_html(df):
+#        # Format all values in the DataFrame with two significant digits
+#        df = df.applymap(lambda x: f"{x:.4g}")
+#
+#        table_html = "<table><thead><tr><th></th>"
+#
+#        # add column headers
+#        for col in df.columns:
+#            table_html += f"<th>{col}</th>"
+#        table_html += "</tr></thead><tbody>"
+#
+#        # add index and data rows
+#        for i, idx in enumerate(df.index):
+#            table_html += "<tr>"
+#            table_html += f"<td>{idx}</td>"
+#            for col in df.columns:
+#                table_html += f"<td>{df.iloc[i][col]}</td>"
+#            table_html += "</tr>"
+#
+#        table_html += "</tbody></table>"
+#        return f"<div>{table_html}</div>"
+#
+#    def portfolio_comparison(p1, p2):
+#        # subtract the two dataframes
+#        w1 = p1.portfolios[0].weights
+#        w2 = p2.portfolios[0].weights
+#        diff = w2 - w1
+#        df = diff.to_frame()
+#
+#        # add column headers
+#        table_html = "<table><thead><tr><th></th>"
+#        table_html += f"<th>Difference (%)</th>"
+#        table_html += "</tr></thead><tbody>"
+#
+#        # add index and data rows
+#        for i, idx in enumerate(df.index):
+#            table_html += "<tr>"
+#            table_html += f"<td>{idx}</td>"
+#            for col in df.columns:
+#                # table_html += f'<td>{df.iloc[i][col]}</td>'
+#                if df.iloc[i][col] > 0:
+#                    action = "buy"
+#                elif df.iloc[i][col] < 0:
+#                    action = "sell"
+#                else:
+#                    action = "hold"
+#                table_html += f"<td>{action} {np.abs(df.iloc[i][col]):.4g}%</td>"
+#            table_html += "</tr>"
+#        table_html += "</tbody></table>"
+#        return f"<div>{table_html}</div>"
 
 
 class Financial:
@@ -283,32 +283,32 @@ class Financial:
             lists.append(sublist)
         return lists
 
-    def reconstruct_covariance_matrix(self, df):
-        # Get unique tickers
-        tickers = df[["ticker1", "ticker2"]].stack().unique()
-
-        # Initialize full covariance matrix as a dataframe
-        cov_matrix = pd.DataFrame(index=tickers, columns=tickers)
-
-        variances = df.query("ticker1==ticker2")
-        covariances1 = df.query("ticker1!=ticker2")
-        covariances2 = Common().swap_columns(
-            covariances1.rename(columns={"ticker1": "ticker2", "ticker2": "ticker1"}),
-            "ticker1",
-            "ticker2",
-        )
-
-        # elements for the covariances matrix
-        elements = pd.concat(
-            [variances, covariances1, covariances2], ignore_index=True, axis=0
-        )
-
-        # Fill lower triangle of covariance matrix with covariance values
-        for i, row in elements.iterrows():
-            cov_matrix.at[row["ticker1"], row["ticker2"]] = row["covariance"]
-
-        # Return covariance matric
-        return cov_matrix
+#    def reconstruct_covariance_matrix(self, df):
+#        # Get unique tickers
+#        tickers = df[["ticker1", "ticker2"]].stack().unique()
+#
+#        # Initialize full covariance matrix as a dataframe
+#        cov_matrix = pd.DataFrame(index=tickers, columns=tickers)
+#
+#        variances = df.query("ticker1==ticker2")
+#        covariances1 = df.query("ticker1!=ticker2")
+#        covariances2 = Common().swap_columns(
+#            covariances1.rename(columns={"ticker1": "ticker2", "ticker2": "ticker1"}),
+#            "ticker1",
+#            "ticker2",
+#        )
+#
+#        # elements for the covariances matrix
+#        elements = pd.concat(
+#            [variances, covariances1, covariances2], ignore_index=True, axis=0
+#        )
+#
+#        # Fill lower triangle of covariance matrix with covariance values
+#        for i, row in elements.iterrows():
+#            cov_matrix.at[row["ticker1"], row["ticker2"]] = row["covariance"]
+#
+#        # Return covariance matric
+#        return cov_matrix
 
     def create_portfolio(
         df,
@@ -504,28 +504,7 @@ class Settings:
             ]
         else:
             tickers = None
-            # tickers = [
-            # ("MAERSK-A.CO",0.00),
-            # ("MAERSK-B.CO",0.00),
-            # ("AMBU-B.CO",0.00),
-            # ("BAVA.CO",0.00),
-            # ("CARL-B.CO",0.00),
-            # ("CHR.CO",0.00),
-            # ("COLO-B.CO",0.00),
-            # ("DANSKE.CO",0.00),
-            # ("DEMANT.CO",0.00),
-            # ("DSV.CO",0.00),
-            # ("GMAB.CO",0.00),
-            # ("GN.CO",0.00),
-            # ("JYSK.CO",0.00),
-            # ("NOVO-B.CO",0.00),
-            # ("NZYM-B.CO",0.00),
-            # ("PNDORA.CO",0.00),
-            # ("RBREW.CO",0.00),
-            # ("TRYG.CO",0.00),
-            # ("VWS.CO",0.00),
-            # ("ORSTED.CO",0.00),
-            # ]
+            
         return tickers
 
     def read_lookback(self):
