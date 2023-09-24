@@ -1,7 +1,7 @@
-from components.fetch_data_component import Financial
-from components.fetch_data_component import VolatilityMinimizer
-from components.fetch_data_component import PreWeighted
-from components.fetch_data_component import Sharpe
+from core.financial import  Financial
+from core.optimizers import VolatilityMinimizer
+from core.optimizers import PreWeighted
+from core.optimizers import Sharpe
 
 
 class plotCummulitativeReturns:

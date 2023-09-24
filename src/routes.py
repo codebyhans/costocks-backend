@@ -4,9 +4,9 @@ from flask import render_template, request, jsonify, current_app
 import pandas as pd
 import requests
 from waitress import serve
-from components.fetch_data_component import DataFetcher
+from core.data_fetcher import DataFetcher
 from components.fetch_data_component import Fetcher
-from components.fetch_data_component import Common
+from core.common import Common
 import traceback
 import jwt
 import json
@@ -332,6 +332,7 @@ def crunch_data(user_id):
         extrapolate = int(data.get("extrapolate"))
         stocks = data.get("stocks")
 
+
         # Calculate total value of the request
         total_value = 0
         for stock in stocks:
@@ -341,6 +342,7 @@ def crunch_data(user_id):
         # Ensure the program still works if total_value = 0 (prevent devision by 0)
         if total_value == 0:
             total_value = 1
+
 
         analysis = Common().append_to_df(
             df=pd.DataFrame(
@@ -358,6 +360,7 @@ def crunch_data(user_id):
             extrapolate=extrapolate,
             tickers=[stock["ticker"] for stock in stocks],
         )
+
 
         figs = {
             # "Prices": plotPrices(analysis).data,

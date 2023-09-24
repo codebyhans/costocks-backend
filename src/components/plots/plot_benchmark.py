@@ -1,4 +1,4 @@
-from components.fetch_data_component import Financial
+from core.financial import Financial
 import numpy as np
 import datetime as dt
 from app import app

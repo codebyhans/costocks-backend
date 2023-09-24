@@ -2,7 +2,6 @@
 /dist/
 /node_modules/
 /.cache/
-
 # Ignore IDE and editor-specific files
 .idea/
 .vscode/

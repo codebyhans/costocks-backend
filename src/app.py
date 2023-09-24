@@ -2,9 +2,10 @@ import os
 from waitress import serve
 import pathlib
 from flask import Flask
+import core as c
 import datetime as dt
 from dateutil.relativedelta import relativedelta
-from components.fetch_data_component import Common
+#from components.fetch_data_component import Common
 import logging
 from config import get_config
 
@@ -232,7 +233,7 @@ app.tickers_funds = [
     "0P0001K6NO.CO",
     "DKIGI.CO"
 ]
-app.available_tickers = Common().union_lists(
+app.available_tickers = c.common.Common().union_lists(
     app.tickers_c20, app.tickers_others, app.tickers_dji, app.tickers_funds
 )
 

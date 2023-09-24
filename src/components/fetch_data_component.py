@@ -2,6 +2,7 @@ import datetime as dt
 import yfinance as yf
 import numpy as np
 from scipy.optimize import minimize
+from core.data_fetcher import DataFetcher
 import pandas as pd
 import random
 from flask import request, current_app
@@ -10,7 +11,6 @@ from flask import url_for
 import itertools
 from dateutil.relativedelta import relativedelta
 
-
 # class InfoFetcher:
 # def __init__(self, tickers):
 # self.tickers = tickers
@@ -18,57 +18,57 @@ from dateutil.relativedelta import relativedelta
 # self.info = [ticker.summary_detail for ticker in tickers_data]
 
 
-class DataFetcher:
-    def __init__(self, tickers, info, start=dt.datetime.today()-relativedelta(years=1)):
-        self.tickers = tickers
-        # self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
-        self.prices = self.get_data(self.tickers, info, start=start)
-        self.returns = (self.prices - self.prices.shift(1)) / self.prices.shift(1) * 100
-
-    def get_data(self, tickers, info, start):
-        start_day = start  # dt.datetime.today()-relativedelta(years=1)
-        end_day = current_app.today  # dt.datetime.today()
-        # Find unique currencies
-        # unique_currencies = []
-        # for item in info:
-        #    for value in item.values():
-        #        currency = value['currency']
-        #        if currency not in unique_currencies and currency not in 'DKK':
-        #            unique_currencies.append(currency)
-        # tickers_rates = [f'{currency}DKK=X' for currency in unique_currencies]  # List of Yahoo Finance ticker symbols
-
-        # Find exchange rates
-        # exchange_rates = yf.download(tickers=tickers_rates, period='1d')[
-        #    "Adj Close"
-        # ].tail(1)
-        # if isinstance(exchange_rates, pd.Series):
-        #    exchange_rates = exchange_rates.to_frame().rename(columns={'Adj Close': tickers_rates[0]})
-        # exchange_rates["DKKDKK=X"] = 1
-        # exchange_rates = exchange_rates.squeeze().to_dict()
-
-        # Find stock prices
-        data = yf.download(tickers, start=start_day, end=end_day)[
-            "Adj Close"
-        ]  # .tz_convert("CET")
-        data = data[tickers]
-
-        # Resample the data to a daily frequency
-        data_daily = data.resample("D").last()
-
-        # Fill in any missing values using forward-fill (i.e. fill with the last valid value)
-        data_daily = data_daily.ffill()
-
-        # Filter out rows corresponding to weekends
-        weekday_mask = data_daily.index.weekday < 5
-        data_weekdays = data_daily[weekday_mask]
-
-        # exchangerate = []
-        # for ticker in data_weekdays.columns:
-        #    currency = self.currencies[ticker]
-        #    exchangerate.append(exchange_rates[f'{currency}DKK=X'])
-
-        data_weekdays = data_weekdays  # * exchangerate
-        return data_weekdays
+#class DataFetcher:
+#    def __init__(self, tickers, info, start=dt.datetime.today()-relativedelta(years=1)):
+#        self.tickers = tickers
+#        # self.currencies = {k: v["currency"] for item in info for k, v in item.items()}
+#        self.prices = self.get_data(self.tickers, info, start=start)
+#        self.returns = (self.prices - self.prices.shift(1)) / self.prices.shift(1) * 100
+#
+#    def get_data(self, tickers, info, start):
+#        start_day = start  # dt.datetime.today()-relativedelta(years=1)
+#        end_day = current_app.today  # dt.datetime.today()
+#        # Find unique currencies
+#        # unique_currencies = []
+#        # for item in info:
+#        #    for value in item.values():
+#        #        currency = value['currency']
+#        #        if currency not in unique_currencies and currency not in 'DKK':
+#        #            unique_currencies.append(currency)
+#        # tickers_rates = [f'{currency}DKK=X' for currency in unique_currencies]  # List of Yahoo Finance ticker symbols
+#
+#        # Find exchange rates
+#        # exchange_rates = yf.download(tickers=tickers_rates, period='1d')[
+#        #    "Adj Close"
+#        # ].tail(1)
+#        # if isinstance(exchange_rates, pd.Series):
+#        #    exchange_rates = exchange_rates.to_frame().rename(columns={'Adj Close': tickers_rates[0]})
+#        # exchange_rates["DKKDKK=X"] = 1
+#        # exchange_rates = exchange_rates.squeeze().to_dict()
+#
+#        # Find stock prices
+#        data = yf.download(tickers, start=start_day, end=end_day)[
+#            "Adj Close"
+#        ]  # .tz_convert("CET")
+#        data = data[tickers]
+#
+#        # Resample the data to a daily frequency
+#        data_daily = data.resample("D").last()
+#
+#        # Fill in any missing values using forward-fill (i.e. fill with the last valid value)
+#        data_daily = data_daily.ffill()
+#
+#        # Filter out rows corresponding to weekends
+#        weekday_mask = data_daily.index.weekday < 5
+#        data_weekdays = data_daily[weekday_mask]
+#
+#        # exchangerate = []
+#        # for ticker in data_weekdays.columns:
+#        #    currency = self.currencies[ticker]
+#        #    exchangerate.append(exchange_rates[f'{currency}DKK=X'])
+#
+#        data_weekdays = data_weekdays  # * exchangerate
+#        return data_weekdays
 
 
 class Fetcher:
@@ -91,27 +91,27 @@ class Fetcher:
             current_app.last_data_retrival = dt.date.today()
 
 
-class Common:
-    def __init__(self):
-        pass
+#class Common:
+#    def __init__(self):
+#        pass
 
-    def swap_columns(self, df, col1, col2):
-        col_list = list(df.columns)
-        x, y = col_list.index(col1), col_list.index(col2)
-        col_list[y], col_list[x] = col_list[x], col_list[y]
-        df = df[col_list]
-        return df
-
-    def union_lists(self, *lists):
-        # use the chain() function from itertools to concatenate all the lists
-        concatenated_list = list(itertools.chain(*lists))
-
-        # use the set() function to remove duplicates and convert the concatenated list to a set
-        unique_set = set(concatenated_list)
-
-        # convert the set back to a list and return it as the final union
-        final_union = list(unique_set)
-        return final_union
+    #def swap_columns(self, df, col1, col2):
+    #    col_list = list(df.columns)
+    #    x, y = col_list.index(col1), col_list.index(col2)
+    #    col_list[y], col_list[x] = col_list[x], col_list[y]
+    #    df = df[col_list]
+    #    return df
+#
+    #def union_lists(self, *lists):
+    #    # use the chain() function from itertools to concatenate all the lists
+    #    concatenated_list = list(itertools.chain(*lists))
+#
+    #    # use the set() function to remove duplicates and convert the concatenated list to a set
+    #    unique_set = set(concatenated_list)
+#
+    #    # convert the set back to a list and return it as the final union
+    #    final_union = list(unique_set)
+    #    return final_union
 
     def core_return(self, returns, extrapolate):
         return returns.mean() * extrapolate
@@ -236,53 +236,53 @@ class Common:
 #        return f"<div>{table_html}</div>"
 
 
-class Financial:
-    def __init__(self):
-        pass
-
-    def portfolio_return(self, returns, weights):
-        return np.sum(returns * weights)
-
-    def portfolio_volatility(self, weights, cov_matrix):
-        # Calculate the vector-matrix-vector product
-        return np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
-
-    def sharpe_ratio_scalar(self, expected_return, volatility, rf=0.0):
-        if (expected_return == 0) & (volatility == 0):
-            return 0
-        return (expected_return - rf) / volatility
-
-    def sharpe_ratio(self, returns, weights, cov_matrix, rf=0.0):
-        expected_return = self.portfolio_return(returns, weights)
-        volatility = self.portfolio_volatility(weights, cov_matrix)
-        return self.sharpe_ratio_scalar(expected_return, volatility, rf)
-
-    def random_portfolios(n, m):
-        random_portfolios = []
-
-        for _ in range(n):
-            portfolio = []
-
-            # Generate m random values between 0 and 1
-            for _ in range(m):
-                value = random.uniform(0, 1)
-                portfolio.append(value)
-
-            # Normalize the portfolio
-            total = sum(portfolio)
-            normalized_portfolio = [value / total for value in portfolio]
-
-            random_portfolios.append(normalized_portfolio)
-        return random_portfolios
-
-    def all_in_one_portfolios(n):
-        lists = []
-        for i in range(n):
-            sublist = [0] * n
-            sublist[i] = 1
-            lists.append(sublist)
-        return lists
-
+#class Financial:
+#    def __init__(self):
+#        pass
+#
+#    def portfolio_return(self, returns, weights):
+#        return np.sum(returns * weights)
+#
+#    def portfolio_volatility(self, weights, cov_matrix):
+#        # Calculate the vector-matrix-vector product
+#        return np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+#
+#    def sharpe_ratio_scalar(self, expected_return, volatility, rf=0.0):
+#        if (expected_return == 0) & (volatility == 0):
+#            return 0
+#        return (expected_return - rf) / volatility
+#
+#    def sharpe_ratio(self, returns, weights, cov_matrix, rf=0.0):
+#        expected_return = self.portfolio_return(returns, weights)
+#        volatility = self.portfolio_volatility(weights, cov_matrix)
+#        return self.sharpe_ratio_scalar(expected_return, volatility, rf)
+#
+#    def random_portfolios(n, m):
+#        random_portfolios = []
+#
+#        for _ in range(n):
+#            portfolio = []
+#
+#            # Generate m random values between 0 and 1
+#            for _ in range(m):
+#                value = random.uniform(0, 1)
+#                portfolio.append(value)
+#
+#            # Normalize the portfolio
+#            total = sum(portfolio)
+#            normalized_portfolio = [value / total for value in portfolio]
+#
+#            random_portfolios.append(normalized_portfolio)
+#        return random_portfolios
+#
+#    def all_in_one_portfolios(n):
+#        lists = []
+#        for i in range(n):
+#            sublist = [0] * n
+#            sublist[i] = 1
+#            lists.append(sublist)
+#        return lists
+#
 #    def reconstruct_covariance_matrix(self, df):
 #        # Get unique tickers
 #        tickers = df[["ticker1", "ticker2"]].stack().unique()
@@ -309,284 +309,276 @@ class Financial:
 #
 #        # Return covariance matric
 #        return cov_matrix
-
-    def create_portfolio(
-        df,
-        cov_matrix,
-        constructor=None,
-        mode=None,
-        name=None,
-        constrains=[None],
-        connected=False,
-        backgroundColor=False,
-        borderColor=False,
-    ):
-        portfolios = []
-        for constrain in constrains:
-            portfolio_df = df.copy()
-            if constructor is not None:
-                portfolio_df["ratio"] = constructor(
-                    df["expected_return"],
-                    cov_matrix=cov_matrix,
-                    constrain=constrain,
-                    mode=mode,
-                ).optimize()
-            portfolios.append(Portfolio(portfolio_df, cov_matrix=cov_matrix))
-        return Portfolios(
-            portfolios,
-            name=name,
-            connected=connected,
-            backgroundColor=backgroundColor,
-            borderColor=borderColor,
-        ).data
-
-
-class Portfolio:
-    def __init__(self, portfolio_df, cov_matrix, risk_free_rate=0.0):
-        self.tickers = portfolio_df.index
-        self.weights = portfolio_df["ratio"]
-        self.risk_free_rate = risk_free_rate
-        self.expected_return = Financial().portfolio_return(
-            portfolio_df["expected_return"], self.weights
-        )
-        self.volatility = Financial().portfolio_volatility(
-            self.weights, cov_matrix=cov_matrix
-        )
-        self.sharpe_ratio = Financial().sharpe_ratio_scalar(
-            self.expected_return, self.volatility, risk_free_rate
-        )
-        # Initialize tooltip with the common part
-        self.tooltip = f"""Mean return: {self.expected_return:.2}%\n
-        Standard deviation: {self.volatility:.2}%\n
-        Sharpe-ratio: {self.sharpe_ratio:.2f}\n"""
-
-        # Check if any weight is larger than 0
-        if any(weight > 0 for weight in self.weights):
-            self.tooltip += f"""Weights:\n"""
-            # Iterate through tickers and weights, and add to the tooltip if weight > 0
-            for ticker, weight in zip(self.tickers, self.weights):
-                if weight > 0:
-                    self.tooltip += f"""{ticker}: {weight:.2%}\n"""
-
-        self.data = {
-            "expected_return": self.expected_return,  # y
-            "volatility": self.volatility,  # x
-            "tooltip": self.tooltip,  # tooltip
-            "sharpe_ratio": self.sharpe_ratio,  # for coluring/scaling/rating
-        }
+#
+#    def create_portfolio(
+#        df,
+#        cov_matrix,
+#        constructor=None,
+#        mode=None,
+#        name=None,
+#        constrains=[None],
+#        connected=False,
+#        backgroundColor=False,
+#        borderColor=False,
+#    ):
+#        portfolios = []
+#        for constrain in constrains:
+#            portfolio_df = df.copy()
+#            if constructor is not None:
+#                portfolio_df["ratio"] = constructor(
+#                    df["expected_return"],
+#                    cov_matrix=cov_matrix,
+#                    constrain=constrain,
+#                    mode=mode,
+#                ).optimize()
+#            portfolios.append(Portfolio(portfolio_df, cov_matrix=cov_matrix))
+#        return Portfolios(
+#            portfolios,
+#            name=name,
+#            connected=connected,
+#            backgroundColor=backgroundColor,
+#            borderColor=borderColor,
+#        ).data
 
 
-class Portfolios:
-    def __init__(
-        self,
-        portfolios,
-        name=None,
-        connected=False,
-        backgroundColor=False,
-        borderColor=False,
-    ):
-        self.portfolios = [portfolio.data for portfolio in portfolios]
-        # self.expected_returns = [portfolio.expected_return for portfolio in portfolios]
-        # self.volatilities = [portfolio.volatility for portfolio in portfolios]
-        # self.sharpe_ratios = [portfolio.sharpe_ratio for portfolio in portfolios]
-        self.name = name
-        self.data = {
-            "tickers": portfolios[0].tickers.tolist(),
-            "risk_free_rate": portfolios[0].risk_free_rate,
-            "portfolios": self.portfolios,
-            "connected": connected,
-            "backgroundColor": backgroundColor,
-            "borderColor": borderColor,
-        }
-        #            'expected_returns': self.expected_returns,
-        #            'volatilities': self.volatilities,
-        #            'sharpe_ratios': self.sharpe_ratios,
-        #'name': self.name
-        # }
+#class Portfolio:
+#    def __init__(self, portfolio_df, cov_matrix, risk_free_rate=0.0):
+#        self.tickers = portfolio_df.index
+#        self.weights = portfolio_df["ratio"]
+#        self.risk_free_rate = risk_free_rate
+#        self.expected_return = Financial().portfolio_return(
+#            portfolio_df["expected_return"], self.weights
+#        )
+#        self.volatility = Financial().portfolio_volatility(
+#            self.weights, cov_matrix=cov_matrix
+#        )
+#        self.sharpe_ratio = Financial().sharpe_ratio_scalar(
+#            self.expected_return, self.volatility, risk_free_rate
+#        )
+#        # Initialize tooltip with the common part
+#        self.tooltip = f"""Mean return: {self.expected_return:.2}%\n
+#        Standard deviation: {self.volatility:.2}%\n
+#        Sharpe-ratio: {self.sharpe_ratio:.2f}\n"""
+#
+#        # Check if any weight is larger than 0
+#        if any(weight > 0 for weight in self.weights):
+#            self.tooltip += f"""Weights:\n"""
+#            # Iterate through tickers and weights, and add to the tooltip if weight > 0
+#            for ticker, weight in zip(self.tickers, self.weights):
+#                if weight > 0:
+#                    self.tooltip += f"""{ticker}: {weight:.2%}\n"""
+#
+#        self.data = {
+#            "expected_return": self.expected_return,  # y
+#            "volatility": self.volatility,  # x
+#            "tooltip": self.tooltip,  # tooltip
+#            "sharpe_ratio": self.sharpe_ratio,  # for coluring/scaling/rating
+#        }
 
 
-class Sharpe:
-    def __init__(
-        self, returns, cov_matrix=None, constrain=None, counter=None, mode=None
-    ):
-        self.returns = returns
-        self.cov_matrix = cov_matrix
-        self.mode = mode
-        self.weights = self.optimize()
-
-    def optimize(self):
-        n = len(self.returns)
-        bounds = [(0, 1) for i in range(n)]
-        constraints = {"type": "eq", "fun": lambda x: np.sum(x) - 1}
-        initial_guess = np.array([1 / n for i in range(n)])
-        result = minimize(
-            lambda x: -Financial().sharpe_ratio(
-                self.returns, x, self.cov_matrix, rf=0.0
-            ),
-            initial_guess,
-            method="SLSQP",
-            bounds=bounds,
-            constraints=constraints,
-        )
-        weights = pd.DataFrame(
-            data=result.x, index=self.returns.index, columns=["weights"]
-        )
-        return weights
+#class Portfolios:
+#    def __init__(
+#        self,
+#        portfolios,
+#        name=None,
+#        connected=False,
+#        backgroundColor=False,
+#        borderColor=False,
+#    ):
+#        self.portfolios = [portfolio.data for portfolio in portfolios]
+#        self.name = name
+#        self.data = {
+#            "tickers": portfolios[0].tickers.tolist(),
+#            "risk_free_rate": portfolios[0].risk_free_rate,
+#            "portfolios": self.portfolios,
+#            "connected": connected,
+#            "backgroundColor": backgroundColor,
+#            "borderColor": borderColor,
+#        }
 
 
-class Settings:
-    def __init__(self):
-        self.tickers = self.read_tickers("tickers")
-        self.benchmarks = self.read_tickers("benchmarks")
-        self.extrapolate = self.read_extrapolate()
-        self.lookback = self.read_lookback()
-        self.rfr = self.read_rfr()
-        if self.benchmarks is not None:
-            self.url_index = url_for(
-                "home",
-                tickers=request.args.get("tickers"),
-                benchmarks=request.args.get("benchmarks"),
-                lookback=request.args.get("lookback"),
-                extrapolate=request.args.get("extrapolate"),
-                rfr=request.args.get("rfr"),
-            )
-            self.url_crunch = url_for(
-                "crunch_data",
-                tickers=request.args.get("tickers"),
-                benchmarks=request.args.get("benchmarks"),
-                lookback=request.args.get("lookback"),
-                extrapolate=request.args.get("extrapolate"),
-                rfr=request.args.get("rfr"),
-            )
-        else:
-            self.url_index = url_for(
-                "home",
-                tickers=request.args.get("tickers"),
-                lookback=request.args.get("lookback"),
-                extrapolate=request.args.get("extrapolate"),
-                rfr=request.args.get("rfr"),
-            )
-            self.url_crunch = url_for(
-                "crunch_data",
-                tickers=request.args.get("tickers"),
-                lookback=request.args.get("lookback"),
-                extrapolate=request.args.get("extrapolate"),
-                rfr=request.args.get("rfr"),
-            )
-
-        if self.tickers is not None:
-            self.analysis = pd.DataFrame(
-                {
-                    "ticker": [ticker[0] for ticker in self.tickers],
-                    "ratio": [ticker[1] for ticker in self.tickers],
-                }
-            ).set_index(["ticker"])
-        else:
-            self.analysis = None
-        if self.benchmarks is not None:
-            self.comparison = pd.DataFrame(
-                {
-                    "ticker": [benchmark[0] for benchmark in self.benchmarks],
-                    "ratio": [benchmark[1] for benchmark in self.benchmarks],
-                }
-            ).set_index(["ticker"])
-        else:
-            self.comparison = None
-
-    def read_tickers(self, string):
-        # tickers_input = request.args.getlist("tickers")
-        tickers_input = request.args.get(string)
-        if tickers_input:
-            tickers_dict = json.loads(tickers_input)
-            # extract the ticker values into a list of strings
-            tickers = [
-                (ticker["value"], float(ticker["weight"])) for ticker in tickers_dict
-            ]
-        else:
-            tickers = None
-            
-        return tickers
-
-    def read_lookback(self):
-        lookback = request.args.get("lookback")
-        if lookback is not None:
-            try:
-                return int(lookback)
-            except:
-                print("lookback must be an integer")
-        else:
-            return 30
-
-    def read_extrapolate(self):
-        extrapolate = request.args.get("extrapolate")
-        if extrapolate is not None:
-            try:
-                return int(extrapolate)
-            except:
-                print("extrapolate must be an integer")
-        else:
-            return 1
-
-    def read_rfr(self):
-        rfr = request.args.get("rfr")
-        if rfr is not None:
-            try:
-                return float(rfr)
-            except:
-                print("rfr must be a floating point number")
-        else:
-            return 0
+#class Sharpe:
+#    def __init__(
+#        self, returns, cov_matrix=None, constrain=None, counter=None, mode=None
+#    ):
+#        self.returns = returns
+#        self.cov_matrix = cov_matrix
+#        self.mode = mode
+#        self.weights = self.optimize()
+#
+#    def optimize(self):
+#        n = len(self.returns)
+#        bounds = [(0, 1) for i in range(n)]
+#        constraints = {"type": "eq", "fun": lambda x: np.sum(x) - 1}
+#        initial_guess = np.array([1 / n for i in range(n)])
+#        result = minimize(
+#            lambda x: -Financial().sharpe_ratio(
+#                self.returns, x, self.cov_matrix, rf=0.0
+#            ),
+#            initial_guess,
+#            method="SLSQP",
+#            bounds=bounds,
+#            constraints=constraints,
+#        )
+#        weights = pd.DataFrame(
+#            data=result.x, index=self.returns.index, columns=["weights"]
+#        )
+#        return weights
 
 
-class PreWeighted:
-    def __init__(self, returns, cov_matrix, constrain=None, counter=None, mode=None):
-        self.returns = returns
-        self.equilibrium_return = constrain
-        self.cov_matrix = cov_matrix
-        self.counter = counter
-        self.weights = self.optimize()
-
-    def optimize(self):
-        return self.equilibrium_return
-
-
-class VolatilityMinimizer:
-    def __init__(self, returns, cov_matrix, constrain=None, counter=None, mode=None):
-        self.returns = returns
-        self.equilibrium_return = constrain
-        self.cov_matrix = cov_matrix
-        self.weights = self.optimize()
-
-    def optimize(self):
-        n = len(self.returns)
-        bounds = [(0, 1) for i in range(n)]
-        constraints = [{"type": "eq", "fun": lambda x: np.sum(x) - 1}]
-
-        if self.equilibrium_return is not None:
-            constraints.append(
-                {
-                    "type": "eq",
-                    "fun": lambda x: Financial().portfolio_return(
-                        self.returns, weights=x
-                    )
-                    - self.equilibrium_return,
-                }
-            )
-
-        initial_guess = np.array([1 / n for i in range(n)])
-        result = minimize(
-            lambda x: Financial().portfolio_volatility(
-                weights=x, cov_matrix=self.cov_matrix
-            ),
-            initial_guess,
-            method="SLSQP",
-            bounds=bounds,
-            constraints=constraints,
-        )
-        weights = pd.DataFrame(
-            data=result.x, index=self.returns.index, columns=["weights"]
-        )
-        return weights
+#class Settings:
+#    def __init__(self):
+#        self.tickers = self.read_tickers("tickers")
+#        self.benchmarks = self.read_tickers("benchmarks")
+#        self.extrapolate = self.read_extrapolate()
+#        self.lookback = self.read_lookback()
+#        self.rfr = self.read_rfr()
+#        if self.benchmarks is not None:
+#            self.url_index = url_for(
+#                "home",
+#                tickers=request.args.get("tickers"),
+#                benchmarks=request.args.get("benchmarks"),
+#                lookback=request.args.get("lookback"),
+#                extrapolate=request.args.get("extrapolate"),
+#                rfr=request.args.get("rfr"),
+#            )
+#            self.url_crunch = url_for(
+#                "crunch_data",
+#                tickers=request.args.get("tickers"),
+#                benchmarks=request.args.get("benchmarks"),
+#                lookback=request.args.get("lookback"),
+#                extrapolate=request.args.get("extrapolate"),
+#                rfr=request.args.get("rfr"),
+#            )
+#        else:
+#            self.url_index = url_for(
+#                "home",
+#                tickers=request.args.get("tickers"),
+#                lookback=request.args.get("lookback"),
+#                extrapolate=request.args.get("extrapolate"),
+#                rfr=request.args.get("rfr"),
+#            )
+#            self.url_crunch = url_for(
+#                "crunch_data",
+#                tickers=request.args.get("tickers"),
+#                lookback=request.args.get("lookback"),
+#                extrapolate=request.args.get("extrapolate"),
+#                rfr=request.args.get("rfr"),
+#            )
+#
+#        if self.tickers is not None:
+#            self.analysis = pd.DataFrame(
+#                {
+#                    "ticker": [ticker[0] for ticker in self.tickers],
+#                    "ratio": [ticker[1] for ticker in self.tickers],
+#                }
+#            ).set_index(["ticker"])
+#        else:
+#            self.analysis = None
+#        if self.benchmarks is not None:
+#            self.comparison = pd.DataFrame(
+#                {
+#                    "ticker": [benchmark[0] for benchmark in self.benchmarks],
+#                    "ratio": [benchmark[1] for benchmark in self.benchmarks],
+#                }
+#            ).set_index(["ticker"])
+#        else:
+#            self.comparison = None
+#
+#    def read_tickers(self, string):
+#        # tickers_input = request.args.getlist("tickers")
+#        tickers_input = request.args.get(string)
+#        if tickers_input:
+#            tickers_dict = json.loads(tickers_input)
+#            # extract the ticker values into a list of strings
+#            tickers = [
+#                (ticker["value"], float(ticker["weight"])) for ticker in tickers_dict
+#            ]
+#        else:
+#            tickers = None
+#            
+#        return tickers
+#
+#    def read_lookback(self):
+#        lookback = request.args.get("lookback")
+#        if lookback is not None:
+#            try:
+#                return int(lookback)
+#            except:
+#                print("lookback must be an integer")
+#        else:
+#            return 30
+#
+#    def read_extrapolate(self):
+#        extrapolate = request.args.get("extrapolate")
+#        if extrapolate is not None:
+#            try:
+#                return int(extrapolate)
+#            except:
+#                print("extrapolate must be an integer")
+#        else:
+#            return 1
+#
+#    def read_rfr(self):
+#        rfr = request.args.get("rfr")
+#        if rfr is not None:
+#            try:
+#                return float(rfr)
+#            except:
+#                print("rfr must be a floating point number")
+#        else:
+#            return 0
+#
+#
+#class PreWeighted:
+#    def __init__(self, returns, cov_matrix, constrain=None, counter=None, mode=None):
+#        self.returns = returns
+#        self.equilibrium_return = constrain
+#        self.cov_matrix = cov_matrix
+#        self.counter = counter
+#        self.weights = self.optimize()
+#
+#    def optimize(self):
+#        return self.equilibrium_return
+#
+#
+#class VolatilityMinimizer:
+#    def __init__(self, returns, cov_matrix, constrain=None, counter=None, mode=None):
+#        self.returns = returns
+#        self.equilibrium_return = constrain
+#        self.cov_matrix = cov_matrix
+#        self.weights = self.optimize()
+#
+#    def optimize(self):
+#        n = len(self.returns)
+#        bounds = [(0, 1) for i in range(n)]
+#        constraints = [{"type": "eq", "fun": lambda x: np.sum(x) - 1}]
+#
+#        if self.equilibrium_return is not None:
+#            constraints.append(
+#                {
+#                    "type": "eq",
+#                    "fun": lambda x: Financial().portfolio_return(
+#                        self.returns, weights=x
+#                    )
+#                    - self.equilibrium_return,
+#                }
+#            )
+#
+#        initial_guess = np.array([1 / n for i in range(n)])
+#        result = minimize(
+#            lambda x: Financial().portfolio_volatility(
+#                weights=x, cov_matrix=self.cov_matrix
+#            ),
+#            initial_guess,
+#            method="SLSQP",
+#            bounds=bounds,
+#            constraints=constraints,
+#        )
+#        weights = pd.DataFrame(
+#            data=result.x, index=self.returns.index, columns=["weights"]
+#        )
+#        return weights
 
 
 class app:

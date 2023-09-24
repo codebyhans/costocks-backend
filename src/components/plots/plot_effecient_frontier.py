@@ -1,8 +1,9 @@
 import numpy as np
-from components.fetch_data_component import Financial
-from components.fetch_data_component import VolatilityMinimizer
-from components.fetch_data_component import PreWeighted
-from components.fetch_data_component import Sharpe
+from core.financial import Financial
+from core.portfolio import Portfolio
+from core.optimizers import VolatilityMinimizer
+from core.optimizers import PreWeighted
+from core.optimizers import Sharpe
 
 
 class ploteffecientFrontier:
@@ -11,7 +12,7 @@ class ploteffecientFrontier:
         self.data = self.crunch(analysis, comparison)
 
     def crunch(self, analysis, comparison):
-        sharpe_portfolio = Financial.create_portfolio(
+        sharpe_portfolio = Portfolio.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             constructor=Sharpe,
@@ -20,8 +21,7 @@ class ploteffecientFrontier:
             backgroundColor="rgba(255, 99, 132, 0.6)",
             borderColor="rgba(255, 99, 132, 1)",
         )
-
-        min_variance_portfolio = Financial.create_portfolio(
+        min_variance_portfolio = Portfolio.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             constructor=VolatilityMinimizer,
@@ -29,7 +29,7 @@ class ploteffecientFrontier:
             backgroundColor="rgba(75, 192, 192, 0.6)",
             borderColor="rgba(75, 192, 192, 1)",
         )
-        efficient_frontier = Financial.create_portfolio(
+        efficient_frontier = Portfolio.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             constructor=VolatilityMinimizer,
@@ -43,7 +43,7 @@ class ploteffecientFrontier:
             backgroundColor="rgba(54, 162, 235, 0.6)",
             borderColor="rgba(54, 162, 235, 1)",
         )
-        all_in_one_portfolios = Financial.create_portfolio(
+        all_in_one_portfolios = Portfolio.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             constructor=PreWeighted,
@@ -52,7 +52,8 @@ class ploteffecientFrontier:
             backgroundColor="rgba(255, 205, 86, 0.6)",
             borderColor="rgba(255, 205, 86, 1)",
         )
-        random_portfolios = Financial.create_portfolio(
+        print("Random")
+        random_portfolios = Portfolio.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             constructor=PreWeighted,
@@ -61,7 +62,8 @@ class ploteffecientFrontier:
             backgroundColor="rgba(201, 203, 207, 0.6)",
             borderColor="rgba(204, 203, 207, 1)",
         )
-        analysis_portfolios = Financial.create_portfolio(
+        print("analyisis port")
+        analysis_portfolios = Portfolio.create_portfolio(
             df=analysis["df"],
             cov_matrix=analysis["cov"],
             name="Analysis portfolio",
@@ -70,7 +72,7 @@ class ploteffecientFrontier:
         )
 
         if comparison is not None:
-            comparison_portfolios = Financial.create_portfolio(
+            comparison_portfolios = Portfolio.create_portfolio(
                 df=comparison["df"],
                 cov_matrix=comparison["cov"],
                 name="Benchmark portfolio",
