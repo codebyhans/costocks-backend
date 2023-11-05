@@ -324,7 +324,6 @@ def crunch_data(user_id):
         # Get the data from the request
         data = request.json
 
-
         # Perform your data processing here...
         # For example, you can access the form data like this:
         lookback = int(data.get("numberOfDays"))
