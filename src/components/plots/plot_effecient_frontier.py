@@ -1,42 +1,36 @@
 import numpy as np
 from core.financial import Financial
 from core.portfolio import Portfolio
-from core.optimizers import VolatilityMinimizer
-from core.optimizers import PreWeighted
-from core.optimizers import Sharpe
+from core.optimizers import Optimizers
 
 
 class ploteffecientFrontier:
-    def __init__(self, analysis, comparison):
+    def __init__(self, analysis, comparison=None):
         # Prepare data
         self.data = self.crunch(analysis, comparison)
 
     def crunch(self, analysis, comparison):
         sharpe_portfolio = Portfolio.create_portfolio(
-            df=analysis["df"],
-            cov_matrix=analysis["cov"],
-            constructor=Sharpe,
-            mode=None,
+            analysis=analysis,
+            constructor=Optimizers.Sharpe,
             name="Sharpe ratio optimal portfolio",
             backgroundColor="rgba(255, 99, 132, 0.6)",
             borderColor="rgba(255, 99, 132, 1)",
         )
         min_variance_portfolio = Portfolio.create_portfolio(
-            df=analysis["df"],
-            cov_matrix=analysis["cov"],
-            constructor=VolatilityMinimizer,
+            analysis=analysis,
+            constructor=Optimizers.VolatilityMinimizer,
             name="Minimal variance portfolio",
             backgroundColor="rgba(75, 192, 192, 0.6)",
             borderColor="rgba(75, 192, 192, 1)",
         )
         efficient_frontier = Portfolio.create_portfolio(
-            df=analysis["df"],
-            cov_matrix=analysis["cov"],
-            constructor=VolatilityMinimizer,
+            analysis=analysis,
+            constructor=Optimizers.VolatilityMinimizer,
             name="Effecient frontier",
             constrains=np.linspace(
-                min(analysis["df"]["expected_return"]),
-                max(analysis["df"]["expected_return"]),
+                min(analysis.statistics["expected_return"]),
+                max(analysis.statistics["expected_return"]),
                 100,
             ),
             connected=True,
@@ -44,37 +38,35 @@ class ploteffecientFrontier:
             borderColor="rgba(54, 162, 235, 1)",
         )
         all_in_one_portfolios = Portfolio.create_portfolio(
-            df=analysis["df"],
-            cov_matrix=analysis["cov"],
-            constructor=PreWeighted,
+            analysis=analysis,
+            constructor=Optimizers.PreWeighted,
             name="All-in-one portfolios",
-            constrains=Financial.all_in_one_portfolios(len(analysis["df"])),
+            constrains=Financial().all_in_one_portfolios(analysis.number_of_tickers),
             backgroundColor="rgba(255, 205, 86, 0.6)",
             borderColor="rgba(255, 205, 86, 1)",
         )
-        print("Random")
         random_portfolios = Portfolio.create_portfolio(
-            df=analysis["df"],
-            cov_matrix=analysis["cov"],
-            constructor=PreWeighted,
+            analysis=analysis,
+            constructor=Optimizers.PreWeighted,
             name="Random portfolios",
-            constrains=Financial.random_portfolios(100, len(analysis["df"])),
+            constrains=Financial().random_portfolios(100, analysis.number_of_tickers),
             backgroundColor="rgba(201, 203, 207, 0.6)",
             borderColor="rgba(204, 203, 207, 1)",
         )
-        print("analyisis port")
         analysis_portfolios = Portfolio.create_portfolio(
-            df=analysis["df"],
-            cov_matrix=analysis["cov"],
-            name="Analysis portfolio",
-            backgroundColor="rgba(153, 102, 255, 0.6)",
-            borderColor="rgba(153, 102, 255, 1)",
+            analysis=analysis,
+            constructor=Optimizers.PreWeighted,
+            name="Random portfolios",
+            constrains=[analysis.inventory["tickers"]["weights"].tolist()],
+            backgroundColor="rgba(201, 203, 207, 0.6)",
+            borderColor="rgba(204, 203, 207, 1)",
         )
+        print(analysis.inventory["tickers"]["weights"].tolist())
+        
 
         if comparison is not None:
             comparison_portfolios = Portfolio.create_portfolio(
-                df=comparison["df"],
-                cov_matrix=comparison["cov"],
+                analysis=comparison,
                 name="Benchmark portfolio",
             )
             comparison_returns = comparison_portfolios.expected_returns

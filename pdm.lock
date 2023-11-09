@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default"]
+groups = ["default", "lint", "test"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:e1cb0e80501627ef25c12b4eac98887abadb1ddb12ac867564d913a4f8b484e7"
+content_hash = "sha256:d4605c54fc19ae70140067d6a69d9d89efad3e26911380e5449640cfa7ca0df0"
 
 [[package]]
 name = "appdirs"
@@ -27,6 +27,33 @@ dependencies = [
 files = [
     {file = "beautifulsoup4-4.12.2-py3-none-any.whl", hash = "sha256:bd2520ca0d9d7d12694a53d44ac482d181b4ec1888909b035a3dbf40d0f57d4a"},
     {file = "beautifulsoup4-4.12.2.tar.gz", hash = "sha256:492bbc69dca35d12daac71c4db1bfff0c876c00ef4a2ffacce226d4638eb72da"},
+]
+
+[[package]]
+name = "black"
+version = "23.11.0"
+requires_python = ">=3.8"
+summary = "The uncompromising code formatter."
+dependencies = [
+    "click>=8.0.0",
+    "mypy-extensions>=0.4.3",
+    "packaging>=22.0",
+    "pathspec>=0.9.0",
+    "platformdirs>=2",
+    "tomli>=1.1.0; python_version < \"3.11\"",
+    "typing-extensions>=4.0.1; python_version < \"3.11\"",
+]
+files = [
+    {file = "black-23.11.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:dbea0bb8575c6b6303cc65017b46351dc5953eea5c0a59d7b7e3a2d2f433a911"},
+    {file = "black-23.11.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:412f56bab20ac85927f3a959230331de5614aecda1ede14b373083f62ec24e6f"},
+    {file = "black-23.11.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d136ef5b418c81660ad847efe0e55c58c8208b77a57a28a503a5f345ccf01394"},
+    {file = "black-23.11.0-cp310-cp310-win_amd64.whl", hash = "sha256:6c1cac07e64433f646a9a838cdc00c9768b3c362805afc3fce341af0e6a9ae9f"},
+    {file = "black-23.11.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:cf57719e581cfd48c4efe28543fea3d139c6b6f1238b3f0102a9c73992cbb479"},
+    {file = "black-23.11.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:698c1e0d5c43354ec5d6f4d914d0d553a9ada56c85415700b81dc90125aac244"},
+    {file = "black-23.11.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:760415ccc20f9e8747084169110ef75d545f3b0932ee21368f63ac0fee86b221"},
+    {file = "black-23.11.0-cp311-cp311-win_amd64.whl", hash = "sha256:58e5f4d08a205b11800332920e285bd25e1a75c54953e05502052738fe16b3b5"},
+    {file = "black-23.11.0-py3-none-any.whl", hash = "sha256:54caaa703227c6e0c87b76326d0862184729a69b73d3b7305b6288e1d830067e"},
+    {file = "black-23.11.0.tar.gz", hash = "sha256:4c68855825ff432d197229846f971bc4d6666ce90492e5b02013bcaca4d9ab05"},
 ]
 
 [[package]]
@@ -71,16 +98,6 @@ summary = "Python package for providing Mozilla's CA Bundle."
 files = [
     {file = "certifi-2023.7.22-py3-none-any.whl", hash = "sha256:92d6037539857d8206b8f6ae472e8b77db8058fec5937a1ef3f54304089edbb9"},
     {file = "certifi-2023.7.22.tar.gz", hash = "sha256:539cc1d13202e33ca466e88b2807e29f4c13049d6d87031a3c110744495cb082"},
-]
-
-[[package]]
-name = "chardet"
-version = "5.2.0"
-requires_python = ">=3.7"
-summary = "Universal encoding detector for Python 3"
-files = [
-    {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
-    {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
 ]
 
 [[package]]
@@ -163,11 +180,11 @@ files = [
 
 [[package]]
 name = "core"
-version = "0.1.0"
+version = "0.1.5"
 requires_python = ">=3.10,<3.13"
 git = "https://github.com/codebyhans/core.git"
 ref = "main"
-revision = "1e1018d558762eb7a0d9781823da8093c15d5cd3"
+revision = "66b5023243413c942b6b22f5fabc5a00bef90811"
 summary = "A colelction of code used acress backends"
 dependencies = [
     "numpy==1.26.0",
@@ -178,20 +195,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "deptry"
-version = "0.12.0"
-requires_python = ">=3.8,<4.0"
-summary = "A command line utility to check for unused, missing and transitive dependencies in a Python project."
-dependencies = [
-    "chardet>=4.0.0",
-    "click<9.0.0,>=8.0.0",
-    "colorama>=0.4.6; sys_platform == \"win32\"",
-    "pathspec>=0.9.0",
-    "tomli<3.0.0,>=2.0.1; python_version < \"3.11\"",
-]
+name = "exceptiongroup"
+version = "1.1.3"
+requires_python = ">=3.7"
+summary = "Backport of PEP 654 (exception groups)"
 files = [
-    {file = "deptry-0.12.0-py3-none-any.whl", hash = "sha256:69c801a6ae1b39c7b8e0daf40dbe8b75f1f161277d206dd8f921f32cd22dad91"},
-    {file = "deptry-0.12.0.tar.gz", hash = "sha256:ac3cd32d149c92a9af12f63cd9486ddd1760f0277ed0cf306c6ef0388f57ff0a"},
+    {file = "exceptiongroup-1.1.3-py3-none-any.whl", hash = "sha256:343280667a4585d195ca1cf9cef84a4e178c4b6cf2274caef9859782b567d5e3"},
+    {file = "exceptiongroup-1.1.3.tar.gz", hash = "sha256:097acd85d473d75af5bb98e41b61ff7fe35efe6675e4f9370ec6ec5126d160e9"},
 ]
 
 [[package]]
@@ -261,7 +271,7 @@ files = [
 
 [[package]]
 name = "google-api-core"
-version = "2.12.0"
+version = "2.13.0"
 requires_python = ">=3.7"
 summary = "Google API client core library"
 dependencies = [
@@ -271,31 +281,31 @@ dependencies = [
     "requests<3.0.0.dev0,>=2.18.0",
 ]
 files = [
-    {file = "google-api-core-2.12.0.tar.gz", hash = "sha256:c22e01b1e3c4dcd90998494879612c38d0a3411d1f7b679eb89e2abe3ce1f553"},
-    {file = "google_api_core-2.12.0-py3-none-any.whl", hash = "sha256:ec6054f7d64ad13b41e43d96f735acbd763b0f3b695dabaa2d579673f6a6e160"},
+    {file = "google-api-core-2.13.0.tar.gz", hash = "sha256:abc1da067c9026c6cd15dfbd4f6ad07735a62eeadc541d1cc296314447fc3aad"},
+    {file = "google_api_core-2.13.0-py3-none-any.whl", hash = "sha256:44ed591f6c3a0c1ac7a91867d2b3841f92839f860f3d3fe26c464dbd50f97094"},
 ]
 
 [[package]]
 name = "google-api-core"
-version = "2.12.0"
+version = "2.13.0"
 extras = ["grpc"]
 requires_python = ">=3.7"
 summary = "Google API client core library"
 dependencies = [
-    "google-api-core==2.12.0",
+    "google-api-core==2.13.0",
     "grpcio-status<2.0.dev0,>=1.33.2",
     "grpcio-status<2.0.dev0,>=1.49.1; python_version >= \"3.11\"",
     "grpcio<2.0dev,>=1.33.2",
     "grpcio<2.0dev,>=1.49.1; python_version >= \"3.11\"",
 ]
 files = [
-    {file = "google-api-core-2.12.0.tar.gz", hash = "sha256:c22e01b1e3c4dcd90998494879612c38d0a3411d1f7b679eb89e2abe3ce1f553"},
-    {file = "google_api_core-2.12.0-py3-none-any.whl", hash = "sha256:ec6054f7d64ad13b41e43d96f735acbd763b0f3b695dabaa2d579673f6a6e160"},
+    {file = "google-api-core-2.13.0.tar.gz", hash = "sha256:abc1da067c9026c6cd15dfbd4f6ad07735a62eeadc541d1cc296314447fc3aad"},
+    {file = "google_api_core-2.13.0-py3-none-any.whl", hash = "sha256:44ed591f6c3a0c1ac7a91867d2b3841f92839f860f3d3fe26c464dbd50f97094"},
 ]
 
 [[package]]
 name = "google-api-python-client"
-version = "2.106.0"
+version = "2.107.0"
 requires_python = ">=3.7"
 summary = "Google API Client Library for Python"
 dependencies = [
@@ -306,8 +316,8 @@ dependencies = [
     "uritemplate<5,>=3.0.1",
 ]
 files = [
-    {file = "google-api-python-client-2.106.0.tar.gz", hash = "sha256:f6a3862be2f6e5e0536d7bd47b5af3f24ac0b9147c76c830cafb3329d71d5724"},
-    {file = "google_api_python_client-2.106.0-py2.py3-none-any.whl", hash = "sha256:c47c0dae5dd20aa43e4ea184566fe59d0c8fd0b86dd223b29040d8ea4f7ed6ea"},
+    {file = "google-api-python-client-2.107.0.tar.gz", hash = "sha256:ef6d4c1a17fe9ec0894fc6d4f61e751c4b859fb33f2ab5b881ceb0b80ba442ba"},
+    {file = "google_api_python_client-2.107.0-py2.py3-none-any.whl", hash = "sha256:51d7bf676f41a77b00b7b9c72ace0c1db3dd5a4dd392a13ae897cf4f571a3539"},
 ]
 
 [[package]]
@@ -354,7 +364,7 @@ files = [
 
 [[package]]
 name = "google-cloud-firestore"
-version = "2.13.0"
+version = "2.13.1"
 requires_python = ">=3.7"
 summary = "Google Cloud Firestore API client library"
 dependencies = [
@@ -365,8 +375,8 @@ dependencies = [
     "protobuf!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,<5.0.0dev,>=3.19.5",
 ]
 files = [
-    {file = "google-cloud-firestore-2.13.0.tar.gz", hash = "sha256:40a23aaeb809782f770062fc25359932a6e3e0fff658fb3e2cfd15ba7ad09e59"},
-    {file = "google_cloud_firestore-2.13.0-py2.py3-none-any.whl", hash = "sha256:b0ea1483a24669143227f12b9188800d48bc64cd80d25bc804810e21fa05a119"},
+    {file = "google-cloud-firestore-2.13.1.tar.gz", hash = "sha256:bd14d2eb9ae358d21058ce091c13dea11917e26f1c43738a51e9cea8b49b4f38"},
+    {file = "google_cloud_firestore-2.13.1-py2.py3-none-any.whl", hash = "sha256:8b9ace47f8aeb561a6fd74620a7335e30c48a25e18dfedbd0d7923695768d156"},
 ]
 
 [[package]]
@@ -546,6 +556,16 @@ files = [
 ]
 
 [[package]]
+name = "iniconfig"
+version = "2.0.0"
+requires_python = ">=3.7"
+summary = "brain-dead simple config-ini parsing"
+files = [
+    {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
+    {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
+]
+
+[[package]]
 name = "itsdangerous"
 version = "2.1.2"
 requires_python = ">=3.7"
@@ -706,6 +726,16 @@ files = [
 ]
 
 [[package]]
+name = "mypy-extensions"
+version = "1.0.0"
+requires_python = ">=3.5"
+summary = "Type system extensions for programs checked with the mypy type checker."
+files = [
+    {file = "mypy_extensions-1.0.0-py3-none-any.whl", hash = "sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d"},
+    {file = "mypy_extensions-1.0.0.tar.gz", hash = "sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782"},
+]
+
+[[package]]
 name = "numpy"
 version = "1.26.0"
 requires_python = "<3.13,>=3.9"
@@ -736,6 +766,16 @@ files = [
     {file = "numpy-1.26.0-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7d484292eaeb3e84a51432a94f53578689ffdea3f90e10c8b203a99be5af57d8"},
     {file = "numpy-1.26.0-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:186ba67fad3c60dbe8a3abff3b67a91351100f2661c8e2a80364ae6279720299"},
     {file = "numpy-1.26.0.tar.gz", hash = "sha256:f93fc78fe8bf15afe2b8d6b6499f1c73953169fad1e9a8dd086cdff3190e7fdf"},
+]
+
+[[package]]
+name = "packaging"
+version = "23.2"
+requires_python = ">=3.7"
+summary = "Core utilities for Python packages"
+files = [
+    {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
+    {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
 ]
 
 [[package]]
@@ -789,6 +829,26 @@ version = "3.17.0"
 summary = "a little orm"
 files = [
     {file = "peewee-3.17.0.tar.gz", hash = "sha256:3a56967f28a43ca7a4287f4803752aeeb1a57a08dee2e839b99868181dfb5df8"},
+]
+
+[[package]]
+name = "platformdirs"
+version = "3.11.0"
+requires_python = ">=3.7"
+summary = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+files = [
+    {file = "platformdirs-3.11.0-py3-none-any.whl", hash = "sha256:e9d171d00af68be50e9202731309c4e658fd8bc76f55c11c7dd760d023bda68e"},
+    {file = "platformdirs-3.11.0.tar.gz", hash = "sha256:cf8ee52a3afdb965072dcc652433e0c7e3e40cf5ea1477cd4b3b1d2eb75495b3"},
+]
+
+[[package]]
+name = "pluggy"
+version = "1.3.0"
+requires_python = ">=3.8"
+summary = "plugin and hook calling mechanisms for python"
+files = [
+    {file = "pluggy-1.3.0-py3-none-any.whl", hash = "sha256:d89c696a773f8bd377d18e5ecda92b7a3793cbe66c87060a6fb58c7b6e1061f7"},
+    {file = "pluggy-1.3.0.tar.gz", hash = "sha256:cf61ae8f126ac6f7c451172cf30e3e43d3ca77615509771b3a984a0730651e12"},
 ]
 
 [[package]]
@@ -870,6 +930,24 @@ summary = "pyparsing module - Classes and methods to define and execute parsing 
 files = [
     {file = "pyparsing-3.1.1-py3-none-any.whl", hash = "sha256:32c7c0b711493c72ff18a981d24f28aaf9c1fb7ed5e9667c9e84e3db623bdbfb"},
     {file = "pyparsing-3.1.1.tar.gz", hash = "sha256:ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db"},
+]
+
+[[package]]
+name = "pytest"
+version = "7.4.3"
+requires_python = ">=3.7"
+summary = "pytest: simple powerful testing with Python"
+dependencies = [
+    "colorama; sys_platform == \"win32\"",
+    "exceptiongroup>=1.0.0rc8; python_version < \"3.11\"",
+    "iniconfig",
+    "packaging",
+    "pluggy<2.0,>=0.12",
+    "tomli>=1.0.0; python_version < \"3.11\"",
+]
+files = [
+    {file = "pytest-7.4.3-py3-none-any.whl", hash = "sha256:0d009c083ea859a71b76adf7c1d502e4bc170b80a8ef002da5806527b9591fac"},
+    {file = "pytest-7.4.3.tar.gz", hash = "sha256:d989d136982de4e3b29dabcc838ad581c64e8ed52c11fbe86ddebd9da0818cd5"},
 ]
 
 [[package]]
@@ -981,6 +1059,16 @@ summary = "A lil' TOML parser"
 files = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
+]
+
+[[package]]
+name = "typing-extensions"
+version = "4.8.0"
+requires_python = ">=3.8"
+summary = "Backported and Experimental Type Hints for Python 3.8+"
+files = [
+    {file = "typing_extensions-4.8.0-py3-none-any.whl", hash = "sha256:8f92fc8806f9a6b641eaa5318da32b44d401efaac0f6678c9bc448ba3605faa0"},
+    {file = "typing_extensions-4.8.0.tar.gz", hash = "sha256:df8e4339e9cb77357558cbdbceca33c303714cf861d1eef15e1070055ae8b7ef"},
 ]
 
 [[package]]

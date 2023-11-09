@@ -20,7 +20,6 @@ import time
 from functools import wraps
 
 
-
 import firebase_admin
 from firebase_admin import credentials, db
 
@@ -39,41 +38,48 @@ with open("src/secrets-tokens.json") as secrets_file:
 cred = credentials.Certificate("src/secrets-firebase.json")
 firebase_admin.initialize_app(cred, {"databaseURL": secretsfirebase["databaseURL"]})
 
+
 def authenticate_and_get_user_data(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            access_token = request.cookies.get('jwt_access_token')
+            access_token = request.cookies.get("jwt_access_token")
             if not access_token:
-                return jsonify({'error': 'Access token missing'}), 401
+                return jsonify({"error": "Access token missing"}), 401
 
-            decoded_token = jwt.decode(access_token, secretstokens['access_token_secret'], algorithms=['HS256'])
-            user_id = decoded_token.get('sub')
+            decoded_token = jwt.decode(
+                access_token, secretstokens["access_token_secret"], algorithms=["HS256"]
+            )
+            user_id = decoded_token.get("sub")
 
             # Pass user_data as a keyword argument to the wrapped function
-            kwargs['user_id'] = user_id
+            kwargs["user_id"] = user_id
 
             return func(*args, **kwargs)
-        
+
         except jwt.ExpiredSignatureError:
-            refresh_token = request.cookies.get('jwt_refresh_token')
+            refresh_token = request.cookies.get("jwt_refresh_token")
             if not refresh_token:
-                return jsonify({'error': 'Refresh token missing'}), 401
+                return jsonify({"error": "Refresh token missing"}), 401
 
             try:
-                decoded_refresh_token = jwt.decode(refresh_token, secretstokens['refresh_token_secret'], algorithms=['HS256'])
-                user_id = decoded_refresh_token.get('sub')
-                
-                new_access_token = generate_token(user_id, 'access')
+                decoded_refresh_token = jwt.decode(
+                    refresh_token,
+                    secretstokens["refresh_token_secret"],
+                    algorithms=["HS256"],
+                )
+                user_id = decoded_refresh_token.get("sub")
+
+                new_access_token = generate_token(user_id, "access")
 
                 # Return the new access token to the client
-                response = jsonify({'access_token': new_access_token})
+                response = jsonify({"access_token": new_access_token})
                 return response, 200
             except jwt.ExpiredSignatureError:
-                return jsonify({'error': 'Refresh token expired'}), 401
+                return jsonify({"error": "Refresh token expired"}), 401
             except jwt.DecodeError:
-                return jsonify({'error': 'Invalid refresh token'}), 401
-    
+                return jsonify({"error": "Invalid refresh token"}), 401
+
     return wrapper
 
 
@@ -82,9 +88,8 @@ def update_user_field(user_id, field_name, new_value):
     user_ref = db_ref.child(user_id)
 
     # Update a single field
-    user_ref.update({
-        field_name: new_value
-    })
+    user_ref.update({field_name: new_value})
+
 
 def get_user_data_from_firebase(user_id):
     db_ref = db.reference("users")
@@ -92,9 +97,10 @@ def get_user_data_from_firebase(user_id):
     user_data = user_ref.get()
 
     if user_data:
-        return user_data 
+        return user_data
     else:
         return {}  # Return an empty dictionary or handle as needed
+
 
 def store_user_info(user_info, exclude_fields=None):
     user_id = user_info["id"]  # Assuming 'id' is the user's unique identifier
@@ -102,27 +108,27 @@ def store_user_info(user_info, exclude_fields=None):
     user_ref = db_ref.child(user_id)
 
     # Get existing user data
-    existing_user_data = user_ref.get()   # Set to an empty dictionary if None
+    existing_user_data = user_ref.get()  # Set to an empty dictionary if None
 
     # Prepare the final updated user data
     updated_user_data = {
-            "name": user_info.get("name", ""),
-            "verified_email": user_info.get("verified_email", ""),
-            "given_name": user_info.get("given_name", ""),
-            "family_name": user_info.get("family_name", ""),
-            "picture": user_info.get("picture", ""),
-            "locale": user_info.get("locale", ""),
-            "email": user_info.get("email", ""),
+        "name": user_info.get("name", ""),
+        "verified_email": user_info.get("verified_email", ""),
+        "given_name": user_info.get("given_name", ""),
+        "family_name": user_info.get("family_name", ""),
+        "picture": user_info.get("picture", ""),
+        "locale": user_info.get("locale", ""),
+        "email": user_info.get("email", ""),
     }
     # Add these fields if we don't know the user already otherwise leave them
     if existing_user_data is None:
         updated_user_data["payment_plan"] = "Free"
         updated_user_data["payment_plan_price"] = 0
         updated_user_data["slots"] = 2
-    
 
     # Update the user's data in Firebase
     user_ref.update(updated_user_data)
+
 
 def generate_token(user_id, type, token_expiration):
     # Define your access token secret key (keep it secret!)
@@ -152,7 +158,7 @@ def home():
     return f"""Running"""
 
 
-@app.route('/account/delete', methods=['POST'])
+@app.route("/account/delete", methods=["POST"])
 @authenticate_and_get_user_data
 def delete_user_data(user_id):
     try:
@@ -162,39 +168,58 @@ def delete_user_data(user_id):
         user_ref.delete()
 
         # Clear cookies to log the user out
-        response = jsonify({'status': 'success'})
-        response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite="None", httponly=True)
-        response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite="None", httponly=True)
+        response = jsonify({"status": "success"})
+        response.delete_cookie(
+            "jwt_refresh_token",
+            path="/",
+            domain=f"{app.config['BACKEND_URL']}",
+            secure=True,
+            samesite="None",
+            httponly=True,
+        )
+        response.delete_cookie(
+            "jwt_access_token",
+            path="/",
+            domain=f"{app.config['BACKEND_URL']}",
+            secure=True,
+            samesite="None",
+            httponly=True,
+        )
 
         return response, 200
 
     except Exception as e:
         error_message = str(e)
-        return jsonify({'error': error_message}), 500
+        return jsonify({"error": error_message}), 500
+
 
 # Define a new route to update fields using a dictionary
-@app.route('/account/updateFields', methods=['POST'])
+@app.route("/account/updateFields", methods=["POST"])
 @authenticate_and_get_user_data
 def update_fields(user_id):
     try:
         fields_and_values = request.json
 
         if not fields_and_values or not isinstance(fields_and_values, dict):
-            return jsonify({'error': 'Invalid fields and values data'}), 400
+            return jsonify({"error": "Invalid fields and values data"}), 400
 
         # Update the specified fields for the user in Firebase
         for field, new_value in fields_and_values.items():
             update_user_field(user_id, field, new_value)
 
-        return jsonify({'status': 'success', 'message': 'Fields updated successfully'}), 200
+        return (
+            jsonify({"status": "success", "message": "Fields updated successfully"}),
+            200,
+        )
 
     except Exception as e:
         error_message = str(e)
-        return jsonify({'status': 'error', 'message': error_message}), 500
-    
+        return jsonify({"status": "error", "message": error_message}), 500
+
 
 @app.route("/auth/callback")
 def google_callback():
+    print("hello from backend")
     # Extract the authorization code from the query parameters
     authorization_code = request.args.get("code")
     # Set up the token exchange request
@@ -212,7 +237,7 @@ def google_callback():
     token_data = token_response.json()
     # print('Token Data:', token_data)  # Add this line to see the token data
     access_token = token_data.get("access_token")
-    #refresh_token = token_data.get("refresh_token")  # Get the refresh token
+    # refresh_token = token_data.get("refresh_token")  # Get the refresh token
 
     # Use the access token to fetch user data
     user_info_url = "https://www.googleapis.com/oauth2/v2/userinfo"
@@ -232,135 +257,140 @@ def google_callback():
     response = redirect(redirect_uri)
     response.set_cookie(
         "jwt_refresh_token",
-        generate_token(user_info["id"], "refresh",expiration_refresh),
+        generate_token(user_info["id"], "refresh", expiration_refresh),
         httponly=True,
         secure=True,
         domain=f"{app.config['BACKEND_URL']}",
-        path='/',
+        path="/",
         samesite="None",
         expires=expiration_refresh,  # Set the expiration time
     )
     response.set_cookie(
         "jwt_access_token",
-        generate_token(user_info["id"], "access",expiration_access),
+        generate_token(user_info["id"], "access", expiration_access),
         httponly=True,
         secure=True,
         domain=f"{app.config['BACKEND_URL']}",
-        path='/',
+        path="/",
         samesite="None",
         expires=expiration_access,  # Set the expiration time
     )
     return response
 
 
-
-@app.route('/auth/logout', methods=['GET'])
+@app.route("/auth/logout", methods=["GET"])
 @authenticate_and_get_user_data
 def auth_logout(user_id):
-    
-    response = jsonify({'message': 'Logged out'})
+    response = jsonify({"message": "Logged out"})
 
-    response.delete_cookie('jwt_refresh_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite="None", httponly=True)
-    response.delete_cookie('jwt_access_token', path='/', domain=f"{app.config['BACKEND_URL']}", secure=True, samesite="None", httponly=True)
+    response.delete_cookie(
+        "jwt_refresh_token",
+        path="/",
+        domain=f"{app.config['BACKEND_URL']}",
+        secure=True,
+        samesite="None",
+        httponly=True,
+    )
+    response.delete_cookie(
+        "jwt_access_token",
+        path="/",
+        domain=f"{app.config['BACKEND_URL']}",
+        secure=True,
+        samesite="None",
+        httponly=True,
+    )
 
     return response, 200
 
 
-@app.route('/auth/verify-token', methods=['GET'])
+@app.route("/auth/verify-token", methods=["GET"])
 @authenticate_and_get_user_data
 def auth_verify_token(user_id):
     # Access token is valid, fetch user data from Firebase
     user_data = get_user_data_from_firebase(user_id)
 
-    return jsonify({'message': 'Access token valid', 'user_data': user_data}), 200
+    return jsonify({"message": "Access token valid", "user_data": user_data}), 200
 
 
-@app.route('/valid_tickers', methods=['GET'])
+@app.route("/valid_tickers", methods=["GET"])
 @authenticate_and_get_user_data
 def get_valid_tickers(user_id):
     try:
         Fetcher(app)
 
-        df = current_app.data.prices.tail(1)
+        df = current_app.fetched.prices.tail(1)
 
         # Reorder columns in alphabetical order
         df_sorted = df.sort_index(axis=1)
 
         valid_tickers = [
-            {'ticker': ticker, 'price': round(price,2)}
+            {"ticker": ticker, "price": round(price, 2)}
             for ticker, price in df_sorted.iloc[0].items()
         ]
 
-        #valid_tickers = [
-        #    { 'ticker': ticker, "price": } for ticker in app.available_tickers
-        #]
-        
         response_data = {
-            'status': 'success',
-            'data': valid_tickers,
-            'user_id': user_id  # Including user_id in the response
+            "status": "success",
+            "data": valid_tickers,
+            "user_id": user_id,  # Including user_id in the response
         }
-        
+
         return jsonify(response_data), 200  # 200 OK status code for successful response
-    
+
     except Exception as e:
         error_message = str(e)
-        response_data = {
-            'status': 'error',
-            'message': error_message
-        }
-        
-        return jsonify(response_data), 500  # 500 Internal Server Error status code for errors
+        response_data = {"status": "error", "message": error_message}
 
+        return (
+            jsonify(response_data),
+            500,
+        )  # 500 Internal Server Error status code for errors
 
 
 @app.route("/crunch_data", methods=["POST"])
 @authenticate_and_get_user_data
 def crunch_data(user_id):
+    print("Crunching")
     try:
-
         Fetcher(app)
 
         # Get the data from the request
+        print("getting request data")
         data = request.json
-
+        print(data)
+        print("extracting properties")
         # Perform your data processing here...
         # For example, you can access the form data like this:
-        lookback = int(data.get("numberOfDays"))
-        percentValue = float(data.get("percentValue"))
-        extrapolate = int(data.get("extrapolate"))
         stocks = data.get("stocks")
+        lookback = int(data.get("numberOfDays"))
+        extrapolate = int(data.get("extrapolate"))
+        risk_free_rate = float(data.get("percentValue"))
 
-
+        print("current value")
         # Calculate total value of the request
         total_value = 0
         for stock in stocks:
             current_price = float(stock["currentPrice"])
             held_stocks = int(stock["heldStocks"])
             total_value += current_price * held_stocks
+
+        print("Ensuring value")
         # Ensure the program still works if total_value = 0 (prevent devision by 0)
         if total_value == 0:
             total_value = 1
 
-
-        analysis = Common().append_to_df(
-            df=pd.DataFrame(
-                {
-                    "ticker": [stock["ticker"] for stock in stocks],
-                    "ratio": [
-                        (float(stock["currentPrice"]) * int(stock["heldStocks"]))
-                        / total_value
-                        for stock in stocks
-                    ],
-                }
-            ).set_index(["ticker"]),
-            data=current_app.data,
+        print("Append to df ")
+        analysis = Common().generate_analysis_data(
+            fetched=current_app.fetched,
             lookback=lookback,
-            extrapolate=extrapolate,
-            tickers=[stock["ticker"] for stock in stocks],
+            scale=extrapolate,
+            stocks=stocks,
+            risk_free_rate=risk_free_rate,
         )
 
+        print(analysis)
+        print(analysis.statistics)
 
+        print("Build figures ")
         figs = {
             # "Prices": plotPrices(analysis).data,
             # "Returns": plotReturns(analysis).data,

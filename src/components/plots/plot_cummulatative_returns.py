@@ -1,4 +1,4 @@
-from core.financial import  Financial
+from core.financial import Financial
 from core.optimizers import VolatilityMinimizer
 from core.optimizers import PreWeighted
 from core.optimizers import Sharpe

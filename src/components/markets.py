@@ -1,14 +1,14 @@
-#from app import app
-#from core.data_fetcher import DataFetcher
-#from core.common import Common
-#import core as c
-#import pandas as pd
-#from components.fetch_data_component import Financial
-#from components.fetch_data_component import PreWeighted
-#import datetime as dt
+# from app import app
+# from core.data_fetcher import DataFetcher
+# from core.common import Common
+# import core as c
+# import pandas as pd
+# from components.fetch_data_component import Financial
+# from components.fetch_data_component import PreWeighted
+# import datetime as dt
 #
 #
-#class Markets:
+# class Markets:
 #    def __init__(self, lookback, extrapolate, end_date=dt.date.today()):
 #        while end_date.weekday() > 4:
 #            end_date -= 1
@@ -24,7 +24,7 @@
 #        }
 #
 #
-#class market:
+# class market:
 #    def __init__(self, tickers, markets):
 #        self.tickers = tickers
 #
