@@ -10,11 +10,9 @@ from core.common import Common
 import traceback
 import jwt
 import json
-from components.plots.plot_covariances import plotCovariances
 from components.plots.plot_effecient_frontier import ploteffecientFrontier
-from components.plots.plot_prices import plotPrices
-from components.plots.plot_returns import plotReturns
-from components.plots.plot_benchmark import plotBenchmark
+
+# from components.plots.plot_cummulatative_returns import plotCumulativeReturns
 from datetime import datetime, timedelta
 import time
 from functools import wraps
@@ -219,7 +217,6 @@ def update_fields(user_id):
 
 @app.route("/auth/callback")
 def google_callback():
-    print("hello from backend")
     # Extract the authorization code from the query parameters
     authorization_code = request.args.get("code")
     # Set up the token exchange request
@@ -235,6 +232,7 @@ def google_callback():
     # Exchange authorization code for access token and refresh token
     token_response = requests.post(token_url, data=token_params)
     token_data = token_response.json()
+
     # print('Token Data:', token_data)  # Add this line to see the token data
     access_token = token_data.get("access_token")
     # refresh_token = token_data.get("refresh_token")  # Get the refresh token
@@ -349,15 +347,12 @@ def get_valid_tickers(user_id):
 @app.route("/crunch_data", methods=["POST"])
 @authenticate_and_get_user_data
 def crunch_data(user_id):
-    print("Crunching")
     try:
         Fetcher(app)
 
         # Get the data from the request
-        print("getting request data")
         data = request.json
-        print(data)
-        print("extracting properties")
+
         # Perform your data processing here...
         # For example, you can access the form data like this:
         stocks = data.get("stocks")
@@ -365,20 +360,17 @@ def crunch_data(user_id):
         extrapolate = int(data.get("extrapolate"))
         risk_free_rate = float(data.get("percentValue"))
 
-        print("current value")
         # Calculate total value of the request
-        total_value = 0
-        for stock in stocks:
-            current_price = float(stock["currentPrice"])
-            held_stocks = int(stock["heldStocks"])
-            total_value += current_price * held_stocks
+        #        total_value = 0
+        #        for stock in stocks:
+        #            current_price = float(stock["currentPrice"])
+        #            held_stocks = int(stock["heldStocks"])
+        #            total_value += current_price * held_stocks
+        #
+        #        # Ensure the program still works if total_value = 0 (prevent devision by 0)
+        #        if total_value == 0:
+        #            total_value = 1
 
-        print("Ensuring value")
-        # Ensure the program still works if total_value = 0 (prevent devision by 0)
-        if total_value == 0:
-            total_value = 1
-
-        print("Append to df ")
         analysis = Common().generate_analysis_data(
             fetched=current_app.fetched,
             lookback=lookback,
@@ -387,16 +379,21 @@ def crunch_data(user_id):
             risk_free_rate=risk_free_rate,
         )
 
-        print(analysis)
-        print(analysis.statistics)
+        portfolios_data = Common().build_portfolios(analysis=analysis)
 
-        print("Build figures ")
         figs = {
             # "Prices": plotPrices(analysis).data,
             # "Returns": plotReturns(analysis).data,
             # "Covariances": plotCovariances(analysis).data,
-            "Efficient Frontier": ploteffecientFrontier(analysis, None).data,
+            # "Cumulative returns": plotCumulativeReturns(portfolios_data=portfolios_data, analysis=analysis, comparison=None).data,
+            "Efficient Frontier": ploteffecientFrontier(
+                portfolios_data=portfolios_data, analysis=analysis, comparison=None
+            ).data,
         }
+
+        # print('*'*100)
+        # print(figs["Cumulative returns"])
+        # print('*'*100)
 
         # Now you can process the data as needed and return the result
         # For this example, I'll just return a simple response

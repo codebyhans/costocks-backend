@@ -184,7 +184,7 @@ version = "0.1.5"
 requires_python = ">=3.10,<3.13"
 git = "https://github.com/codebyhans/core.git"
 ref = "main"
-revision = "66b5023243413c942b6b22f5fabc5a00bef90811"
+revision = "a7f1b5e8819b8529a166536badfb6aaa4b930836"
 summary = "A colelction of code used acress backends"
 dependencies = [
     "numpy==1.26.0",
