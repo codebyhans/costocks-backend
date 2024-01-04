@@ -1,20 +1,18 @@
 from app import app
-from flask import Flask, redirect, url_for, abort, redirect, request
-from flask import render_template, request, jsonify, current_app
+from flask import redirect, redirect, request
+from flask import request, jsonify
 import pandas as pd
 import requests
 from waitress import serve
 from core.data_fetcher import DataFetcher
-from components.fetch_data_component import Fetcher
 from core.common import Common
+from core.firebase_helpers import FirebaseHelpers
 import traceback
 import jwt
 import json
 from components.plots.plot_effecient_frontier import ploteffecientFrontier
-
-# from components.plots.plot_cummulatative_returns import plotCumulativeReturns
+from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
-import time
 from functools import wraps
 
 
@@ -22,19 +20,28 @@ import firebase_admin
 from firebase_admin import credentials, db
 
 
-with open("src/secrets-firebase.json") as secrets_file:
+with open("secrets-firebase.json") as secrets_file:
     secretsfirebase = json.load(secrets_file)
 
-with open("src/secrets-google.json") as secrets_file:
+with open("secrets-google.json") as secrets_file:
     secretsgoogle = json.load(secrets_file)
 
-
-with open("src/secrets-tokens.json") as secrets_file:
+with open("secrets-tokens.json") as secrets_file:
     secretstokens = json.load(secrets_file)
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate("src/secrets-firebase.json")
+cred = credentials.Certificate("secrets-firebase.json")
 firebase_admin.initialize_app(cred, {"databaseURL": secretsfirebase["databaseURL"]})
+
+
+def get_date_n_weekdays_ago(n):
+    today = datetime.today().date()
+    count = 0
+    while count < n:
+        today -= relativedelta(days=1)
+        if today.weekday() in [1, 2, 3, 4, 5]:
+            count += 1
+    return today
 
 
 def authenticate_and_get_user_data(func):
@@ -100,6 +107,117 @@ def get_user_data_from_firebase(user_id):
         return {}  # Return an empty dictionary or handle as needed
 
 
+@app.route("/portfolios", methods=["GET"])
+def get_ports():
+    portfolios_for_plotting = []
+    returns = db.reference("tickers").get()
+    portfolios = db.reference("portfolios/root").get()
+
+    simulation_style = {
+        "fill": True,
+        "borderWidth": 2,
+        "pointRadius": 2,
+        "pointHoverRadius": 20,
+        "backgroundColor": "rgba(108, 154, 161, 0.4)",
+        "borderColor": "rgba(108, 154, 161, 0.4)",
+        "pointBackgroundColor": "rgba(108, 154, 161, 0.4)",
+        "pointBorderColor": "rgba(108, 154, 161, 0.4)",
+        "hoverBackgroundColor": "rgba(108, 154, 161, 0.4)",
+        "hoverBorderColor": "rgba(108, 154, 161, 0.4)",
+    }
+
+    benchmark_style = {
+        "fill": True,
+        "borderWidth": 2,
+        "pointRadius": 2,
+        "pointHoverRadius": 20,
+        "backgroundColor": "rgba(252,153, 153, 0.4)",
+        "borderColor": "rgba(252,153, 153, 0.4)",
+        "pointBackgroundColor": "rgba(252,153, 153, 0.4)",
+        "pointBorderColor": "rgba(252,153, 153, 0.4)",
+        "hoverBackgroundColor": "rgba(252,153, 153, 0.4)",
+        "hoverBorderColor": "rgba(252,153, 153, 0.4)",
+    }
+
+    for index, portfolio_name in enumerate(sorted(portfolios.keys())):
+        portfolio = portfolios[portfolio_name]
+        benchmarks = portfolio["benchmarks"]
+        settings = portfolio["settings"]
+        results = portfolio.get("results", None)
+        weights_list = []
+
+        if results:
+            portfolio_data = {
+                "index": index,
+                "label": settings.get("name", "Name missing 🤖"),
+                "settings": settings,
+                "data_weights": [],
+                "data_returns": [],
+                "data": [],
+                "benchmarks": [],
+            }
+            portfolio_data.update(simulation_style)
+
+            dates_dt = [
+                datetime.strptime(date, "%Y-%m-%d").date()
+                for date in sorted(results.keys())
+            ]
+            tickers_history = {}
+            for ticker in portfolio["settings"]["tickers"]:
+                ticker_history = returns.get(ticker)["historical-data"]
+                tickers_history[ticker] = ticker_history
+
+            for date in dates_dt:
+                date_string = date.strftime("%Y-%m-%d")
+                weights = results[date_string]["optimized_weights"]
+                weights_list.append((date, weights))
+                portfolio_returns = {}
+                for ticker, historical_data in tickers_history.items():
+                    portfolio_returns[ticker] = historical_data.get(date_string)[
+                        "returns"
+                    ]
+
+                portfolio_data["data_weights"].append({"x": f"{date}", "w": weights})
+                portfolio_data["data_returns"].append(
+                    {"x": f"{date}", "r": portfolio_returns}
+                )
+
+            for index, benchmark_name in enumerate(benchmarks):
+                historical_data = returns.get(benchmark_name, {}).get(
+                    "historical-data", {}
+                )
+                benchmark_data = {"index": index, "label": benchmark_name, "data": []}
+                benchmark_data.update(benchmark_style)
+
+                for benchmark_date_string, data in historical_data.items():
+                    benchmark_date = datetime.strptime(
+                        benchmark_date_string, "%Y-%m-%d"
+                    ).date()
+                    if dates_dt[0] <= benchmark_date <= dates_dt[-1]:
+                        benchmark_data["data"].append(
+                            {"x": f"{benchmark_date}", "y": data.get("returns")}
+                        )
+
+                portfolio_data["benchmarks"].append(benchmark_data)
+
+            ticker_data = {}
+            for date, weights in weights_list:
+                for ticker, weight in weights.items():
+                    if ticker not in ticker_data:
+                        ticker_data[ticker] = []
+
+                    ticker_data[ticker].append(
+                        {
+                            "x": f"{date}",  # Adjust the date format as needed
+                            "y": weight,
+                        }
+                    )
+
+            portfolios_for_plotting.append(portfolio_data)
+
+    return {"portfolios": portfolios_for_plotting}, 200
+
+
 def store_user_info(user_info, exclude_fields=None):
     user_id = user_info["id"]  # Assuming 'id' is the user's unique identifier
     db_ref = db.reference("users")
@@ -153,7 +271,7 @@ def favicon():
 
 @app.route("/")
 def home():
-    return f"""Running"""
+    return f"""Running backend adhoc"""
 
 
 @app.route("/account/delete", methods=["POST"])
@@ -311,25 +429,35 @@ def auth_verify_token(user_id):
 
 
 @app.route("/valid_tickers", methods=["GET"])
-@authenticate_and_get_user_data
-def get_valid_tickers(user_id):
+# @authenticate_and_get_user_data
+def get_valid_tickers():
+    valid_tickers = []
     try:
-        Fetcher(app)
+        ref = db.reference("tickers")
+        tickers = ref.get()
 
-        df = current_app.fetched.prices.tail(1)
+        for symbol, ticker_data in tickers.items():
+            ticker_name = ticker_data.get("name", "No Name")
+            if isinstance(ticker_name, dict):
+                name = ticker_name.get("name", "No Name")
+            historical_data = ticker_data.get("historical-data", {})
 
-        # Reorder columns in alphabetical order
-        df_sorted = df.sort_index(axis=1)
+            if historical_data:
+                newest_date = max(historical_data.keys())
+                newest_price = historical_data[newest_date]
 
-        valid_tickers = [
-            {"ticker": ticker, "price": round(price, 2)}
-            for ticker, price in df_sorted.iloc[0].items()
-        ]
+                valid_tickers.append(
+                    {
+                        "ticker": FirebaseHelpers.firebase_ticker_decode(symbol),
+                        "price": round(newest_price, 2),
+                        "name": name,
+                        "price_from_date": newest_date,
+                    }
+                )
 
         response_data = {
             "status": "success",
             "data": valid_tickers,
-            "user_id": user_id,  # Including user_id in the response
         }
 
         return jsonify(response_data), 200  # 200 OK status code for successful response
@@ -348,8 +476,6 @@ def get_valid_tickers(user_id):
 @authenticate_and_get_user_data
 def crunch_data(user_id):
     try:
-        Fetcher(app)
-
         # Get the data from the request
         data = request.json
 
@@ -360,19 +486,16 @@ def crunch_data(user_id):
         extrapolate = int(data.get("extrapolate"))
         risk_free_rate = float(data.get("percentValue"))
 
-        # Calculate total value of the request
-        #        total_value = 0
-        #        for stock in stocks:
-        #            current_price = float(stock["currentPrice"])
-        #            held_stocks = int(stock["heldStocks"])
-        #            total_value += current_price * held_stocks
-        #
-        #        # Ensure the program still works if total_value = 0 (prevent devision by 0)
-        #        if total_value == 0:
-        #            total_value = 1
-
+        # Generate analysis-data
+        symbols = [stock["ticker"] for stock in stocks]
+        lookback_day = get_date_n_weekdays_ago(lookback + 1)
+        days_since_lookback_day = app.today - lookback_day
+        data = DataFetcher(
+            symbols, lookback=relativedelta(days=days_since_lookback_day.days), db=db
+        )
         analysis = Common().generate_analysis_data(
-            fetched=current_app.fetched,
+            prices=data.prices,
+            returns=data.returns,
             lookback=lookback,
             scale=extrapolate,
             stocks=stocks,
@@ -390,10 +513,6 @@ def crunch_data(user_id):
                 portfolios_data=portfolios_data, analysis=analysis, comparison=None
             ).data,
         }
-
-        # print('*'*100)
-        # print(figs["Cumulative returns"])
-        # print('*'*100)
 
         # Now you can process the data as needed and return the result
         # For this example, I'll just return a simple response

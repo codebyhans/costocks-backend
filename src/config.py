@@ -26,6 +26,10 @@ class DevelopmentConfig(Config):
     BACKEND_URL = "localhost"
     BACKEND_PORT = ":5000"
 
+    BACKEND_B_PROTOCOL = "http://"
+    BACKEND_B_URL = "localhost"
+    BACKEND_B_PORT = ":8080"
+
 
 class ProductionConfig(Config):
     DEBUG = False
@@ -36,6 +40,10 @@ class ProductionConfig(Config):
     BACKEND_PROTOCOL = "https://"
     BACKEND_URL = "qpinvest-nbdj-main-i4enuayvva-lz.a.run.app"
     BACKEND_PORT = ""
+
+    BACKEND_B_PROTOCOL = "https://"
+    BACKEND_B_URL = "backend-b-jioe-main-i4enuayvva-lz.a.run.app"
+    BACKEND_B_PORT = ""
 
 
 # Function to get the selected configuration based on env_node

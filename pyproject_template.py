@@ -22,6 +22,7 @@ dependencies = [
     "python-dateutil==2.8.2",
     "requests==2.31.0",
     "waitress==2.1.2",
+    "seaborn>=0.13.0",
     "Core @ git+https://{github_username}:{github_token}@github.com/{github_username}/core.git@main",
 ]
 

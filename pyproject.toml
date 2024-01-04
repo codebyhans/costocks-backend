@@ -15,6 +15,7 @@ dependencies = [
     "requests==2.31.0",
     "waitress==2.1.2",
     "Core @ git+https://github.com/codebyhans/core.git@main",
+    "seaborn>=0.13.0",
 ]
 
 
