@@ -173,7 +173,7 @@ def get_ports():
                 weights_list.append((date, weights))
                 portfolio_returns = {}
                 for ticker, historical_data in tickers_history.items():
-                    portfolio_return =  historical_data.get(date_string, None)
+                    portfolio_return = historical_data.get(date_string, None)
                     if portfolio_return is not None:
                         portfolio_returns[ticker] = portfolio_return["returns"]
 
@@ -427,12 +427,13 @@ def get_valid_tickers():
 
             if historical_data:
                 newest_date = max(historical_data.keys())
-                newest_price = historical_data[newest_date]['prices']
+                newest_price = historical_data[newest_date]["prices"]
                 valid_tickers.append(
                     {
                         "ticker": FirebaseHelpers.firebase_ticker_decode(symbol),
                         "price": round(newest_price, 2),
-                        "name":  'popname: '+FirebaseHelpers.firebase_ticker_decode(symbol), 
+                        "name": "popname: "
+                        + FirebaseHelpers.firebase_ticker_decode(symbol),
                         "price_from_date": newest_date,
                     }
                 )
@@ -459,7 +460,6 @@ def crunch_data(user_id):
     try:
         # Get the data from the request
         data = request.json
-        print(data)
         # Perform your data processing here...
         # For example, you can access the form data like this:
         stocks = data.get("stocks")
@@ -473,7 +473,7 @@ def crunch_data(user_id):
         data = DataFetcher(
             symbols, lookback=relativedelta(days=days_since_lookback_day.days), db=db
         )
-        
+
         analysis = Common().generate_analysis_data(
             prices=data.data["prices"],
             returns=data.data["returns"],
@@ -505,4 +505,3 @@ def crunch_data(user_id):
         traceback_info = traceback.format_exc()  # Get the traceback as a string
         error_message = str(e)
         return jsonify({"error": error_message, "traceback": traceback_info}), 500
-

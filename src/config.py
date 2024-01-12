@@ -3,7 +3,8 @@ class Config:
     PORT = 5000  # Set the port you want your app to run on
     HOST = "0.0.0.0"  # Set the host IP address
     FRONTEND_URL = None
-    
+
+
 class DevelopmentConfig(Config):
     DEBUG = True
     FRONTEND_PROTOCOL = "http://"
