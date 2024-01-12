@@ -1,8 +1,6 @@
 import os
 from waitress import serve
 from flask import Flask
-import core as c
-import datetime as dt
 from dateutil.relativedelta import relativedelta
 
 # from components.fetch_data_component import Common

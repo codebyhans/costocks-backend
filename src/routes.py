@@ -12,7 +12,7 @@ import jwt
 import json
 from components.plots.plot_effecient_frontier import ploteffecientFrontier
 from dateutil.relativedelta import relativedelta
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from functools import wraps
 
 
@@ -173,9 +173,9 @@ def get_ports():
                 weights_list.append((date, weights))
                 portfolio_returns = {}
                 for ticker, historical_data in tickers_history.items():
-                    portfolio_returns[ticker] = historical_data.get(date_string)[
-                        "returns"
-                    ]
+                    portfolio_return =  historical_data.get(date_string, None)
+                    if portfolio_return is not None:
+                        portfolio_returns[ticker] = portfolio_return["returns"]
 
                 portfolio_data["data_weights"].append({"x": f"{date}", "w": weights})
                 portfolio_data["data_returns"].append(
@@ -199,19 +199,6 @@ def get_ports():
                         )
 
                 portfolio_data["benchmarks"].append(benchmark_data)
-
-            ticker_data = {}
-            for date, weights in weights_list:
-                for ticker, weight in weights.items():
-                    if ticker not in ticker_data:
-                        ticker_data[ticker] = []
-
-                    ticker_data[ticker].append(
-                        {
-                            "x": f"{date}",  # Adjust the date format as needed
-                            "y": weight,
-                        }
-                    )
 
             portfolios_for_plotting.append(portfolio_data)
 
@@ -435,26 +422,20 @@ def get_valid_tickers():
     try:
         ref = db.reference("tickers")
         tickers = ref.get()
-
         for symbol, ticker_data in tickers.items():
-            ticker_name = ticker_data.get("name", "No Name")
-            if isinstance(ticker_name, dict):
-                name = ticker_name.get("name", "No Name")
             historical_data = ticker_data.get("historical-data", {})
 
             if historical_data:
                 newest_date = max(historical_data.keys())
-                newest_price = historical_data[newest_date]
-
+                newest_price = historical_data[newest_date]['prices']
                 valid_tickers.append(
                     {
                         "ticker": FirebaseHelpers.firebase_ticker_decode(symbol),
                         "price": round(newest_price, 2),
-                        "name": name,
+                        "name":  'popname: '+FirebaseHelpers.firebase_ticker_decode(symbol), 
                         "price_from_date": newest_date,
                     }
                 )
-
         response_data = {
             "status": "success",
             "data": valid_tickers,
@@ -478,24 +459,24 @@ def crunch_data(user_id):
     try:
         # Get the data from the request
         data = request.json
-
+        print(data)
         # Perform your data processing here...
         # For example, you can access the form data like this:
         stocks = data.get("stocks")
         lookback = int(data.get("numberOfDays"))
         extrapolate = int(data.get("extrapolate"))
         risk_free_rate = float(data.get("percentValue"))
-
         # Generate analysis-data
         symbols = [stock["ticker"] for stock in stocks]
         lookback_day = get_date_n_weekdays_ago(lookback + 1)
-        days_since_lookback_day = app.today - lookback_day
+        days_since_lookback_day = date.today() - lookback_day
         data = DataFetcher(
             symbols, lookback=relativedelta(days=days_since_lookback_day.days), db=db
         )
+        
         analysis = Common().generate_analysis_data(
-            prices=data.prices,
-            returns=data.returns,
+            prices=data.data["prices"],
+            returns=data.data["returns"],
             lookback=lookback,
             scale=extrapolate,
             stocks=stocks,
@@ -525,6 +506,3 @@ def crunch_data(user_id):
         error_message = str(e)
         return jsonify({"error": error_message, "traceback": traceback_info}), 500
 
-
-if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=5000)
