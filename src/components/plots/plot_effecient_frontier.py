@@ -16,7 +16,7 @@ class ploteffecientFrontier:
                 {
                     "x": portfolio["volatility"],
                     "y": portfolio["expected_return"],
-                    "c": portfolio["sharpe_ratio"],
+                    "c": [portfolio["backgroundColor"],portfolio["sharpe_ratio"],portfolio["holy_ratio"]],
                     "tooltip": portfolio["tooltip"],
                 }
                 for portfolio in portfolios["portfolios"]
