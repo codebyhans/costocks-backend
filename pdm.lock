@@ -233,7 +233,7 @@ version = "0.1.5"
 requires_python = ">=3.10,<3.13"
 git = "https://github.com/codebyhans/core.git"
 ref = "main"
-revision = "da33c076a42dedad52178d2669a0c813bd494a71"
+revision = "00819efdd05e10dc4363086781931dd42c6070a2"
 summary = "A colelction of code used acress backends"
 dependencies = [
     "cvxopt>=1.3.2",
