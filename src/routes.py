@@ -423,8 +423,9 @@ def get_valid_tickers():
         ref = db.reference("tickers")
         tickers = ref.get()
         for symbol, ticker_data in tickers.items():
+            print(symbol)
             historical_data = ticker_data.get("historical-data", {})
-
+            print(historical_data)
             if historical_data:
                 newest_date = max(historical_data.keys())
                 newest_price = historical_data[newest_date]["prices"]
@@ -432,8 +433,8 @@ def get_valid_tickers():
                     {
                         "ticker": FirebaseHelpers.firebase_ticker_decode(symbol),
                         "price": round(newest_price, 2),
-                        "name": "popname: "
-                        + FirebaseHelpers.firebase_ticker_decode(symbol),
+                        "name": ticker_data["facts"].name,
+                        "isin": ticker_data["facts"].isin,
                         "price_from_date": newest_date,
                     }
                 )
@@ -441,6 +442,8 @@ def get_valid_tickers():
             "status": "success",
             "data": valid_tickers,
         }
+        
+        print(valid_tickers)
 
         return jsonify(response_data), 200  # 200 OK status code for successful response
 
