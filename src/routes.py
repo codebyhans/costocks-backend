@@ -178,9 +178,10 @@ def get_ports():
                         portfolio_returns[ticker] = portfolio_return["returns"]
 
                 portfolio_data["data_weights"].append({"x": f"{date}", "w": weights})
-                portfolio_data["data_returns"].append(
-                    {"x": f"{date}", "r": portfolio_returns}
-                )
+                if portfolio_returns:
+                    portfolio_data["data_returns"].append(
+                        {"x": f"{date}", "r": portfolio_returns}
+                    )
 
             for index, benchmark_name in enumerate(benchmarks):
                 historical_data = returns.get(benchmark_name, {}).get(
@@ -423,9 +424,7 @@ def get_valid_tickers():
         ref = db.reference("tickers")
         tickers = ref.get()
         for symbol, ticker_data in tickers.items():
-            print(symbol)
             historical_data = ticker_data.get("historical-data", {})
-            print(historical_data)
             if historical_data:
                 newest_date = max(historical_data.keys())
                 newest_price = historical_data[newest_date]["prices"]
@@ -433,8 +432,8 @@ def get_valid_tickers():
                     {
                         "ticker": FirebaseHelpers.firebase_ticker_decode(symbol),
                         "price": round(newest_price, 2),
-                        "name": ticker_data["facts"].name,
-                        "isin": ticker_data["facts"].isin,
+                        "name": ticker_data["facts"]["name"],
+                        "isin": ticker_data["facts"]["isin"],
                         "price_from_date": newest_date,
                     }
                 )
@@ -443,8 +442,6 @@ def get_valid_tickers():
             "data": valid_tickers,
         }
         
-        print(valid_tickers)
-
         return jsonify(response_data), 200  # 200 OK status code for successful response
 
     except Exception as e:
