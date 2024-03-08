@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:9370b2ebaebf4caf150786becf483d393c94e42cfda481dd8df87294d08eef1c"
+content_hash = "sha256:f17e21873100a789e714ff4bde7833a4ee9cf3f25e24030814d51f7bdcd5dd57"
 
 [[package]]
 name = "appdirs"
@@ -233,11 +233,11 @@ version = "0.1.5"
 requires_python = ">=3.10,<3.13"
 git = "https://github.com/codebyhans/core.git"
 ref = "main"
-revision = "e421c8e4bf7a3fbf64dea871f878232a6013ad54"
+revision = "33bf6f258f017d5f8e99327e89fabf85b733e644"
 summary = "A colelction of code used acress backends"
 dependencies = [
     "cvxopt>=1.3.2",
-    "firebase-admin>=6.2.0",
+    "firebase-admin>=6.4.0",
     "numpy==1.26.0",
     "pandas==2.1.1",
     "python-dateutil==2.8.2",
@@ -341,7 +341,7 @@ files = [
 
 [[package]]
 name = "firebase-admin"
-version = "6.2.0"
+version = "6.4.0"
 requires_python = ">=3.7"
 summary = "Firebase Admin Python SDK"
 dependencies = [
@@ -353,8 +353,8 @@ dependencies = [
     "pyjwt[crypto]>=2.5.0",
 ]
 files = [
-    {file = "firebase_admin-6.2.0-py3-none-any.whl", hash = "sha256:e3c42351fb6194d7279a6fd9209a947005fb4ee7e9037d19762e6cb3da4a82e1"},
-    {file = "firebase_admin-6.2.0.tar.gz", hash = "sha256:e3b334d18bbea039f2f3e8a792ad6870d2a7cc79a13ed10659dedd63f5b475e4"},
+    {file = "firebase_admin-6.4.0-py3-none-any.whl", hash = "sha256:aa06f19f0aa8b9b929dbe5cd13677c9ba05fe7ff819564f420aae02c645c6322"},
+    {file = "firebase_admin-6.4.0.tar.gz", hash = "sha256:4ac83ee00abe68498b9f08d701b550a77b3a59efba610a9e2fb3d7b1515166c6"},
 ]
 
 [[package]]
