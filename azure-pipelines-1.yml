@@ -22,8 +22,8 @@ variables:
   # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
 
-  # Python version: 3.7
-  pythonVersion: '3.7'
+  # Python version: 3.10
+  pythonVersion: '3.10'
 
 stages:
 - stage: Build
@@ -37,16 +37,13 @@ stages:
       inputs:
         versionSpec: '$(pythonVersion)'
       displayName: 'Use Python $(pythonVersion)'
-
     - script: |
-        python -m venv antenv
-        source antenv/bin/activate
-        python -m pip install --upgrade pip
-        pip install setup
-        pip install -r requirements.txt
+         curl -sSL https://pdm-project.org/install-pdm.py | python3 -
+      displayName: 'Install pdm'
+    - script: |
+        pdm install
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
-
     - task: ArchiveFiles@2
       displayName: 'Archive files'
       inputs:
