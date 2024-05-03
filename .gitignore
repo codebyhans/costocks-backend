@@ -6,6 +6,9 @@
 .idea/
 .vscode/
 *.iml
+.pypirc
+.venv/
+__pycache__/
 
 # Ignore secret JSON files
 # /src/secrets-firebase.json

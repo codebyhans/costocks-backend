@@ -4,19 +4,25 @@ version = ""
 description = ""
 authors = [
     {name = "Hansotto Kristiansen", email = "hansotto.kristiansen@gmail.com"},
+    {name = "", email = "hansotto.kristiansen@gmail.com"},
 ]
 dependencies = [
     "firebase-admin>=6.4.0",
-    "Flask==2.3.2",
-    "Flask-Cors==4.0.0",
-    "pandas==2.1.1",
-    "PyJWT==2.8.0",
-    "python-dateutil==2.8.2",
-    "requests==2.31.0",
-    "waitress==2.1.2",
-    "Core==0.1.5",
+    "Flask>=2.3.2",
+    "Flask-Cors>=4.0.0",
+    "pandas>=2.1.1",
+    "PyJWT>=2.8.0",
+    "python-dateutil>=2.8.2",
+    "requests>=2.31.0",
+    "waitress>=2.1.2",
     "seaborn>=0.13.0",
+    "keyring>=25.2.0",
+    "artifacts-keyring>=0.3.5",
+    "Core==0.1.5",
 ]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
 
 [tool.pdm]
 [[tool.pdm.sources]]
@@ -24,7 +30,7 @@ name = "azure_artifacts"
 url = "https://pkgs.dev.azure.com/costocks/COSTOCKS/_packaging/artifacts-costocks/pypi/simple/"
 
 
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "Proprietary"}
 
