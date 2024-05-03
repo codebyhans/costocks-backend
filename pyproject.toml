@@ -4,7 +4,6 @@ version = ""
 description = ""
 authors = [
     {name = "Hansotto Kristiansen", email = "hansotto.kristiansen@gmail.com"},
-    {name = "", email = "hansotto.kristiansen@gmail.com"},
 ]
 dependencies = [
     "firebase-admin>=6.4.0",
@@ -16,24 +15,17 @@ dependencies = [
     "requests>=2.31.0",
     "waitress>=2.1.2",
     "seaborn>=0.13.0",
-    "keyring>=25.2.0",
-    "artifacts-keyring>=0.3.5",
     "Core==0.1.5",
 ]
-requires-python = ">=3.10"
-readme = "README.md"
-license = {text = "MIT"}
-
-[tool.pdm]
-[[tool.pdm.sources]]
-name = "azure_artifacts"
-url = "https://pkgs.dev.azure.com/costocks/COSTOCKS/_packaging/artifacts-costocks/pypi/simple/"
-
 
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "Proprietary"}
 
+[tool.pdm]
+[[tool.pdm.source]]
+name = "azure_artifacts"
+url = "https://pkgs.dev.azure.com/costocks/COSTOCKS/_packaging/artifacts-costocks/pypi/simple/"
 
 [tool.pdm.dev-dependencies]
 test = [
