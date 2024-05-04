@@ -22,12 +22,6 @@ requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "Proprietary"}
 
-[tool.pdm]
-[[tool.pdm.source]]
-name = "azure_artifacts"
-url = "https://pkgs.dev.azure.com/costocks/COSTOCKS/_packaging/artifacts-costocks/pypi/simple/"
-
-
 [tool.pdm.dev-dependencies]
 test = [
     "pytest>=7.4.3",
