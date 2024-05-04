@@ -15,17 +15,11 @@ dependencies = [
     "requests>=2.31.0",
     "waitress>=2.1.2",
     "seaborn>=0.13.0",
-    "Core==0.1.5",
 ]
 
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "Proprietary"}
-
-[tool.pdm]
-[[tool.pdm.source]]
-name = "azure_artifacts"
-url = "https://pkgs.dev.azure.com/costocks/COSTOCKS/_packaging/artifacts-costocks/pypi/simple/"
 
 [tool.pdm.dev-dependencies]
 test = [
