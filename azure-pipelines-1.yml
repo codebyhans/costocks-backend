@@ -49,11 +49,11 @@ stages:
          curl -sSL https://pdm-project.org/install-pdm.py | python3 -
       displayName: 'Install pdm'
     - script: |
-         pdm install keyring
-         pdm install artifacts-keyring
+         pdm add keyring
+         pdm add artifacts-keyring
       displayName: 'Install keyring'
     - script: |
-         pdm install Core
+         pdm add Core
       displayName: 'Install Core'
     - script: |
         pdm install -vv
