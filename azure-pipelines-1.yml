@@ -51,8 +51,10 @@ stages:
     - script: |
          pip install keyring
          pip install artifacts-keyring
-         echo $KEYRING_BACKEND
       displayName: 'Install keyring'
+    - script: |
+         pip install Core
+      displayName: 'Install Core'
     - script: |
         pdm install -vv
       workingDirectory: $(projectRoot)
