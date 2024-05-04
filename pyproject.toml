@@ -18,6 +18,11 @@ dependencies = [
     "Core==0.1.5",
 ]
 
+[tool.pdm]
+[[tool.pdm.source]]
+name = "azure_artifacts"
+url = "https://pkgs.dev.azure.com/costocks/COSTOCKS/_packaging/artifacts-costocks/pypi/simple/"
+
 requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "Proprietary"}
