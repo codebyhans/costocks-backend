@@ -51,6 +51,7 @@ stages:
     - script: |
          pip install keyring
          pip install artifacts-keyring
+         echo $KEYRING_BACKEND
       displayName: 'Install keyring'
     - script: |
         pdm install -vv
