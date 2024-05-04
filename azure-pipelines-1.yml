@@ -37,6 +37,14 @@ stages:
       inputs:
         versionSpec: '$(pythonVersion)'
       displayName: 'Use Python $(pythonVersion)'
+    - task: PipAuthenticate@1
+      displayName: 'Pip Authenticate'
+      inputs:
+        # Provide list of feed names which you want to authenticate.
+        # Project scoped feeds must include the project name in addition to the feed name.
+        artifactFeeds: 'COSTOCKS/artifacts-costocks'
+        # Setting this variable to "true" will force pip to get distributions from official python registry first and fallback to feeds mentioned above if distributions are not found there.
+        onlyAddExtraIndex: true
     - script: |
          curl -sSL https://pdm-project.org/install-pdm.py | python3 -
       displayName: 'Install pdm'
