@@ -50,6 +50,7 @@ stages:
       displayName: 'Install pdm'
     - script: |
          pip install keyring
+         pip install artifacts-keyring
       displayName: 'Install keyring'
     - script: |
         pdm install -vv
