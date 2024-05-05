@@ -53,10 +53,7 @@ stages:
         pip install artifacts-keyring
       displayName: 'Install keyring'
     - script: |
-        pdm install -vv
-      displayName: 'Install Core reqs(1)'
-    - script: |
-        pdm install -vv
+        pdm install
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
     - task: ArchiveFiles@2
