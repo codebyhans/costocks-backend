@@ -9,6 +9,7 @@
 .pypirc
 .venv/
 __pycache__/
+pdm.toml
 
 # Ignore secret JSON files
 # /src/secrets-firebase.json
