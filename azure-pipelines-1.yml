@@ -67,7 +67,7 @@ stages:
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Upload package'
-      artifact: drop
+      artifact: backend-a
 
 - stage: Deploy
   displayName: 'Deploy Web App'
@@ -93,4 +93,4 @@ stages:
             inputs:
               azureSubscription: $(azureServiceConnectionId)
               appName: $(webAppName)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+              package: $(Pipeline.Workspace)/backend-a/$(Build.BuildId).zip
