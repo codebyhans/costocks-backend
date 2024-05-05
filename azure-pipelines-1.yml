@@ -46,13 +46,31 @@ stages:
         # Setting this variable to "true" will force pip to get distributions from official python registry first and fallback to feeds mentioned above if distributions are not found there.
         onlyAddExtraIndex: true
     - script: |
-         curl -sSL https://pdm-project.org/install-pdm.py | python3 -
+        curl -sSL https://pdm-project.org/install-pdm.py | python3 -
       displayName: 'Install pdm'
     - script: |
-         pdm add keyring
-         pdm add artifacts-keyring
+        pip install keyring
+        pip install artifacts-keyring
       displayName: 'Install keyring'
+    - script: |
+        pdm install -vv
+      displayName: 'Install Core reqs(1)'
+    - script: |
+        pdm install -vv
+      workingDirectory: $(projectRoot)
+      displayName: "Install requirements"
+    - task: ArchiveFiles@2
+      displayName: 'Archive files'
+      inputs:
+        rootFolderOrFile: '$(projectRoot)'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        replaceExistingArchive: true
 
+    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      displayName: 'Upload package'
+      artifact: drop
 
 - stage: Deploy
   displayName: 'Deploy Web App'
