@@ -87,7 +87,7 @@ stages:
             inputs:
               versionSpec: '$(pythonVersion)'
             displayName: 'Use Python version'
-
+          
           - task: AzureWebApp@1
             displayName: 'Deploy Azure Web App : '
             inputs:
@@ -95,5 +95,7 @@ stages:
               appName: $(webAppName)
               package: $(Pipeline.Workspace)/backend-a/$(Build.BuildId).zip
               deploymentMethod: 'runFromPackage'
-              appType: 'webApp'
+              appType: 'webAppLinux'
+              runtimeStack: 'PYTHON|3.10'
+              startUpCommand: 'python src/app.py'
 
