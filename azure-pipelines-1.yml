@@ -53,10 +53,7 @@ stages:
         pip install artifacts-keyring
       displayName: 'Install keyring'
     - script: |
-        pdm install -vv
-      displayName: 'Install Core reqs(1)'
-    - script: |
-        pdm install -vv
+        pdm install
       workingDirectory: $(projectRoot)
       displayName: "Install requirements"
     - task: ArchiveFiles@2
@@ -70,7 +67,7 @@ stages:
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Upload package'
-      artifact: drop
+      artifact: backend-a
 
 - stage: Deploy
   displayName: 'Deploy Web App'
@@ -90,10 +87,15 @@ stages:
             inputs:
               versionSpec: '$(pythonVersion)'
             displayName: 'Use Python version'
-
+          
           - task: AzureWebApp@1
             displayName: 'Deploy Azure Web App : '
             inputs:
               azureSubscription: $(azureServiceConnectionId)
               appName: $(webAppName)
-              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+              package: $(Pipeline.Workspace)/backend-a/$(Build.BuildId).zip
+              deploymentMethod: 'runFromPackage'
+              appType: 'webAppLinux'
+              runtimeStack: 'PYTHON|3.10'
+              startUpCommand: 'python src/app.py'
+
