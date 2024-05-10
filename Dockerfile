@@ -1,24 +1,33 @@
-FROM python:3.10
+# For more information, please refer to https://aka.ms/vscode-docker-python
+FROM python:3-slim
 
-ARG GITHUB_TOKEN
-ARG GITHUB_USERNAME
-ARG ENV_NODE
-ARG ZEET_APP
-ARG ZEET_PROJECT
-ARG GIT_COMMIT_SHA
-ARG ZEET_ENVIRONMENT
-ARG GUNICORN_CMD_ARGS
-ARG PYTHONUNBUFFERED
-ARG UVICORN_HOST
+EXPOSE 5000
+
+ARG CACHEBUST=1
+RUN echo "This command will run every time due to the ARG"
+
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Turns off buffering for easier container logging
+
+# Install pip requirements
+RUN python -m pip install pdm
+
+ENV PYTHONUNBUFFERED=2
 
 WORKDIR /app
-COPY pyproject_template.py .
-RUN python pyproject_template.py 
+COPY . /app
 
+# Print copied files
+RUN ls -l
 
-RUN pip install -U pip setuptools wheel
-RUN pip install pdm
-RUN pdm install -v
+RUN pdm install
 
-COPY . .
-CMD pdm run python src/app.py
+# Creates a non-root user with an explicit UID and adds permission to access the /app folder
+# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+USER appuser
+
+# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "src.app:app"]
