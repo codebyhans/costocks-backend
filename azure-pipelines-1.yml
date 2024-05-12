@@ -69,7 +69,7 @@ stages:
 #      displayName: 'Upload package'
 #      artifact: backend-a
       
-- stage: Docker
+- stage: DockerBuild
   displayName: 'Build dockerimage'
   condition: succeeded()
   jobs:
@@ -83,4 +83,22 @@ stages:
         repository: backend-a
         command: build
         Dockerfile: Dockerfile
-
+        
+- stage: DockerPush
+  displayName: 'Push dockerimage'
+  condition: succeeded()
+  dependsOn: DockerBuild
+  jobs:
+  - job: DockerJob
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Push image to registry
+      condition: succeeded()
+      inputs:
+        command: push
+        repository: backend-a
+        containerRegistry: 'costocksregistry'  
+        tags: |
+          $(latest)  # Optionally, you can use tags to version your images, here it uses Build ID as a tag
