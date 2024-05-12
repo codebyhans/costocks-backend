@@ -71,21 +71,16 @@ stages:
       
 - stage: Docker
   displayName: 'Build dockerimage'
-#  dependsOn: Build
   condition: succeeded()
   jobs:
-  - deployment: DeploymentJob
+  - job: DockerJob
     pool:
       vmImage: $(vmImageName)
-    environment: $(environmentName)
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: Docker@2
-            displayName: Build an image
-            inputs:
-              repository: backend-a
-              command: build
-              Dockerfile: Dockerfile
+    steps:
+    - task: Docker@2
+      displayName: Build an image
+      inputs:
+        repository: backend-a
+        command: build
+        Dockerfile: Dockerfile
 
