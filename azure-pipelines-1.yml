@@ -68,9 +68,9 @@ stages:
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Upload package'
       artifact: backend-a
-
-- stage: Deploy
-  displayName: 'Deploy Web App'
+      
+- stage: Docker
+  displayName: 'Build dockerimage'
   dependsOn: Build
   condition: succeeded()
   jobs:
@@ -83,19 +83,12 @@ stages:
         deploy:
           steps:
 
-          - task: UsePythonVersion@0
+          - task: DockerCompose@0
             inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
-          
-          - task: AzureWebApp@1
-            displayName: 'Deploy Azure Web App : '
-            inputs:
-              azureSubscription: $(azureServiceConnectionId)
-              appName: $(webAppName)
-              package: $(Pipeline.Workspace)/backend-a/$(Build.BuildId).zip
-              deploymentMethod: 'runFromPackage'
-              appType: 'webAppLinux'
-              runtimeStack: 'PYTHON|3.10'
-              startUpCommand: 'python src/app.py'
+              containerregistrytype: 'Azure Container Registry'
+              azureSubscription: 'Azure subscription 1(1)(3d7831d7-e214-4eb5-bae7-35bd1b1dd614)'
+              azureContainerRegistry: '{"loginServer":"costocksregistry.azurecr.io", "id" : "/subscriptions/3d7831d7-e214-4eb5-bae7-35bd1b1dd614/resourceGroups/costocks_resources/providers/Microsoft.ContainerRegistry/registries/costocksregistry"}'
+              dockerComposeFile: '**/docker-compose.yml'
+              action: 'Build services'
+              includeLatestTag: true
 
