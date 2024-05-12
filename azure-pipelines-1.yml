@@ -67,7 +67,7 @@ stages:
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
       displayName: 'Upload package'
-      artifact: backend-a
+      artifact: backenda
       
 
 - stage: DockerBuildAndPush
@@ -80,7 +80,7 @@ stages:
     - task: Docker@2
       displayName: Build and push image
       inputs:
-        repository: backend-a
+        repository: backenda
         command: buildAndPush
         Dockerfile: Dockerfile
         containerRegistry: 'costocksregistry'
