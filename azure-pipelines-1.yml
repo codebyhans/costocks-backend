@@ -82,7 +82,10 @@ stages:
       runOnce:
         deploy:
           steps:
-
+          - script: |
+              ls -a
+            displayName: 'ls'
+    
           - task: DockerCompose@0
             inputs:
               containerregistrytype: 'Azure Container Registry'
