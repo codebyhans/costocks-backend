@@ -69,37 +69,55 @@ stages:
 #      displayName: 'Upload package'
 #      artifact: backend-a
       
-- stage: DockerBuild
-  displayName: 'Build dockerimage'
-  condition: succeeded()
+#- stage: DockerBuild
+#  displayName: 'Build dockerimage'
+#  condition: succeeded()
+#  jobs:
+#  - job: DockerJob
+#    pool:
+#      vmImage: $(vmImageName)
+#    steps:
+#    - task: Docker@2
+#      displayName: Build an image
+#      inputs:
+#        repository: backend-a
+#        command: build
+#        Dockerfile: Dockerfile
+#        
+#- stage: DockerPush
+#  displayName: 'Push dockerimage'
+#  condition: succeeded()
+#  dependsOn: DockerBuild
+#  jobs:
+#  - job: DockerJob
+#    pool:
+#      vmImage: $(vmImageName)
+#    steps:
+#    - task: Docker@2
+#      displayName: Push image to registry
+#      condition: succeeded()
+#      inputs:
+#        command: push
+#        repository: backend-a
+#        containerRegistry: 'costocksregistry'  
+#        tags: |
+#          latest
+#          $(Build.BuildId)
+
+- stage: DockerBuildAndPush
+  displayName: 'Build and Push Docker Image'
   jobs:
   - job: DockerJob
     pool:
       vmImage: $(vmImageName)
     steps:
     - task: Docker@2
-      displayName: Build an image
+      displayName: Build and push image
       inputs:
         repository: backend-a
-        command: build
+        command: buildAndPush
         Dockerfile: Dockerfile
-        
-- stage: DockerPush
-  displayName: 'Push dockerimage'
-  condition: succeeded()
-  dependsOn: DockerBuild
-  jobs:
-  - job: DockerJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      displayName: Push image to registry
-      condition: succeeded()
-      inputs:
-        command: push
-        repository: backend-a
-        containerRegistry: 'costocksregistry'  
+        containerRegistry: 'costocksregistry'
         tags: |
           latest
           $(Build.BuildId)
