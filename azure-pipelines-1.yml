@@ -87,7 +87,7 @@ stages:
             inputs:
               containerregistrytype: 'Azure Container Registry'
               azureSubscription: 'Azure subscription 1(1)(3d7831d7-e214-4eb5-bae7-35bd1b1dd614)'
-              azureContainerRegistry: '{"loginServer":"costocksregistry.azurecr.io", "id" : "/subscriptions/3d7831d7-e214-4eb5-bae7-35bd1b1dd614/resourceGroups/costocks_resources/providers/Microsoft.ContainerRegistry/registries/costocksregistry"}'
+              azureContainerRegistry: 'costocksregistry.azurecr.io'
               dockerComposeFile: '**/docker-compose.yml'
               action: 'Build services'
               includeLatestTag: true
