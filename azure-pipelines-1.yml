@@ -101,4 +101,4 @@ stages:
         repository: backend-a
         containerRegistry: 'costocksregistry'  
         tags: |
-          $(latest)  # Optionally, you can use tags to version your images, here it uses Build ID as a tag
+          $(Build.BuildId)  # Optionally, you can use tags to version your images, here it uses Build ID as a tag
