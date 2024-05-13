@@ -77,15 +77,22 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - task: Docker@2
+      displayName: Build image
+      inputs:
+        repository: backenda
+        command: build
+        Dockerfile: Dockerfile
+        containerRegistry: 'costocksregistry'
+        tags: |
+          backenda
     - script: |
-        # Build Docker image
-        docker build -t backenda -f Dockerfile .
-      displayName: 'Build Docker image'
-    
-    - script: |
-        # Tag Docker image
-        docker tag backenda:latest costocksregistry/backenda:backend
-      displayName: 'Tag Docker image'
+        # List all Docker images
+        docker images
+        
+        # Inspect each Docker image to view its tags
+        docker images --format '{{.Repository}}:{{.Tag}}'
+      displayName: 'List Docker images and their tags' 
       
 - stage: DockerPush
   displayName: 'Push Docker Image'
