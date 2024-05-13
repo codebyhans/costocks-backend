@@ -84,15 +84,7 @@ stages:
         command: build
         Dockerfile: Dockerfile
         containerRegistry: 'costocksregistry'
-        tags: |
-          backenda
-    - script: |
-        # List all Docker images
-        docker images
-        
-        # Inspect each Docker image to view its tags
-        docker images --format '{{.Repository}}:{{.Tag}}'
-      displayName: 'List Docker images and their tags' 
+        tags: 'latest'
       
 - stage: DockerPush
   displayName: 'Push Docker Image'
@@ -114,5 +106,4 @@ stages:
         repository: backenda
         command: push
         containerRegistry: 'costocksregistry'
-        tags: |
-          backenda
+        tags: 'latest'
