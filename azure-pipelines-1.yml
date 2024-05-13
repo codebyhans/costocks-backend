@@ -78,11 +78,12 @@ stages:
       vmImage: $(vmImageName)
     steps:
       - task: Docker@2
+        displayName: Build image
         inputs:
           containerRegistry: 'costocksregistry'
           repository: 'backenda'
           command: 'build'
-          Dockerfile: 'Dockerfile'
+          Dockerfile: '**/Dockerfile'
           arguments: 'latest'
       
 - stage: DockerPush
@@ -98,7 +99,6 @@ stages:
         repository: 'backenda'
         command: 'push'
         tags: 'latest'
-        
 
 
 
