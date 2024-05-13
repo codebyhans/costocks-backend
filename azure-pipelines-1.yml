@@ -77,6 +77,13 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - script: |
+        # List all Docker images
+        docker images
+        
+        # Inspect each Docker image to view its tags
+        docker images --format '{{.Repository}}:{{.Tag}}'
+      displayName: 'List Docker images and their tags'
     - task: Docker@2
       displayName: Build image
       inputs:
@@ -86,7 +93,14 @@ stages:
         containerRegistry: 'costocksregistry'
         tags: |
           backenda
-
+    - script: |
+        # List all Docker images
+        docker images
+        
+        # Inspect each Docker image to view its tags
+        docker images --format '{{.Repository}}:{{.Tag}}'
+      displayName: 'List Docker images and their tags'
+      
 - stage: DockerPush
   displayName: 'Push Docker Image'
   jobs:
