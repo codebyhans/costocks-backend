@@ -109,6 +109,8 @@ stages:
       
 - stage: DockerPush
   displayName: 'Push Docker Image'
+  dependsOn: 
+    - DockerBuild
   jobs:
   - job: DockerPushJob
     pool:
