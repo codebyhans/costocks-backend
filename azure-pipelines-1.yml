@@ -80,7 +80,7 @@ stages:
     - task: Docker@2
       displayName: Build image
       inputs:
-        repository: backendb
+        repository: backenda
         command: build
         Dockerfile: Dockerfile
         containerRegistry: 'costocksregistry'
@@ -98,7 +98,7 @@ stages:
     - task: Docker@2
       displayName: Push image
       inputs:
-        repository: backendb
+        repository: backenda
         command: push
         containerRegistry: 'costocksregistry'
         tags: |
