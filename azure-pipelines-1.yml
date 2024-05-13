@@ -94,6 +94,13 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - script: |
+        # List all Docker images
+        docker images
+        
+        # Inspect each Docker image to view its tags
+        docker images --format '{{.Repository}}:{{.Tag}}'
+      displayName: 'List Docker images and their tags'
     - task: Docker@2
       displayName: Push image
       inputs:
