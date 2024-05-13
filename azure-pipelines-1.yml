@@ -85,6 +85,7 @@ stages:
         Dockerfile: Dockerfile
         containerRegistry: 'costocksregistry'
         tags: |
+          backenda
           latest
           $(Build.BuildId)
 
@@ -102,5 +103,6 @@ stages:
         command: push
         containerRegistry: 'costocksregistry'
         tags: |
+          backenda
           latest
           $(Build.BuildId)
