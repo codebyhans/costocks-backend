@@ -69,6 +69,20 @@ stages:
 #      displayName: 'Upload package'
 #      artifact: backenda
       
+- stage: DockerBuildPush
+  displayName: 'Buld and Push Docker Image'
+  jobs:
+  - job: DockerPushJob
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'costocksregistry'
+        repository: 'backenda'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: 'latest'
 
 - stage: DockerBuild
   displayName: 'Build Docker Image'
@@ -101,20 +115,6 @@ stages:
         tags: latest
 
 
-- stage: DockerBuildPush
-  displayName: 'Buld and Push Docker Image'
-  jobs:
-  - job: DockerPushJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'costocksregistry'
-        repository: 'backenda'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: 'latest'
 
 
 
