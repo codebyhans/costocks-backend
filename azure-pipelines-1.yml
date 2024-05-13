@@ -86,8 +86,6 @@ stages:
         containerRegistry: 'costocksregistry'
         tags: |
           backenda
-          latest
-          $(Build.BuildId)
 
 - stage: DockerPush
   displayName: 'Push Docker Image'
@@ -104,5 +102,3 @@ stages:
         containerRegistry: 'costocksregistry'
         tags: |
           backenda
-          latest
-          $(Build.BuildId)
