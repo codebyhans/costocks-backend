@@ -84,7 +84,6 @@ stages:
           containerRegistry: costocksregistry
           repository: backenda
           tags: latest
-          arguments: --label buildtype=nightly
       
 - stage: DockerPush
   displayName: 'Push Docker Image'
@@ -102,6 +101,20 @@ stages:
         tags: latest
 
 
+- stage: DockerBuildPush
+  displayName: 'Buld and Push Docker Image'
+  jobs:
+  - job: DockerPushJob
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'costocksregistry'
+        repository: 'backenda'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: 'latest'
 
 
 
