@@ -91,14 +91,21 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-      - task: Docker@2
-        displayName: Build
-        inputs:
-          command: build
-          Dockerfile: '**/Dockerfile'
-          containerRegistry: 'costocksregistry'
-          repository: 'backenda'
-          tags: 'latest'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'costocksregistry'
+        repository: 'backenda'
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
+        tags: 'latest'
+    - task: Docker@2
+      displayName: Push
+      inputs:
+        command: 'push'
+        containerRegistry: 'costocksregistry'
+        repository: 'backenda'
+        tags: 'latest'
+
       
 - stage: DockerPush
   displayName: 'Push Docker Image'
@@ -114,6 +121,5 @@ stages:
         containerRegistry: costocksregistry
         repository: backenda
         tags: latest
-
 
 
