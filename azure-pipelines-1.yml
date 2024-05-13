@@ -95,9 +95,10 @@ stages:
         displayName: Build
         inputs:
           command: build
-          containerRegistry: costocksregistry
-          repository: backenda
-          tags: latest
+          Dockerfile: '**/Dockerfile'
+          containerRegistry: 'costocksregistry'
+          repository: 'backenda'
+          tags: 'latest'
       
 - stage: DockerPush
   displayName: 'Push Docker Image'
@@ -113,8 +114,6 @@ stages:
         containerRegistry: costocksregistry
         repository: backenda
         tags: latest
-
-
 
 
 
