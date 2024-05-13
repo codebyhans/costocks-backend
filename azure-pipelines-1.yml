@@ -56,33 +56,7 @@ stages:
 #        pdm install
 #      workingDirectory: $(projectRoot)
 #      displayName: "Install requirements"
-#    - task: ArchiveFiles@2
-#      displayName: 'Archive files'
-#      inputs:
-#        rootFolderOrFile: '$(projectRoot)'
-#        includeRootFolder: false
-#        archiveType: zip
-#        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-#        replaceExistingArchive: true
-#
-#    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-#      displayName: 'Upload package'
-#      artifact: backenda
       
-- stage: DockerBuildPush
-  displayName: 'Buld and Push Docker Image'
-  jobs:
-  - job: DockerPushJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'costocksregistry'
-        repository: 'backenda'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: 'latest'
 
 - stage: DockerBuild
   displayName: 'Build Docker Image'
@@ -96,19 +70,10 @@ stages:
         containerRegistry: 'costocksregistry'
         repository: 'backenda'
         command: 'build'
-        Dockerfile: '**/Dockerfile'
-        tags: 'latest'
-    - task: Docker@2
-      displayName: Push
-      inputs:
-        command: 'push'
-        containerRegistry: 'costocksregistry'
-        repository: 'backenda'
-        tags: 'latest'
+        
 
-      
-- stage: DockerPush
-  displayName: 'Push Docker Image'
+- stage: DockerBuildPush
+  displayName: 'Buld and Push Docker Image'
   dependsOn: 
     - DockerBuild
   jobs:
@@ -117,11 +82,11 @@ stages:
       vmImage: $(vmImageName)
     steps:
     - task: Docker@2
-      displayName: Push
+      condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
       inputs:
-        command: push
-        containerRegistry: costocksregistry
-        repository: backenda
-        tags: latest
-
-
+        containerRegistry: 'costocksregistry'
+        repository: 'backenda'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: 'latest'
+      
