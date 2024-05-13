@@ -82,7 +82,7 @@ stages:
           containerRegistry: 'costocksregistry'
           repository: 'backenda'
           command: 'build'
-          Dockerfile: '**/Dockerfile'
+          Dockerfile: 'Dockerfile'
           arguments: 'latest'
       
 - stage: DockerPush
