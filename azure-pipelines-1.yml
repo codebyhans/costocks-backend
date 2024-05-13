@@ -78,28 +78,14 @@ stages:
       vmImage: $(vmImageName)
     steps:
     - script: |
-        # List all Docker images
-        docker images
-        
-        # Inspect each Docker image to view its tags
-        docker images --format '{{.Repository}}:{{.Tag}}'
-      displayName: 'List Docker images and their tags'
-    - task: Docker@2
-      displayName: Build image
-      inputs:
-        repository: backenda
-        command: build
-        Dockerfile: Dockerfile
-        containerRegistry: 'costocksregistry'
-        tags: |
-          backenda
+        # Build Docker image
+        docker build -t backenda -f Dockerfile .
+      displayName: 'Build Docker image'
+    
     - script: |
-        # List all Docker images
-        docker images
-        
-        # Inspect each Docker image to view its tags
-        docker images --format '{{.Repository}}:{{.Tag}}'
-      displayName: 'List Docker images and their tags'
+        # Tag Docker image
+        docker tag backenda:latest costocksregistry/backenda:backend
+      displayName: 'Tag Docker image'
       
 - stage: DockerPush
   displayName: 'Push Docker Image'
