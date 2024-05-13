@@ -7,17 +7,8 @@ trigger:
 - main
 
 variables:
-  # Azure Resource Manager connection created during pipeline creation
-  azureServiceConnectionId: 'f47c4d2f-64cb-450d-be3f-4dbef447e59b'
-
-  # Web app name
-  webAppName: 'costocks'
-
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
-
-  # Environment name
-  environmentName: 'costocks'
 
   # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
@@ -26,36 +17,36 @@ variables:
   pythonVersion: '3.10'
 
 stages:
-#- stage: Build
-#  displayName: Build stage
-#  jobs:
-#  - job: BuildJob
-#    pool:
-#      vmImage: $(vmImageName)
-#    steps:
-#    - task: UsePythonVersion@0
-#      inputs:
-#        versionSpec: '$(pythonVersion)'
-#      displayName: 'Use Python $(pythonVersion)'
-#    - task: PipAuthenticate@1
-#      displayName: 'Pip Authenticate'
-#      inputs:
-#        # Provide list of feed names which you want to authenticate.
-#        # Project scoped feeds must include the project name in addition to the feed name.
-#        artifactFeeds: 'COSTOCKS/artifacts-costocks'
-#        # Setting this variable to "true" will force pip to get distributions from official python registry first and fallback to feeds mentioned above if distributions are not found there.
-#        onlyAddExtraIndex: true
-#    - script: |
-#        curl -sSL https://pdm-project.org/install-pdm.py | python3 -
-#      displayName: 'Install pdm'
-#    - script: |
-#        pip install keyring
-#        pip install artifacts-keyring
-#      displayName: 'Install keyring'
-#    - script: |
-#        pdm install
-#      workingDirectory: $(projectRoot)
-#      displayName: "Install requirements"
+- stage: Build
+  displayName: Build app
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+    - task: PipAuthenticate@1
+      displayName: 'Pip Authenticate'
+      inputs:
+        # Provide list of feed names which you want to authenticate.
+        # Project scoped feeds must include the project name in addition to the feed name.
+        artifactFeeds: 'COSTOCKS/artifacts-costocks'
+        # Setting this variable to "true" will force pip to get distributions from official python registry first and fallback to feeds mentioned above if distributions are not found there.
+        onlyAddExtraIndex: true
+    - script: |
+        curl -sSL https://pdm-project.org/install-pdm.py | python3 -
+      displayName: 'Install pdm'
+    - script: |
+        pip install keyring
+        pip install artifacts-keyring
+      displayName: 'Install keyring'
+    - script: |
+        pdm install
+      workingDirectory: $(projectRoot)
+      displayName: "Install requirements"
       
 
 - stage: DockerBuild
