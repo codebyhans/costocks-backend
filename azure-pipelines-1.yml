@@ -26,63 +26,80 @@ variables:
   pythonVersion: '3.10'
 
 stages:
-- stage: Build
-  displayName: Build stage
-  jobs:
-  - job: BuildJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-      displayName: 'Use Python $(pythonVersion)'
-    - task: PipAuthenticate@1
-      displayName: 'Pip Authenticate'
-      inputs:
-        # Provide list of feed names which you want to authenticate.
-        # Project scoped feeds must include the project name in addition to the feed name.
-        artifactFeeds: 'COSTOCKS/artifacts-costocks'
-        # Setting this variable to "true" will force pip to get distributions from official python registry first and fallback to feeds mentioned above if distributions are not found there.
-        onlyAddExtraIndex: true
-    - script: |
-        curl -sSL https://pdm-project.org/install-pdm.py | python3 -
-      displayName: 'Install pdm'
-    - script: |
-        pip install keyring
-        pip install artifacts-keyring
-      displayName: 'Install keyring'
-    - script: |
-        pdm install
-      workingDirectory: $(projectRoot)
-      displayName: "Install requirements"
-    - task: ArchiveFiles@2
-      displayName: 'Archive files'
-      inputs:
-        rootFolderOrFile: '$(projectRoot)'
-        includeRootFolder: false
-        archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-        replaceExistingArchive: true
-
-    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
-      displayName: 'Upload package'
-      artifact: backenda
+#- stage: Build
+#  displayName: Build stage
+#  jobs:
+#  - job: BuildJob
+#    pool:
+#      vmImage: $(vmImageName)
+#    steps:
+#    - task: UsePythonVersion@0
+#      inputs:
+#        versionSpec: '$(pythonVersion)'
+#      displayName: 'Use Python $(pythonVersion)'
+#    - task: PipAuthenticate@1
+#      displayName: 'Pip Authenticate'
+#      inputs:
+#        # Provide list of feed names which you want to authenticate.
+#        # Project scoped feeds must include the project name in addition to the feed name.
+#        artifactFeeds: 'COSTOCKS/artifacts-costocks'
+#        # Setting this variable to "true" will force pip to get distributions from official python registry first and fallback to feeds mentioned above if distributions are not found there.
+#        onlyAddExtraIndex: true
+#    - script: |
+#        curl -sSL https://pdm-project.org/install-pdm.py | python3 -
+#      displayName: 'Install pdm'
+#    - script: |
+#        pip install keyring
+#        pip install artifacts-keyring
+#      displayName: 'Install keyring'
+#    - script: |
+#        pdm install
+#      workingDirectory: $(projectRoot)
+#      displayName: "Install requirements"
+#    - task: ArchiveFiles@2
+#      displayName: 'Archive files'
+#      inputs:
+#        rootFolderOrFile: '$(projectRoot)'
+#        includeRootFolder: false
+#        archiveType: zip
+#        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+#        replaceExistingArchive: true
+#
+#    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+#      displayName: 'Upload package'
+#      artifact: backenda
       
 
-- stage: DockerBuildAndPush
-  displayName: 'Build and Push Docker Image'
+- stage: DockerBuild
+  displayName: 'Build Docker Image'
   jobs:
-  - job: DockerJob
+  - job: DockerBuildJob
     pool:
       vmImage: $(vmImageName)
     steps:
     - task: Docker@2
-      displayName: Build and push image
+      displayName: Build image
       inputs:
-        repository: backenda
-        command: buildAndPush
+        repository: backendb
+        command: build
         Dockerfile: Dockerfile
+        containerRegistry: 'costocksregistry'
+        tags: |
+          latest
+          $(Build.BuildId)
+
+- stage: DockerPush
+  displayName: 'Push Docker Image'
+  jobs:
+  - job: DockerPushJob
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Push image
+      inputs:
+        repository: backendb
+        command: push
         containerRegistry: 'costocksregistry'
         tags: |
           latest
