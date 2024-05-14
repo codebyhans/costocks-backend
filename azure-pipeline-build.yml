@@ -51,22 +51,3 @@ stages:
         repository: 'backenda'
         command: 'build'
         
-
-- stage: DockerBuildPush
-  displayName: 'Buld and Push Docker Image'
-  dependsOn: 
-    - DockerBuild
-  jobs:
-  - job: DockerPushJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
-      inputs:
-        containerRegistry: 'costocksregistry'
-        repository: 'backenda'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: 'latest'
-      
