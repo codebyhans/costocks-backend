@@ -24,6 +24,12 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
+    - task: AzureKeyVault@2
+      inputs:
+        azureSubscription: 'Azure subscription 1 (3d7831d7-e214-4eb5-bae7-35bd1b1dd614)'
+        KeyVaultName: 'costockskeys'
+        SecretsFilter: 'azure-username,PAT-artifacts-read-write-manage'
+        RunAsPreJob: false
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '$(pythonVersion)'
