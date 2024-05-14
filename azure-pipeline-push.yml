@@ -5,7 +5,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-
+- 
 variables:
   # Agent VM image name
   vmImageName: 'ubuntu-latest'
@@ -19,8 +19,6 @@ variables:
 stages:
 - stage: DockerBuildPush
   displayName: 'Buld and Push Docker Image'
-  dependsOn: 
-    - DockerBuild
   jobs:
   - job: DockerPushJob
     pool:
