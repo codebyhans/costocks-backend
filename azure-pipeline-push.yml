@@ -25,7 +25,6 @@ stages:
       vmImage: $(vmImageName)
     steps:
     - task: Docker@2
-      condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
       inputs:
         containerRegistry: 'costocksregistry'
         repository: 'backenda'
