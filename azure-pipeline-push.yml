@@ -5,7 +5,6 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-- main
 
 variables:
   # Agent VM image name
@@ -18,40 +17,6 @@ variables:
   pythonVersion: '3.10'
 
 stages:
-- stage: Build
-  displayName: Build app
-  jobs:
-  - job: BuildJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-      displayName: 'Use Python $(pythonVersion)'
-    - script: |
-        pip install pdm
-      displayName: 'Install pdm'
-    - script: |
-        pdm install
-      workingDirectory: $(projectRoot)
-      displayName: "Install requirements"
-      
-
-- stage: DockerBuild
-  displayName: 'Build Docker Image'
-  jobs:
-  - job: DockerBuildJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'costocksregistry'
-        repository: 'backenda'
-        command: 'build'
-        
-
 - stage: DockerBuildPush
   displayName: 'Buld and Push Docker Image'
   dependsOn: 
