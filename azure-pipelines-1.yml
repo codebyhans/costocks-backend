@@ -1,4 +1,5 @@
 # Python to Linux Web App on Azure
+
 # Build your Python project and deploy it to Azure as a Linux Web App.
 # Change python version to one thats appropriate for your application.
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
@@ -30,6 +31,12 @@ stages:
         KeyVaultName: 'costockskeys'
         SecretsFilter: 'azure-username,PAT-artifacts-read-write-manage'
         RunAsPreJob: false
+    - task: AzureKeyVault@2
+      inputs:
+        azureSubscription: 'Azure subscription 1(3d7831d7-e214-4eb5-bae7-35bd1b1dd614)'
+        KeyVaultName: 'costockskeys'
+        SecretsFilter: '*'
+        RunAsPreJob: false        
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '$(pythonVersion)'
