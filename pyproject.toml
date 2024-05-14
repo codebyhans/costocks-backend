@@ -32,7 +32,7 @@ lint = [
 [[tool.pdm.source]]
 name = "azure"
 url = "https://pkgs.dev.azure.com/costocks/COSTOCKS/_packaging/artifacts-costocks/pypi/simple/"
-username = "hansotto.kristiansen@gmail.com"
+username = "costock"
 password = "***REMOVED***"
 
 
