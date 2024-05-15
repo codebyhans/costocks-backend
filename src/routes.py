@@ -259,7 +259,7 @@ def favicon():
 
 @app.route("/")
 def home():
-    return f"""Running backend adhoc"""
+    return f"""Running backend adhoc 🎉"""
 
 
 @app.route("/account/delete", methods=["POST"])
