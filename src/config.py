@@ -6,7 +6,7 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    PORT = 3000
+    PORT = 5000
     DEBUG = True
     FRONTEND_PROTOCOL = "http://"
     FRONTEND_URL = "localhost"
