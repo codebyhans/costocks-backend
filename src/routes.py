@@ -260,7 +260,7 @@ def favicon():
 @app.route("/")
 def home():
     env = os.environ.get("ENV_NODE", "envnode - defaulting")
-    return f"""Running backend adhoc 🎉 ({env})"""
+    return f"""Running backend adhoc 🎉 ({env}) - new"""
 
 
 @app.route("/account/delete", methods=["POST"])
