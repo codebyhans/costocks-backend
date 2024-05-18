@@ -14,7 +14,7 @@ from components.plots.plot_effecient_frontier import ploteffecientFrontier
 from dateutil.relativedelta import relativedelta
 from datetime import date, datetime, timedelta
 from functools import wraps
-
+import os
 
 import firebase_admin
 from firebase_admin import credentials, db
@@ -259,7 +259,8 @@ def favicon():
 
 @app.route("/")
 def home():
-    return f"""Running backend adhoc 🎉"""
+    env = os.environ.get("ENV_NODE", "envnode - defaulting")
+    return f"""Running backend adhoc 🎉 ({env})"""
 
 
 @app.route("/account/delete", methods=["POST"])

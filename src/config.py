@@ -6,6 +6,7 @@ class Config:
 
 
 class DevelopmentConfig(Config):
+    PORT = 3000
     DEBUG = True
     FRONTEND_PROTOCOL = "http://"
     FRONTEND_URL = "localhost"
@@ -17,6 +18,7 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
+    PORT = 5000
     DEBUG = False
     FRONTEND_PROTOCOL = "https://"
     FRONTEND_URL = "qp-invest-frontend.web.app"
