@@ -5,9 +5,13 @@ from dotenv import load_dotenv, find_dotenv
 class Config:
     DEBUG = False  # Set to True to enable debugging mode
     PORT = 5000  # Set the port you want your app to run on
-    HOST = "localhost"  # Set the host IP address
+    HOST = "0.0.0.0"  # Set the host IP address
 
 class DevelopmentConfig(Config):
+    #Fetch .env files 
+    load_dotenv(find_dotenv())
+
+
     PORT = 5000
     DEBUG = True
     FRONTEND_PROTOCOL = "http://"
@@ -17,10 +21,8 @@ class DevelopmentConfig(Config):
     BACKEND_PROTOCOL = "http://"
     BACKEND_URL = "localhost"
     BACKEND_PORT = ":5000"
-    load_dotenv(find_dotenv())
 
     FIREBASE_TYPE = os.getenv("FIREBASE_TYPE")
-    print(FIREBASE_TYPE) 
     FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY") 
     FIREBASE_CLIENT_EMAIL = os.getenv("FIREBASE_CLIENT_EMAIL")
     FIREBASE_CLIENT_ID = os.getenv("FIREBASE_CLIENT_EMAIL")
@@ -40,11 +42,18 @@ class ProductionConfig(Config):
     BACKEND_URL = "costocks-backend-a.internal.wittybeach-c0d983ae.northeurope.azurecontainerapps.io"
     BACKEND_PORT = ""
 
+    FIREBASE_TYPE = os.getenv("FIREBASE_TYPE")
+    FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY") 
+    FIREBASE_CLIENT_EMAIL = os.getenv("FIREBASE_CLIENT_EMAIL")
+    FIREBASE_CLIENT_ID = os.getenv("FIREBASE_CLIENT_EMAIL")
+    FIREBASE_TOKEN_URI = os.getenv("FIREBASE_TOKEN_URI")
+    FIREBASE_DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL")
+
 
 
 
 # Function to get the selected configuration based on env_node
-def get_config(env_node):
+def get_config(env_node="development"):
     config_by_env_node = {
         "development": DevelopmentConfig,
         "production": ProductionConfig,
