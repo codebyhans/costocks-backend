@@ -27,12 +27,12 @@ from firebase_admin import credentials, db
 
 # Initialize Firebase Admin SDK
 
-print(app.config['FIREBASE_TYPE'])
-print(app.config['FIREBASE_PRIVATE_KEY'])
-print(app.config['FIREBASE_CLIENT_EMAIL'])
-print(app.config['FIREBASE_CLIENT_ID'])
-print(app.config['FIREBASE_TOKEN_URI'])
-print(app.config['FIREBASE_DATABASE_URL'])
+print("FIREBASE_TYPE: ", type(app.config['FIREBASE_TYPE']), app.config['FIREBASE_TYPE'])
+print("FIREBASE_PRIVATE_KEY: ", type(app.config['FIREBASE_PRIVATE_KEY']), app.config['FIREBASE_PRIVATE_KEY'])
+print("FIREBASE_CLIENT_EMAIL: ", type(app.config['FIREBASE_CLIENT_EMAIL']), app.config['FIREBASE_CLIENT_EMAIL'])
+print("FIREBASE_CLIENT_ID: ", type(app.config['FIREBASE_CLIENT_ID']), app.config['FIREBASE_CLIENT_ID'])
+print("FIREBASE_TOKEN_URI: ", type(app.config['FIREBASE_TOKEN_URI']), app.config['FIREBASE_TOKEN_URI'])
+print("FIREBASE_DATABASE_URL: ", type(app.config['FIREBASE_DATABASE_URL']), app.config['FIREBASE_DATABASE_URL'])
 
 cred = credentials.Certificate(
 {
