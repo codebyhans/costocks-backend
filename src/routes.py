@@ -421,6 +421,7 @@ def home():
 #    return jsonify({"message": "Access token valid", "user_data": user_data}), 200
 @app.route("/ping", methods=["GET"])
 def ping():
+    print('Hello from ping')
     response = {
         "msg": "pong"
     }
