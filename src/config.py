@@ -10,7 +10,7 @@ class Config:
 class DevelopmentConfig(Config):
     #Fetch .env files 
     load_dotenv(find_dotenv())
-    
+
 
     PORT = 5000
     DEBUG = True
@@ -32,7 +32,7 @@ class DevelopmentConfig(Config):
     
 
 class ProductionConfig(Config):
-    PORT = 80
+    PORT = 8080
     DEBUG = False
     FRONTEND_PROTOCOL = "https://"
     FRONTEND_URL = "costock.wittybeach-c0d983ae.northeurope.azurecontainerapps.io"
