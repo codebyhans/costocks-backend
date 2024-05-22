@@ -26,6 +26,7 @@ from firebase_admin import credentials, db
 #    secretstokens = json.load(secrets_file)
 
 # Initialize Firebase Admin SDK
+print("ENV_NODE: ", type(app.config['ENV_NODE']), app.config['ENV_NODE'])
 
 print("FIREBASE_TYPE: ", type(app.config['FIREBASE_TYPE']), app.config['FIREBASE_TYPE'])
 print("FIREBASE_PRIVATE_KEY: ", type(app.config['FIREBASE_PRIVATE_KEY']), app.config['FIREBASE_PRIVATE_KEY'])
