@@ -23,7 +23,7 @@ class DevelopmentConfig(Config):
     BACKEND_PORT = ":5000"
 
     FIREBASE_TYPE = os.getenv("FIREBASE_TYPE")
-    FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY") 
+    FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY").replace(r'\n', '\n')
     FIREBASE_CLIENT_EMAIL = os.getenv("FIREBASE_CLIENT_EMAIL")
     FIREBASE_CLIENT_ID = os.getenv("FIREBASE_CLIENT_ID")
     FIREBASE_TOKEN_URI = os.getenv("FIREBASE_TOKEN_URI")
@@ -43,7 +43,7 @@ class ProductionConfig(Config):
     BACKEND_PORT = ""
 
     FIREBASE_TYPE = os.getenv("FIREBASE_TYPE")
-    FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY") 
+    FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY").replace(r'\n', '\n') 
     FIREBASE_CLIENT_EMAIL = os.getenv("FIREBASE_CLIENT_EMAIL")
     FIREBASE_CLIENT_ID = os.getenv("FIREBASE_CLIENT_ID")
     FIREBASE_TOKEN_URI = os.getenv("FIREBASE_TOKEN_URI")

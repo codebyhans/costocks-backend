@@ -2,7 +2,7 @@
 FROM python:3-slim
 
 # Expose port
-EXPOSE 5000
+EXPOSE 80
 
 # Create a non-root user
 RUN useradd -u 5678 --no-log-init -r -g 0 appuser
