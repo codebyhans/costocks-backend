@@ -10,7 +10,7 @@ class Config:
 class DevelopmentConfig(Config):
     #Fetch .env files 
     load_dotenv(find_dotenv())
-
+    
 
     PORT = 5000
     DEBUG = True
