@@ -419,7 +419,12 @@ def home():
 #    user_data = get_user_data_from_firebase(user_id)
 #
 #    return jsonify({"message": "Access token valid", "user_data": user_data}), 200
-
+@app.route("/ping", methods=["GET"])
+def ping():
+    response = {
+        "msg": "pong"
+    }
+    return jsonify(response)
 
 @app.route("/valid_tickers", methods=["GET"])
 # @authenticate_and_get_user_data

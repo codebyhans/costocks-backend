@@ -8,7 +8,6 @@ class Config:
     HOST = "0.0.0.0"  # Set the host IP address
 
 class DevelopmentConfig(Config):
-    #Fetch .env files 
     load_dotenv(find_dotenv())
 
     FRONTEND_PROTOCOL = "http://"

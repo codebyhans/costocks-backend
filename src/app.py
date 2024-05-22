@@ -59,6 +59,11 @@ CORS(
                 f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
             ]
         },
+        r"/ping": {
+            "origins": [
+                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
+            ]
+        },
     },
 )
 
