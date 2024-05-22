@@ -11,9 +11,6 @@ class DevelopmentConfig(Config):
     #Fetch .env files 
     load_dotenv(find_dotenv())
 
-
-    PORT = 5000
-    DEBUG = True
     FRONTEND_PROTOCOL = "http://"
     FRONTEND_URL = "localhost"
     FRONTEND_PORT = ":9000"

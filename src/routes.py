@@ -26,15 +26,6 @@ from firebase_admin import credentials, db
 #    secretstokens = json.load(secrets_file)
 
 # Initialize Firebase Admin SDK
-print("HOST: ", type(app.config['HOST']), app.config['HOST'])
-print("PORT: ", type(app.config['PORT']), app.config['PORT'])
-
-print("FIREBASE_TYPE: ", type(app.config['FIREBASE_TYPE']), app.config['FIREBASE_TYPE'])
-print("FIREBASE_PRIVATE_KEY: ", type(app.config['FIREBASE_PRIVATE_KEY']), app.config['FIREBASE_PRIVATE_KEY'])
-print("FIREBASE_CLIENT_EMAIL: ", type(app.config['FIREBASE_CLIENT_EMAIL']), app.config['FIREBASE_CLIENT_EMAIL'])
-print("FIREBASE_CLIENT_ID: ", type(app.config['FIREBASE_CLIENT_ID']), app.config['FIREBASE_CLIENT_ID'])
-print("FIREBASE_TOKEN_URI: ", type(app.config['FIREBASE_TOKEN_URI']), app.config['FIREBASE_TOKEN_URI'])
-print("FIREBASE_DATABASE_URL: ", type(app.config['FIREBASE_DATABASE_URL']), app.config['FIREBASE_DATABASE_URL'])
 
 cred = credentials.Certificate(
 {
@@ -47,8 +38,6 @@ cred = credentials.Certificate(
 }
 )
 firebase_admin.initialize_app(cred, {"databaseURL": app.config['FIREBASE_DATABASE_URL']})
-
-print("completed credentials! 🎉")
 
 def get_date_n_weekdays_ago(n):
     today = datetime.today().date()
