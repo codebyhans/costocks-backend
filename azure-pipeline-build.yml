@@ -5,7 +5,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-- mainx
+- mainX
 
 variables:
   # Agent VM image name

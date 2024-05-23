@@ -20,52 +20,9 @@ selected_config = get_config(env_node)
 app = Flask(__name__)
 app.config.from_object(selected_config)
 
-CORS(
-    app,
-    supports_credentials=True,
-    resources={
-        r"/crunch_data": {
-            "origins": [
-                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
-            ]
-        },
-        r"/portfolios": {
-            "origins": [
-                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
-            ]
-        },
-        r"/valid_tickers": {
-            "origins": [
-                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
-            ]
-        },
-        r"/auth/verify-token": {
-            "origins": [
-                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
-            ]
-        },
-        r"/auth/logout": {
-            "origins": [
-                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
-            ]
-        },
-        r"/account/updateFields": {
-            "origins": [
-                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
-            ]
-        },
-        r"/account/delete": {
-            "origins": [
-                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
-            ]
-        },
-        r"/ping": {
-            "origins": [
-                f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"
-            ]
-        },
-    },
-)
+print(f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}")
+CORS(app, origins=[f"{app.config['FRONTEND_PROTOCOL']}{app.config['FRONTEND_URL']}{app.config['FRONTEND_PORT']}"], supports_credentials=True)
+
 
 # Import the routes from the routes.py file
 from routes import *
