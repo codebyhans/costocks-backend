@@ -6,7 +6,7 @@ authors = [
     {name = "Hansotto Kristiansen", email = "hansotto.kristiansen@gmail.com"},
 ]
 dependencies = [
-    "Core==0.1.6",
+    "Core==0.1.7",
     "firebase-admin>=6.4.0",
     "Flask>=2.3.2",
     "Flask-Cors>=4.0.0",
