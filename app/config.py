@@ -18,15 +18,7 @@ class DevelopmentConfig(Config):
     BACKEND_URL = "localhost"
     BACKEND_PORT = ":5000"
 
-    FIREBASE_TYPE = os.getenv("FIREBASE_TYPE").replace(r'\n', '\n')
-    FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY").replace(r'\n', '\n')
-    FIREBASE_CLIENT_EMAIL = os.getenv("FIREBASE_CLIENT_EMAIL").replace(r'\n', '\n')
-    FIREBASE_CLIENT_ID = os.getenv("FIREBASE_CLIENT_ID").replace(r'\n', '\n')
-    FIREBASE_TOKEN_URI = os.getenv("FIREBASE_TOKEN_URI").replace(r'\n', '\n')
-    FIREBASE_DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL").replace(r'\n', '\n')
-
     
-
 class ProductionConfig(Config):
     PORT = 8080
     DEBUG = False
@@ -38,16 +30,7 @@ class ProductionConfig(Config):
     BACKEND_URL = "costocks-backend-a.internal.wittybeach-c0d983ae.northeurope.azurecontainerapps.io"
     BACKEND_PORT = ""
 
-    FIREBASE_TYPE = os.getenv("FIREBASE_TYPE").replace(r'\n', '\n')
-    FIREBASE_PRIVATE_KEY = os.getenv("FIREBASE_PRIVATE_KEY").replace(r'\n', '\n')
-    FIREBASE_CLIENT_EMAIL = os.getenv("FIREBASE_CLIENT_EMAIL").replace(r'\n', '\n')
-    FIREBASE_CLIENT_ID = os.getenv("FIREBASE_CLIENT_ID").replace(r'\n', '\n')
-    FIREBASE_TOKEN_URI = os.getenv("FIREBASE_TOKEN_URI").replace(r'\n', '\n')
-    FIREBASE_DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL").replace(r'\n', '\n')
-
-
-
-
+    
 # Function to get the selected configuration based on env_node
 def get_config(env_node="development"):
     config_by_env_node = {
