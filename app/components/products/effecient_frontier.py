@@ -1,6 +1,5 @@
 import numpy as np
-import pandas as pd
-from typing import Dict, List
+from typing import Dict
 from data.models import Portfolio, PortfolioCollection, Asset, TimeSeriesCollection
 from components.producers import FetchData
 from components.features.minimize_volatility import MinimizerVolatility

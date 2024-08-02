@@ -135,7 +135,6 @@ class PortfolioCollectionAnalysis(BaseModel):
     """
     Class representing the analysis of a collection of portfolios.
     """
-    collection: List[Portfolio] = Field(..., description="The collection of portfolios")
     analysis: List[PortfolioAnalysis] = Field(..., description="Detailed analysis for each portfolio")
 
 class PortfolioCollection(BaseModel):
