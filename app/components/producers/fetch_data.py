@@ -20,13 +20,13 @@ class FetchData:
         response = requests.post(self.endpoint, json=payload)
         if response.status_code == 200:
             tickers = response.json()
-            self.timeseries = TimeSeriesCollection(series=[
-                TimeSeries(
-                    name=ticker,
-                    timeserie_dict=tickers[ticker]
+            timeseries=[]
+            for ticker in tickers.keys():
+                timeseries_data = {ticker: tickers[ticker]}
+                timeseries.append(TimeSeries(series=timeseries_data)
                 )
-                for ticker in tickers.keys()
-            ]
-            )
+
+            self.timeseries = TimeSeriesCollection(collection=timeseries)
+
         else:
             raise Exception(f"Failed to fetch data: {response.status_code}, {response.text}")

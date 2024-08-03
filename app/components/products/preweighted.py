@@ -1,10 +1,10 @@
-import numpy as np
 from typing import Dict
-from data.models import Portfolio, PortfolioCollection, Asset, TimeSeriesCollection
+from data.models import PortfolioCollection, TimeSeriesCollection, Asset, Portfolio
 from components.producers import FetchData
-from components.features.minimize_volatility import MinimizerVolatility
+from components.features.assign_weights import AssignWeights
+import numpy as np 
 
-class EfficientFrontier:
+class Preweighted:
     def __init__(self, from_date: str, to_date: str, tickers: Dict[str, float]):
         self.from_date = from_date
         self.to_date = to_date
@@ -22,21 +22,26 @@ class EfficientFrontier:
     def optimize_portfolios(self, number_of_portfolios=100) -> PortfolioCollection:
         portfolios = []
 
-        min_returns = min(self.timeseries.all_returns()) + 10e-12
-        max_returns = max(self.timeseries.all_returns())  - 10e-12
+        # Create 'number_of_portfolios' random portfolios using numpy. All weights must sum to one
+        random_weights = []
+        num_assets = len(self.timeseries.collection)
 
-        for constrain in np.linspace(start=min_returns, stop=max_returns, num=number_of_portfolios):
-            status, weights = MinimizerVolatility(
+        random_weights = np.random.random((number_of_portfolios, num_assets))
+    
+        # Normalize the weights so that each row sums to one
+        random_weights /= random_weights.sum(axis=1)[:, np.newaxis]
+
+        for weights in random_weights:
+            status, weights = AssignWeights(
                 returns=self.timeseries.all_returns(),
                 cov_matrix=self.timeseries.covariance().values,
-                constrain=constrain
+                constrain=weights
             ).optimize()
 
             if status:
                 portfolios.append(Portfolio(
                     assets=[Asset(stock=stock, weight=weights[i]) for i, stock in enumerate(self.timeseries.collection)]
                 ))
-                
-        return PortfolioCollection(portfolios=portfolios)
 
+        return PortfolioCollection(portfolios=portfolios)
 

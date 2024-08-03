@@ -1,9 +1,9 @@
 from typing import Dict
 from data.models import Portfolio, PortfolioCollection, Asset, TimeSeriesCollection
 from components.producers import FetchData
-from components.features.maximize_sharpe import MaximizeSharpe
+from components.features.maximize_return import MaximizeReturn
 
-class MaximumSharpe:
+class MaximumReturn:
     def __init__(self, from_date: str, to_date: str, tickers: Dict[str, float]):
         self.from_date = from_date
         self.to_date = to_date
@@ -20,7 +20,7 @@ class MaximumSharpe:
 
     def optimize_portfolios(self) -> PortfolioCollection:
         portfolios = []
-        status, weights = MaximizeSharpe(
+        status, weights = MaximizeReturn(
             returns=self.timeseries.all_returns(),
             cov_matrix=self.timeseries.covariance().values,
         ).optimize()

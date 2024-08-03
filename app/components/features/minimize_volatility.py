@@ -1,7 +1,5 @@
 import numpy as np
 from cvxopt import matrix, solvers
-import numpy as np
-import pandas as pd
 
 solvers.options["show_progress"] = False
 solvers.options['abstol'] = 10**-12

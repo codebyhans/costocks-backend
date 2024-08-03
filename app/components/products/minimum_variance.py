@@ -28,7 +28,7 @@ class MinimumVariance:
 
         if status:
             portfolios.append(Portfolio(
-                assets=[Asset(stock=stock, weight=weights[i]) for i, stock in enumerate(self.timeseries.series)]
+                assets=[Asset(stock=stock, weight=weights[i]) for i, stock in enumerate(self.timeseries.collection)]
             ))
                 
         return PortfolioCollection(portfolios=portfolios)

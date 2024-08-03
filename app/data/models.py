@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Set
 from datetime import date as dt_date
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, RootModel
 
 class DailyData(BaseModel):
     """
@@ -19,56 +19,61 @@ class TimeSeries(BaseModel):
     """
     Class representing a time series for a stock.
     """
-    name: str = Field(..., description="The name of the time series")
-    timeserie_dict: Dict[str, float] = Field(..., description="The time series of the stock price")
+    series: Dict[str, Dict[str, float]] = Field(..., description="The name of the time series")
 
-    def to_pandas_series(self) -> pd.Series:
+    def to_pandas_dataframe(self) -> pd.DataFrame:
         """
-        Convert the adj_close dictionary to a pandas Series.
+        Convert the series dictionary to a pandas DataFrame.
         """
-        return pd.Series(self.timeserie_dict).sort_index()
+        return pd.DataFrame(self.series)
 
     @property
     def returns(self) -> pd.Series:
         """
         Calculate the returns using the pandas pct_change() method.
         """
-        series = self.to_pandas_series()
+        series = self.to_pandas_dataframe()
         return series.pct_change().dropna()
 
     def variance(self) -> float:
         """
         Calculate the variance of the returns.
         """
-        return self.returns.var()
+        return self.returns.var().values
 
     def mean_return(self) -> float:
         """
         Calculate the mean of the returns.
         """
-        return self.returns.mean()
+        return self.returns.mean().values
 
 class TimeSeriesCollection(BaseModel):
     """
     Class representing a collection of time series for stocks.
     """
-    series: List[TimeSeries] = Field(..., description="A collection of time series")
+    collection: List[TimeSeries] = Field(..., description="A collection of time series")
 
-    def mean_returns(self) -> List[float]:
-        return [serie.mean_return() for serie in self.series]
+    #def all_returns(self) -> List[float]:
+    #    return np.concatenate([serie.returns.mean().values for serie in self.collection])
 
     def variances(self) -> List[float]:
-        return [serie.variance() for serie in self.series]
+        return np.concatenate([serie.returns.var().values for serie in self.collection])
 
     def all_returns(self) -> List[float]:
-        return [serie.returns.mean() for serie in self.series]
+        #return [serie.returns.mean().values for serie in self.collection]
+        return np.concatenate([serie.returns.mean().values for serie in self.collection])
 
     def to_dataframe(self) -> pd.DataFrame:
         """
         Combine each stock's returns into a DataFrame.
         """
-        data = {serie.name: serie.to_pandas_series() for serie in self.series}
-        return pd.DataFrame(data)
+        dataframes = []
+        for serie in self.collection:
+            df = serie.to_pandas_dataframe()
+            #df.columns = [f'series_{i}_{col}' for col in df.columns]  # Ensure unique column names
+            dataframes.append(df)
+        combined_df = pd.concat(dataframes, axis=1)
+        return combined_df
 
     def covariance(self) -> pd.DataFrame:
         """
@@ -99,22 +104,23 @@ class Portfolio(BaseModel):
         """
         Calculate the weighted time series for each asset.
         """
-        weighted_series = [asset.stock.to_pandas_series() * asset.weight for asset in self.assets]
+        weighted_series = [asset.stock.to_pandas_dataframe() * asset.weight for asset in self.assets]
         merged_series = pd.concat(weighted_series, axis=1).sum(axis=1)
-        timeserie_dict = merged_series.to_dict()
-        return TimeSeries(name="Portfolio", timeserie_dict=timeserie_dict)
+        df_with_header = pd.DataFrame(merged_series, columns=['weighted_timeseries'])
+        timeserie_dict = df_with_header.to_dict()
+        return TimeSeries(series=timeserie_dict)
 
     def calculate_expected_return(self) -> float:
         """
         Calculate the expected return of the portfolio.
         """
-        return self.timeserie.returns.mean()
+        return self.timeserie.returns.mean().values
 
     def calculate_variance(self) -> float:
         """
         Calculate the variance of the portfolio.
         """
-        return self.timeserie.returns.var()
+        return self.timeserie.returns.var().values
 
     def calculate_sharpe_ratio(self, expected_return, variance, risk_free_rate: float = 0.0) -> float:
         """

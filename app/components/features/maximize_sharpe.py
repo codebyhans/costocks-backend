@@ -1,8 +1,4 @@
 import numpy as np
-import pandas as pd
-from cvxopt import matrix, solvers
-import numpy as np
-import pandas as pd
 from cvxopt import matrix, solvers
 
 solvers.options["show_progress"] = False
