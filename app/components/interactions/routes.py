@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError
 from datetime import date, datetime
 from data.models import RequestAnalysis, PortfolioCollectionAnalysis
-from components.products import EfficientFrontier, MinimumVariance
+from components.products import EfficientFrontier, MinimumVariance, MaximumSharpe
 
 # Define the router
 router = APIRouter()
@@ -52,6 +52,34 @@ async def minimum_variance(request: RequestAnalysis):
 
         # Perform portfolio optimization and analysis
         portfolio_collection = minimum_variance.optimize_portfolios()
+        analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
+
+        return analysis
+
+    except ValueError as ve:
+        # Handle specific value errors
+        raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
+    except ValidationError as ve:
+        # Handle Pydantic validation errors
+        raise HTTPException(status_code=422, detail="Validation error", headers={"X-Error": "Validation error"})
+    except Exception as e:
+        # Handle any other unexpected errors
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+
+
+# Endpoint for minimum variance optimization
+@router.post('/maximum-sharpe', response_model=PortfolioCollectionAnalysis)
+async def maximum_sharpe(request: RequestAnalysis):
+    try:
+        # Create MinimumVariance instance
+        maximum_sharpe = MaximumSharpe(
+            from_date=request.from_date,
+            to_date=request.to_date,
+            tickers=request.tickers,
+        )
+
+        # Perform portfolio optimization and analysis
+        portfolio_collection = maximum_sharpe.optimize_portfolios()
         analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
 
         return analysis
