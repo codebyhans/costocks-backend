@@ -19,17 +19,21 @@ class Preweighted:
             to_date=self.to_date,
         ).timeseries
 
-    def optimize_portfolios(self, number_of_portfolios=100) -> PortfolioCollection:
+    def optimize_portfolios(self, number_of_portfolios=100, tickers=None) -> PortfolioCollection:
         portfolios = []
 
         # Create 'number_of_portfolios' random portfolios using numpy. All weights must sum to one
-        random_weights = []
-        num_assets = len(self.timeseries.collection)
+        if tickers is not None:
+            random_weights = [np.array(list(tickers.values()))]
 
-        random_weights = np.random.random((number_of_portfolios, num_assets))
-    
-        # Normalize the weights so that each row sums to one
-        random_weights /= random_weights.sum(axis=1)[:, np.newaxis]
+        else:
+            random_weights = []
+            num_assets = len(self.timeseries.collection)
+
+            random_weights = np.random.random((number_of_portfolios, num_assets))
+
+            # Normalize the weights so that each row sums to one
+            random_weights /= random_weights.sum(axis=1)[:, np.newaxis]
 
         for weights in random_weights:
             status, weights = AssignWeights(
