@@ -1,179 +1,93 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import ValidationError
-from datetime import date, datetime
-from data.models import RequestAnalysis, PortfolioCollectionAnalysis
+import asyncio
+from fastapi import APIRouter, HTTPException, Depends
+from datetime import date
+from data.models import RequestAnalysis, CombinedAnalysis, Ticker
 from components.products import EfficientFrontier, MinimumVariance, MaximumSharpe, MaximumReturn, Preweighted
-import numpy as np
+from components.producers import FetchData, FetchTickers
+from typing import List
+
 
 # Define the router
 router = APIRouter()
 
-# Endpoint for health check
-@router.get("/ping")
+# Debug endpoint
+@router.get('/ping')
 async def ping():
-    return {"msg": "pong"}
+    return "pong"
 
-# Endpoint for efficient frontier optimization
-@router.post('/efficient-frontier', response_model=PortfolioCollectionAnalysis)
-async def efficient_frontier(request: RequestAnalysis):
+# Dependency for fetching data
+async def get_timeseries(request: RequestAnalysis):
     try:
-        # Create EfficientFrontier instance
-        efficient_frontier = EfficientFrontier(
+        timeseries = FetchData(
+            tickers=list(request.tickers.keys()),
             from_date=request.from_date,
             to_date=request.to_date,
-            tickers=request.tickers,
-        )
+        ).timeseries
+        return timeseries
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to fetch data")
 
-        # Perform portfolio optimization and analysis
-        portfolio_collection = efficient_frontier.optimize_portfolios()
-        analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
+# Asynchronous analysis functions
+async def analyze_efficient_frontier(timeseries, request):
+    efficient_frontier = EfficientFrontier(timeseries=timeseries)
+    portfolio_collection = efficient_frontier.optimize_portfolios()
+    analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
+    return {"efficient_frontier": analysis}
 
-        return analysis
+async def analyze_minimum_variance(timeseries, request):
+    minimum_variance = MinimumVariance(timeseries=timeseries)
+    portfolio_collection = minimum_variance.optimize_portfolios()
+    analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
+    return {"minimum_variance": analysis}
+
+async def analyze_maximum_sharpe(timeseries, request):
+    maximum_sharpe = MaximumSharpe(timeseries=timeseries)
+    portfolio_collection = maximum_sharpe.optimize_portfolios()
+    analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
+    return {"maximum_sharpe": analysis}
+
+async def analyze_maximum_return(timeseries, request):
+    maximum_return = MaximumReturn(timeseries=timeseries)
+    portfolio_collection = maximum_return.optimize_portfolios()
+    analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
+    return {"maximum_return": analysis}
+
+async def analyze_random_weights(timeseries, request):
+    randomly_weighted_portfolios = Preweighted(timeseries=timeseries)
+    portfolio_collection = randomly_weighted_portfolios.optimize_portfolios(number_of_portfolios=100)
+    analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
+    return {"random_weights": analysis}
+
+# Combined analysis endpoint
+@router.post('/combined-analysis', response_model=CombinedAnalysis)
+async def combined_analysis(request: RequestAnalysis, timeseries=Depends(get_timeseries)):
+    try:
+        tasks = [
+            analyze_efficient_frontier(timeseries, request),
+            analyze_minimum_variance(timeseries, request),
+            analyze_maximum_sharpe(timeseries, request),
+            analyze_maximum_return(timeseries, request),
+            analyze_random_weights(timeseries, request),
+        ]
+
+        results = await asyncio.gather(*tasks)
+
+        combined_result = CombinedAnalysis(**{k: v for result in results for k, v in result.items()})
+
+        return combined_result
 
     except ValueError as ve:
-        # Handle specific value errors
         raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
-    except ValidationError as ve:
-        # Handle Pydantic validation errors
-        raise HTTPException(status_code=422, detail="Validation error", headers={"X-Error": "Validation error"})
     except Exception as e:
-        # Handle any other unexpected errors
         raise HTTPException(status_code=500, detail="An unexpected error occurred")
 
-# Endpoint for minimum variance optimization
-@router.post('/minimum-variance', response_model=PortfolioCollectionAnalysis)
-async def minimum_variance(request: RequestAnalysis):
+# Combined analysis endpoint
+@router.get('/distinct-tickers', response_model=List[Ticker])
+async def combined_analysis():
     try:
-        # Create MinimumVariance instance
-        minimum_variance = MinimumVariance(
-            from_date=request.from_date,
-            to_date=request.to_date,
-            tickers=request.tickers,
-        )
-
-        # Perform portfolio optimization and analysis
-        portfolio_collection = minimum_variance.optimize_portfolios()
-        analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
-
-        return analysis
+        return FetchTickers().ticker_collection
 
     except ValueError as ve:
-        # Handle specific value errors
         raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
-    except ValidationError as ve:
-        # Handle Pydantic validation errors
-        raise HTTPException(status_code=422, detail="Validation error", headers={"X-Error": "Validation error"})
     except Exception as e:
-        # Handle any other unexpected errors
-        raise HTTPException(status_code=500, detail="An unexpected error occurred")
-
-
-# Endpoint for minimum variance optimization
-@router.post('/maximum-sharpe', response_model=PortfolioCollectionAnalysis)
-async def maximum_sharpe(request: RequestAnalysis):
-    try:
-        # Create MinimumVariance instance
-        maximum_sharpe = MaximumSharpe(
-            from_date=request.from_date,
-            to_date=request.to_date,
-            tickers=request.tickers,
-        )
-
-        # Perform portfolio optimization and analysis
-        portfolio_collection = maximum_sharpe.optimize_portfolios()
-        analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
-
-        return analysis
-
-    except ValueError as ve:
-        # Handle specific value errors
-        raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
-    except ValidationError as ve:
-        # Handle Pydantic validation errors
-        raise HTTPException(status_code=422, detail="Validation error", headers={"X-Error": "Validation error"})
-    except Exception as e:
-        # Handle any other unexpected errors
-        raise HTTPException(status_code=500, detail="An unexpected error occurred")
-    
-# Endpoint for minimum variance optimization
-@router.post('/maximum-return', response_model=PortfolioCollectionAnalysis)
-async def maximum_return(request: RequestAnalysis):
-    try:
-        # Create MinimumVariance instance
-        Maximum_return = MaximumReturn(
-            from_date=request.from_date,
-            to_date=request.to_date,
-            tickers=request.tickers,
-        )
-
-        # Perform portfolio optimization and analysis
-        portfolio_collection = Maximum_return.optimize_portfolios()
-        analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
-
-        return analysis
-
-    except ValueError as ve:
-        # Handle specific value errors
-        raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
-    except ValidationError as ve:
-        # Handle Pydantic validation errors
-        raise HTTPException(status_code=422, detail="Validation error", headers={"X-Error": "Validation error"})
-    except Exception as e:
-        # Handle any other unexpected errors
-        raise HTTPException(status_code=500, detail="An unexpected error occurred")
-
-
-# Endpoint for minimum variance optimization
-@router.post('/random-weights', response_model=PortfolioCollectionAnalysis)
-async def random_weights(request: RequestAnalysis):
-    try:
-        # Create MinimumVariance instance
-        randomly_weighted_portfolios = Preweighted(
-            from_date=request.from_date,
-            to_date=request.to_date,
-            tickers=request.tickers,
-        )
-
-        # Perform portfolio optimization and analysis
-        portfolio_collection = randomly_weighted_portfolios.optimize_portfolios(number_of_portfolios=100)
-        analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
-
-        return analysis
-
-    except ValueError as ve:
-        # Handle specific value errors
-        raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
-    except ValidationError as ve:
-        # Handle Pydantic validation errors
-        raise HTTPException(status_code=422, detail="Validation error", headers={"X-Error": "Validation error"})
-    except Exception as e:
-        # Handle any other unexpected errors
-        raise HTTPException(status_code=500, detail="An unexpected error occurred")
-    
-
-# Endpoint for minimum variance optimization
-@router.post('/personal-weights', response_model=PortfolioCollectionAnalysis)
-async def personal_weights(request: RequestAnalysis):
-    try:
-        # Create MinimumVariance instance
-        randomly_weighted_portfolios = Preweighted(
-            from_date=request.from_date,
-            to_date=request.to_date,
-            tickers=request.tickers,
-        )
-
-        # Perform portfolio optimization and analysis
-        portfolio_collection = randomly_weighted_portfolios.optimize_portfolios(tickers = request.tickers)
-        analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
-
-        return analysis
-
-    except ValueError as ve:
-        # Handle specific value errors
-        raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
-    except ValidationError as ve:
-        # Handle Pydantic validation errors
-        raise HTTPException(status_code=422, detail="Validation error", headers={"X-Error": "Validation error"})
-    except Exception as e:
-        # Handle any other unexpected errors
         raise HTTPException(status_code=500, detail="An unexpected error occurred")

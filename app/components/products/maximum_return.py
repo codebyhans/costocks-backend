@@ -1,22 +1,10 @@
 from typing import Dict
 from data.models import Portfolio, PortfolioCollection, Asset, TimeSeriesCollection
-from components.producers import FetchData
 from components.features.maximize_return import MaximizeReturn
 
 class MaximumReturn:
-    def __init__(self, from_date: str, to_date: str, tickers: Dict[str, float]):
-        self.from_date = from_date
-        self.to_date = to_date
-        self.tickers = tickers
-        self.timeseries = self.fetch()
-
-    def fetch(self) -> TimeSeriesCollection:
-        # Fetch stock data using the FetchData class
-        return FetchData(
-            tickers=list(self.tickers.keys()),
-            from_date=self.from_date,
-            to_date=self.to_date,
-        ).timeseries
+    def __init__(self, timeseries: TimeSeriesCollection):
+        self.timeseries = timeseries
 
     def optimize_portfolios(self) -> PortfolioCollection:
         portfolios = []

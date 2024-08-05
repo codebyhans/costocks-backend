@@ -1,5 +1,5 @@
 import requests 
-from data.models import TimeSeries, TimeSeriesCollection
+from data.models import TimeSeries, TimeSeriesCollection, Ticker
 from typing import List, Dict
 import pandas as pd
 
@@ -9,6 +9,7 @@ class FetchData:
         self.from_date = from_date
         self.to_date = to_date
         self.endpoint = "https://datafetcher.wittybeach-c0d983ae.northeurope.azurecontainerapps.io/deliver"  # Replace with the actual endpoint
+        self.timeseries = None
         self.fetcher = self.fetch_data()
 
     def fetch_data(self):
@@ -28,5 +29,20 @@ class FetchData:
 
             self.timeseries = TimeSeriesCollection(collection=timeseries)
 
+        else:
+            raise Exception(f"Failed to fetch data: {response.status_code}, {response.text}")
+        
+
+class FetchTickers:
+    def __init__(self):
+        self.endpoint = "https://datafetcher.wittybeach-c0d983ae.northeurope.azurecontainerapps.io/distinct-tickers"
+        self.ticker_collection = self.fetch_data()
+
+    def fetch_data(self):
+        response = requests.get(self.endpoint)
+        if response.status_code == 200:
+            tickers_data = response.json()  # Assuming response JSON is a list of ticker symbols
+            ticker_collection = [Ticker(symbol=ticker['ticker'], adj_close=ticker['adj_close'], date=ticker['date']) for ticker in tickers_data]
+            return ticker_collection
         else:
             raise Exception(f"Failed to fetch data: {response.status_code}, {response.text}")

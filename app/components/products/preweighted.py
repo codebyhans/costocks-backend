@@ -1,23 +1,12 @@
 from typing import Dict
 from data.models import PortfolioCollection, TimeSeriesCollection, Asset, Portfolio
-from components.producers import FetchData
 from components.features.assign_weights import AssignWeights
 import numpy as np 
 
 class Preweighted:
-    def __init__(self, from_date: str, to_date: str, tickers: Dict[str, float]):
-        self.from_date = from_date
-        self.to_date = to_date
-        self.tickers = tickers
-        self.timeseries = self.fetch()
+    def __init__(self, timeseries:TimeSeriesCollection):
+        self.timeseries = timeseries 
 
-    def fetch(self) -> TimeSeriesCollection:
-        # Fetch stock data using the FetchData class
-        return FetchData(
-            tickers=list(self.tickers.keys()),
-            from_date=self.from_date,
-            to_date=self.to_date,
-        ).timeseries
 
     def optimize_portfolios(self, number_of_portfolios=100, tickers=None) -> PortfolioCollection:
         portfolios = []
@@ -25,7 +14,6 @@ class Preweighted:
         # Create 'number_of_portfolios' random portfolios using numpy. All weights must sum to one
         if tickers is not None:
             random_weights = [np.array(list(tickers.values()))]
-
         else:
             random_weights = []
             num_assets = len(self.timeseries.collection)

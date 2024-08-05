@@ -8,6 +8,11 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field, field_validator, RootModel
 
+class Ticker(BaseModel):
+    symbol: str = Field(..., description="The official ticker symbol")
+    date: dt_date = Field(..., description="The date for this data")
+    adj_close: float = Field(..., description="The adjusted closing price for this ticker on this day")
+
 class DailyData(BaseModel):
     """
     Class representing daily data.
@@ -132,11 +137,12 @@ class PortfolioAnalysis(BaseModel):
     """
     Class representing the analysis of a portfolio.
     """
-    portfolio: Portfolio = Field(..., description="The portfolio being analyzed")
+    #portfolio: Portfolio = Field(..., description="The portfolio being analyzed")
     sharpe_ratio: float = Field(..., description="The Sharpe ratio of the portfolio")
     expected_return: float = Field(..., description="The expected return of the portfolio")
     variance: float = Field(..., description="The portfolio's variance")
-
+    weights: Dict[str, float] = Field(..., description="The weights of the portfolio")
+    
 class PortfolioCollectionAnalysis(BaseModel):
     """
     Class representing the analysis of a collection of portfolios.
@@ -160,16 +166,27 @@ class PortfolioCollection(BaseModel):
                 variance=variance,
                 risk_free_rate=risk_free_rate)
             analysis.append(PortfolioAnalysis(
-                portfolio=portfolio,
+                #portfolio=portfolio,
                 expected_return=expected_return,
                 variance=variance,
-                sharpe_ratio=sharpe_ratio
-            ))
-
+                sharpe_ratio=sharpe_ratio,
+                weights = {key: asset.weight for asset in portfolio.assets for key in asset.stock.series.keys()}
+            )
+            )
         return PortfolioCollectionAnalysis(
             collection=self.portfolios,
             analysis=analysis
         )
+    
+class CombinedAnalysis(BaseModel):
+    """
+    Class representing the combined analysis of various portfolio strategies.
+    """
+    efficient_frontier: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios optimized for the efficient frontier")
+    minimum_variance: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios optimized for minimum variance")
+    maximum_sharpe: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios optimized for maximum Sharpe ratio")
+    maximum_return: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios optimized for maximum return")
+    random_weights: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios with randomly assigned weights")
 
 class RequestAnalysis(BaseModel):
     """
