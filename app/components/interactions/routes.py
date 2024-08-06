@@ -5,7 +5,7 @@ from data.models import RequestAnalysis, CombinedAnalysis, Ticker
 from components.products import EfficientFrontier, MinimumVariance, MaximumSharpe, MaximumReturn, Preweighted
 from components.producers import FetchData, FetchTickers
 from typing import List
-
+import os 
 
 # Define the router
 router = APIRouter()
@@ -29,8 +29,9 @@ async def get_timeseries(request: RequestAnalysis):
 
 # Asynchronous analysis functions
 async def analyze_efficient_frontier(timeseries, request):
+    number_of_portfolios = int(os.getenv("N_PORTFOLIOS_EFFECIENT_FRONTIER", "100"))  # Default to true
     efficient_frontier = EfficientFrontier(timeseries=timeseries)
-    portfolio_collection = efficient_frontier.optimize_portfolios()
+    portfolio_collection = efficient_frontier.optimize_portfolios(number_of_portfolios=number_of_portfolios)
     analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
     return {"efficient_frontier": analysis}
 
@@ -53,8 +54,9 @@ async def analyze_maximum_return(timeseries, request):
     return {"maximum_return": analysis}
 
 async def analyze_random_weights(timeseries, request):
+    number_of_portfolios = int(os.getenv("N_PORTFOLIOS_RANDOM_WEIGHTS", "100"))  # Default to true
     randomly_weighted_portfolios = Preweighted(timeseries=timeseries)
-    portfolio_collection = randomly_weighted_portfolios.optimize_portfolios(number_of_portfolios=100)
+    portfolio_collection = randomly_weighted_portfolios.optimize_portfolios(number_of_portfolios=number_of_portfolios)
     analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
     return {"random_weights": analysis}
 
