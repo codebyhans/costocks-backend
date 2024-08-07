@@ -87,6 +87,6 @@ class Optimizers:
                         initial_guess = result.x
                     else:
                         return False, None
-                return (result.success, np.round(result.x, decimals=4))
+                return (result.success, result.x)
             else:
                 return (False, None)

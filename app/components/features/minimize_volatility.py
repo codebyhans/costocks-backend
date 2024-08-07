@@ -68,5 +68,5 @@ class MinimizerVolatility:
         sol = solvers.qp(P=P, q=q, G=G, h=h, A=A, b=b)
         return (
             True if sol["status"] == "optimal" else False,
-            np.round(sol["x"], decimals=4),
+            sol["x"],
         )

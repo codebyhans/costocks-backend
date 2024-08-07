@@ -54,8 +54,7 @@ class MaximizeSharpe:
         # Check if at least one component of self.returns is larger than self.rf
         if not any(ret > 0 for ret in uhat):
             # If none satisfy the condition, set all weights to 0
-            zero_weights = [0] * len(self.returns)
-            return (True, zero_weights)
+            return (False, None)
         n = len(self.cov_matrix)
         p = self.cov_matrix
         P = matrix(0.5 * (p + p.transpose()))  # this is a positive definite matrix
@@ -70,5 +69,5 @@ class MaximizeSharpe:
         X = sol["x"] / np.sum(sol["x"])
         return (
             True if sol["status"] == "optimal" else False,
-            np.round(X, decimals=4),
+            X,
         )
