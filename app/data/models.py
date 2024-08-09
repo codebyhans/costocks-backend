@@ -20,37 +20,49 @@ class DailyData(BaseModel):
     date: dt_date = Field(..., description="The date for this data")
     adj_close: float = Field(..., description="The adjusted close price for this day")
 
-class TimeSeries(BaseModel):
-    """
-    Class representing a time series for a stock.
-    """
-    series: Dict[str, Dict[str, float]] = Field(..., description="The name of the time series")
+class Series(BaseModel):
+    data: Dict[str, Dict[str, float]] = Field(..., description="The name of the time series")
 
-    def to_pandas_dataframe(self) -> pd.DataFrame:
+    @property
+    def df(self) -> pd.DataFrame:
         """
         Convert the series dictionary to a pandas DataFrame.
         """
-        return pd.DataFrame(self.series)
-
+        return pd.DataFrame(self.data) 
+    
     @property
-    def returns(self) -> pd.Series:
-        """
-        Calculate the returns using the pandas pct_change() method.
-        """
-        series = self.to_pandas_dataframe()
-        return series.pct_change().dropna()
-
     def variance(self) -> float:
         """
         Calculate the variance of the returns.
         """
-        return self.returns.var().values
+        return self.df.values.var()
 
-    def mean_return(self) -> float:
+    @property
+    def mean(self) -> float:
         """
         Calculate the mean of the returns.
         """
-        return self.returns.mean().values
+        return self.df.values.mean()
+
+class TimeSeries(BaseModel):
+    """
+    Class representing a time series for a stock.
+    """
+    prices: Optional[Series] = Field(None, description="The time series for the price history")
+    returns: Optional[Series] = Field(None, description="The corresponding timeseries for the returns")
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.returns = self.series_returns() if self.returns is None else self.returns
+
+    def series_returns(self) -> pd.Series:
+        """
+        Calculate the returns using the pandas pct_change() method.
+        """
+        price_df = self.prices.df
+        returns_df = price_df.pct_change().dropna()
+        return Series(data=returns_df.to_dict(orient='dict'))
+
 
 class TimeSeriesCollection(BaseModel):
     """
@@ -62,21 +74,19 @@ class TimeSeriesCollection(BaseModel):
     #    return np.concatenate([serie.returns.mean().values for serie in self.collection])
 
     def variances(self) -> List[float]:
-        return np.concatenate([serie.returns.var().values for serie in self.collection])
+        return [serie.returns.variance for serie in self.collection]
 
     def all_returns(self) -> List[float]:
         #return [serie.returns.mean().values for serie in self.collection]
-        return np.concatenate([serie.returns.mean().values for serie in self.collection])
+        return [serie.returns.mean for serie in self.collection]
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def merge_dataframes(self) -> pd.DataFrame:
         """
         Combine each stock's returns into a DataFrame.
         """
         dataframes = []
-        for serie in self.collection:
-            df = serie.to_pandas_dataframe()
-            #df.columns = [f'series_{i}_{col}' for col in df.columns]  # Ensure unique column names
-            dataframes.append(df)
+        for timeserie in self.collection:
+            dataframes.append(timeserie.returns.df)
         combined_df = pd.concat(dataframes, axis=1)
         return combined_df
 
@@ -84,7 +94,7 @@ class TimeSeriesCollection(BaseModel):
         """
         Calculate the covariance matrix of returns.
         """
-        returns_df = self.to_dataframe()
+        returns_df = self.merge_dataframes().pct_change().dropna()
         return returns_df.cov()
 
 class Asset(BaseModel):
@@ -104,28 +114,29 @@ class Portfolio(BaseModel):
     def __init__(self, **data):
         super().__init__(**data)
         self.timeserie = self.calculate_timeserie()
+        
 
     def calculate_timeserie(self) -> TimeSeries:
         """
         Calculate the weighted time series for each asset.
         """
-        weighted_series = [asset.stock.to_pandas_dataframe() * asset.weight for asset in self.assets]
+        weighted_series = [asset.stock.returns.df * asset.weight for asset in self.assets]
         merged_series = pd.concat(weighted_series, axis=1).sum(axis=1)
         df_with_header = pd.DataFrame(merged_series, columns=['weighted_timeseries'])
         timeserie_dict = df_with_header.to_dict()
-        return TimeSeries(series=timeserie_dict)
+        return TimeSeries(returns=Series(data=timeserie_dict))
 
     def calculate_expected_return(self) -> float:
         """
         Calculate the expected return of the portfolio.
         """
-        return self.timeserie.returns.mean().values
+        return self.timeserie.returns.mean
 
     def calculate_variance(self) -> float:
         """
         Calculate the variance of the portfolio.
         """
-        return self.timeserie.returns.var().values
+        return self.timeserie.returns.variance
 
     def calculate_sharpe_ratio(self, expected_return, variance, risk_free_rate: float = 0.0) -> float:
         """
@@ -170,7 +181,7 @@ class PortfolioCollection(BaseModel):
                 expected_return=expected_return,
                 variance=variance,
                 sharpe_ratio=sharpe_ratio,
-                weights = {key: asset.weight for asset in portfolio.assets for key in asset.stock.series.keys()}
+                weights = {key: asset.weight for asset in portfolio.assets for key in asset.stock.returns.data.keys()}
             )
             )
         return PortfolioCollectionAnalysis(

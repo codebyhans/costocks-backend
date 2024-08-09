@@ -13,6 +13,10 @@ class EfficientFrontier:
         min_returns = min(self.timeseries.all_returns()) + 10e-12
         max_returns = max(self.timeseries.all_returns())  - 10e-12
 
+        print(' Effecient frontier : --------')
+        print(self.timeseries.all_returns())
+        print(self.timeseries.covariance().values)
+
         for constrain in np.linspace(start=min_returns, stop=max_returns, num=number_of_portfolios):
             status, weights = MinimizerVolatility(
                 returns=self.timeseries.all_returns(),

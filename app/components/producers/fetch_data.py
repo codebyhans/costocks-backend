@@ -1,5 +1,5 @@
 import requests 
-from data.models import TimeSeries, TimeSeriesCollection, Ticker
+from data.models import TimeSeries, TimeSeriesCollection, Ticker, Series
 from typing import List, Dict
 import pandas as pd
 
@@ -23,8 +23,8 @@ class FetchData:
             tickers = response.json()
             timeseries=[]
             for ticker in tickers.keys():
-                timeseries_data = {ticker: tickers[ticker]}
-                timeseries.append(TimeSeries(series=timeseries_data)
+                timeseries_data = Series(data={ticker: tickers[ticker]})
+                timeseries.append(TimeSeries(prices=timeseries_data)
                 )
 
             self.timeseries = TimeSeriesCollection(collection=timeseries)

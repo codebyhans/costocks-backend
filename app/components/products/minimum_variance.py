@@ -9,7 +9,9 @@ class MinimumVariance:
 
     def optimize_portfolios(self) -> PortfolioCollection:
         portfolios = []
-
+        print(' min variance: --------')
+        print(self.timeseries.all_returns())
+        print(self.timeseries.covariance().values)
         status, weights = MinimizerVolatility(
             returns=self.timeseries.all_returns(),
             cov_matrix=self.timeseries.covariance().values,
