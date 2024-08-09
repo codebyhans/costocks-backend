@@ -137,12 +137,18 @@ class Portfolio(BaseModel):
         Calculate the variance of the portfolio.
         """
         return self.timeserie.returns.variance
+    
+    def calculate_standard_deviation(self, variance)-> float:
+        """
+        Standard deviation
+        """
+        return variance ** 0.5
 
-    def calculate_sharpe_ratio(self, expected_return, variance, risk_free_rate: float = 0.0) -> float:
+    def calculate_sharpe_ratio(self, expected_return, standard_deviation, risk_free_rate: float = 0.0) -> float:
         """
         Calculate the Sharpe ratio of the portfolio.
         """
-        return (expected_return - risk_free_rate) / max(variance ** 0.5, 1e-12)
+        return (expected_return - risk_free_rate) / max(standard_deviation, 1e-12)
 
 class PortfolioAnalysis(BaseModel):
     """
@@ -152,8 +158,10 @@ class PortfolioAnalysis(BaseModel):
     sharpe_ratio: float = Field(..., description="The Sharpe ratio of the portfolio")
     expected_return: float = Field(..., description="The expected return of the portfolio")
     variance: float = Field(..., description="The portfolio's variance")
+    standard_deviation: float = Field(None, description="The standard deviation of the portfolio")
     weights: Dict[str, float] = Field(..., description="The weights of the portfolio")
-    
+
+
 class PortfolioCollectionAnalysis(BaseModel):
     """
     Class representing the analysis of a collection of portfolios.
@@ -172,14 +180,16 @@ class PortfolioCollection(BaseModel):
         for portfolio in self.portfolios:
             expected_return = portfolio.calculate_expected_return()
             variance = portfolio.calculate_variance()
+            standard_deviation = portfolio.calculate_standard_deviation(variance=variance)
             sharpe_ratio = portfolio.calculate_sharpe_ratio(
                 expected_return=expected_return,
-                variance=variance,
+                standard_deviation=standard_deviation,
                 risk_free_rate=risk_free_rate)
             analysis.append(PortfolioAnalysis(
                 #portfolio=portfolio,
                 expected_return=expected_return,
                 variance=variance,
+                standard_deviation=standard_deviation,
                 sharpe_ratio=sharpe_ratio,
                 weights = {key: asset.weight for asset in portfolio.assets for key in asset.stock.returns.data.keys()}
             )
