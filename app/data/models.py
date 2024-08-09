@@ -94,7 +94,7 @@ class TimeSeriesCollection(BaseModel):
         """
         Calculate the covariance matrix of returns.
         """
-        returns_df = self.merge_dataframes().pct_change().dropna()
+        returns_df = self.merge_dataframes()
         return returns_df.cov()
 
 class Asset(BaseModel):
