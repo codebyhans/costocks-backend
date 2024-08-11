@@ -1,6 +1,4 @@
-from typing import Dict
 from data.models import PortfolioCollection, TimeSeriesCollection, Asset, Portfolio
-from components.producers import FetchData
 from components.features.minimize_volatility import MinimizerVolatility
 
 class MinimumVariance:

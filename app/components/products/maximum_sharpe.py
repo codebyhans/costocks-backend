@@ -1,6 +1,4 @@
-from typing import Dict
 from data.models import Portfolio, PortfolioCollection, Asset, TimeSeriesCollection
-from components.producers import FetchData
 from components.features.maximize_sharpe import MaximizeSharpe
 
 class MaximumSharpe:

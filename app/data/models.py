@@ -8,6 +8,11 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field, field_validator, RootModel
 
+class TickerRequest(BaseModel):
+    tickers: List[str] = Field(..., description="List of tickers to fetch data for", example=["NOVO-B.CO", "BAVA.CO"])
+    startDate: str = Field(..., description="Start date in YYYY-MM-DD format", example="2024-06-26")
+    endDate: str = Field(..., description="End date in YYYY-MM-DD format", example="2024-07-26")
+
 class Ticker(BaseModel):
     symbol: str = Field(..., description="The official ticker symbol")
     date: dt_date = Field(..., description="The date for this data")

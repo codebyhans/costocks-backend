@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from datetime import date
 from data.models import RequestAnalysis, CombinedAnalysis, Ticker
 from components.products import EfficientFrontier, MinimumVariance, MaximumSharpe, MaximumReturn, Preweighted
-from components.producers import FetchData, FetchTickers
+from components.producers import Fetch
 from typing import List
 import os 
 
@@ -18,11 +18,11 @@ async def ping():
 # Dependency for fetching data
 async def get_timeseries(request: RequestAnalysis):
     try:
-        timeseries = FetchData(
+        timeseries = Fetch().timeseries(
             tickers=list(request.tickers.keys()),
             from_date=request.from_date,
             to_date=request.to_date,
-        ).timeseries
+        )
         return timeseries
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to fetch data")
@@ -86,10 +86,4 @@ async def combined_analysis(request: RequestAnalysis, timeseries=Depends(get_tim
 # Combined analysis endpoint
 @router.get('/distinct-tickers', response_model=List[Ticker])
 async def combined_analysis():
-    try:
-        return FetchTickers().ticker_collection
-
-    except ValueError as ve:
-        raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+        return Fetch().tickers()

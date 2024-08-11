@@ -1,2 +1,2 @@
-from .fetch_data import FetchData
-from .fetch_data import FetchTickers
+from .fetch_data import Fetch
+from .worker import Worker
