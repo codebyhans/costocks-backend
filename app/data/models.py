@@ -230,3 +230,10 @@ class RequestAnalysis(BaseModel):
         except ValueError:
             raise ValueError("Date must be in YYYY-MM-DD format")
         return value
+    
+class ResponseModel(BaseModel):
+    request: RequestAnalysis = Field(..., description="The original request")
+    plot_effecient_frontier: CombinedAnalysis = Field(..., description="The data for the plot for the effecient frontier")
+    plot_prices: TimeSeriesCollection = Field(..., description="The data for the plot of the prices for all the tickers")
+
+    

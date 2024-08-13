@@ -1,7 +1,7 @@
 import asyncio
 from fastapi import APIRouter, HTTPException, Depends
 from datetime import date
-from data.models import RequestAnalysis, CombinedAnalysis, Ticker
+from data.models import RequestAnalysis, CombinedAnalysis, Ticker, ResponseModel
 from components.products import EfficientFrontier, MinimumVariance, MaximumSharpe, MaximumReturn, Preweighted
 from components.producers import Fetch
 from typing import List
@@ -61,7 +61,7 @@ async def analyze_random_weights(timeseries, request):
     return {"random_weights": analysis}
 
 # Combined analysis endpoint
-@router.post('/combined-analysis', response_model=CombinedAnalysis)
+@router.post('/combined-analysis', response_model=ResponseModel)
 async def combined_analysis(request: RequestAnalysis, timeseries=Depends(get_timeseries)):
     try:
         tasks = [
@@ -71,12 +71,14 @@ async def combined_analysis(request: RequestAnalysis, timeseries=Depends(get_tim
             analyze_maximum_return(timeseries, request),
             analyze_random_weights(timeseries, request),
         ]
-
         results = await asyncio.gather(*tasks)
+        plot_effecient_frontier = CombinedAnalysis(**{k: v for result in results for k, v in result.items()})
 
-        combined_result = CombinedAnalysis(**{k: v for result in results for k, v in result.items()})
-
-        return combined_result
+        return ResponseModel(
+            request=request,
+            plot_effecient_frontier=plot_effecient_frontier,
+            plot_prices=timeseries
+        )
 
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=f"Invalid input: {str(ve)}")
