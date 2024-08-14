@@ -55,6 +55,8 @@ class TimeSeries(BaseModel):
     """
     prices: Optional[Series] = Field(None, description="The time series for the price history")
     returns: Optional[Series] = Field(None, description="The corresponding timeseries for the returns")
+    future_prices: Optional[Series] = Field(None, description="The future prediction of the prices")
+    future_returns: Optional[Series] = Field(None, description="The future prediction of the returns ")
 
     def __init__(self, **data):
         super().__init__(**data)
