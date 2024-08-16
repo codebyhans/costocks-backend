@@ -44,7 +44,12 @@ class Preweighted:
         total_value = np.sum(values)
 
         # Step 3: Calculate the weights of each ticker
-        weights = [values / total_value]
+        if total_value > 0:
+            #avoid division by zero
+            weights = [values / total_value]
+        else:
+            # Just set weights to 0
+            weights = [values * 0]
 
         return self._assign_weights(np_weights=weights)
 
