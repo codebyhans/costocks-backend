@@ -78,6 +78,15 @@ async def analyze_random_weights(timeseries, request):
     logger.info("Random Weights analysis completed")
     return {"random_weights": analysis}
 
+async def analyze_personal_weights(timeseries, request):
+    logger.info(f"Analyzing personal Weights")
+    personal_portfolio = Preweighted(timeseries=timeseries)
+    portfolio_collection = personal_portfolio.assign_weights(tickers=request.tickers)
+    analysis = portfolio_collection.analyze_portfolios(risk_free_rate=request.risk_free_rate)
+    logger.info("personal Weights analysis completed")
+    return {"personal_weights": analysis}
+
+
 # Combined analysis endpoint
 @router.post('/combined-analysis', response_model=ResponseModel)
 async def combined_analysis(request: RequestAnalysis, timeseries=Depends(get_timeseries)):
@@ -89,6 +98,7 @@ async def combined_analysis(request: RequestAnalysis, timeseries=Depends(get_tim
             analyze_maximum_sharpe(timeseries, request),
             analyze_maximum_return(timeseries, request),
             analyze_random_weights(timeseries, request),
+            analyze_personal_weights(timeseries, request),
         ]
         results = await asyncio.gather(*tasks)
         plot_effecient_frontier = CombinedAnalysis(**{k: v for result in results for k, v in result.items()})

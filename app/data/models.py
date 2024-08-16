@@ -215,6 +215,7 @@ class CombinedAnalysis(BaseModel):
     maximum_sharpe: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios optimized for maximum Sharpe ratio")
     maximum_return: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios optimized for maximum return")
     random_weights: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios with randomly assigned weights")
+    personal_weights: Optional[PortfolioCollectionAnalysis] = Field(None, description="Analysis of portfolios with personal weights")
 
 class RequestAnalysis(BaseModel):
     """
@@ -222,7 +223,7 @@ class RequestAnalysis(BaseModel):
     """
     from_date: str = Field(..., description="Start date in YYYY-MM-DD format", example="2024-06-26")
     to_date: Optional[str] = Field(None, description="End date in YYYY-MM-DD format (optional, default is today)", example="2024-07-26")
-    tickers: Dict[str, Dict[str, float]] = Field(..., description="Dictionary of tickers to fetch data for, with optional weights", example={"NOVO-B.CO": {'adj_close': 0.8, 'amount': 1}, "BAVA.CO": {'adj_close': 0.2, 'amount': 4}})
+    tickers: Dict[str, Dict[str, float]] = Field(..., description="Dictionary of tickers to fetch data for, with optional weights", example={"NOVO-B.CO": {'adj_close': 0.8, 'amount': 2}, "BAVA.CO": {'adj_close': 0.2, 'amount': 4}})
     risk_free_rate: Optional[float] = Field(0.0, description="Risk-free rate (default is 0)")
 
     @field_validator('from_date', 'to_date')
