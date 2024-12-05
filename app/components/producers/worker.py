@@ -16,7 +16,7 @@ class Worker:
         responses = {}
         for ticker in request.tickers:
             query = f"""
-            SELECT * FROM {self.CONTAINER_NAME} c 
+            SELECT * FROM c 
             WHERE c.ticker = @ticker AND c.date >= @startDate AND c.date <= @endDate
             """
             parameters = [
