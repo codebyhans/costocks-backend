@@ -11,6 +11,7 @@
 __pycache__/
 pdm.toml
 .env
+secrets.txt
 
 # Ignore secret JSON files
 # /src/secrets-firebase.json
