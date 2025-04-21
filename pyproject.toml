@@ -36,7 +36,7 @@ lint = [
 name = "azure"
 url = "https://pkgs.dev.azure.com/costocks/COSTOCKS/_packaging/artifacts-costocks/pypi/simple/"
 username = "costock"
-password = "***REMOVED***"
+
 
 
 
