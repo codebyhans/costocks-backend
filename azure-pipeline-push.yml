@@ -8,28 +8,88 @@ trigger:
 - main
 
 variables:
-  # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+  - group: personal-secrets  
+  - name: vmImageName
+    value: 'ubuntu-latest'
+  - name: pythonVersion
+    value: '3.10'
+  - name: githubUser
+    value: 'codebyhans'
+  - name: githubEmail
+    value: 'hansotto.kristiansen@gmail.com'
+  - name: githubRepo
+    value: 'costocks-backend'
 
-  # Project root folder. Point to the folder containing manage.py file.
-  projectRoot: $(System.DefaultWorkingDirectory)
-
-  # Python version: 3.10
-  pythonVersion: '3.10'
 
 stages:
-- stage: DockerBuildPush
-  displayName: 'Buld and Push Docker Image'
-  jobs:
-  - job: DockerPushJob
-    pool:
-      vmImage: $(vmImageName)
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'costocksregistry'
-        repository: 'backenda'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
-        tags: 'latest'
-      
+  - stage: MirrorToGitHub
+    displayName: 'Mirror Azure → GitHub'
+    jobs:
+      - job: MirrorJob
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - script: |
+              set -eux
+
+              echo "🔧 Configuring Git identity…"
+              git config --global user.name  "$(githubUser)"
+              git config --global user.email "$(githubEmail)"
+
+              echo "🔐 Building Azure DevOps repo URL…"
+              # Strip "https://" from the collection URI so we can prepend the token cleanly
+              COLL_NO_PROTO="${SYSTEM_TEAMFOUNDATIONCOLLECTIONURI#https://}"
+              AZ_URL="https://${SYSTEM_ACCESS_TOKEN}@${COLL_NO_PROTO}${SYSTEM_TEAMPROJECT}/_git/${BUILD_REPOSITORY_NAME}"
+
+              echo "📥 Cloning bare‐mirror from Azure DevOps:"
+              git clone --mirror "$AZ_URL" repo-mirror
+              cd repo-mirror
+
+              echo "📎 Adding GitHub remote…"
+              git remote add github \
+                "https://$(GITHUB_TOKEN)@github.com/$(githubUser)/$(githubRepo).git"
+
+              echo "📤 Pushing ALL branches & tags to GitHub…"
+              git push --mirror github
+
+              echo "✅ Mirror complete!"
+            displayName: 'Mirror Azure→GitHub (bare)'
+            env:
+              SYSTEM_ACCESS_TOKEN: $(System.AccessToken)
+              GITHUB_TOKEN:      $(GITHUB_TOKEN)
+  
+  - stage: Build
+    displayName: 'Build Python App'
+    jobs:
+      - job: BuildJob
+        pool:
+          vmImage: $(vmImageName)
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python $(pythonVersion)'
+          
+          - script: |
+              pip install pdm
+            displayName: 'Install PDM'
+          
+          - script: |
+              pdm install
+            displayName: "Install dependencies"
+
+  - stage: DockerBuildPush
+    displayName: 'Buld and Push Docker Image'
+    jobs:
+    - job: DockerPushJob
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - task: Docker@2
+        inputs:
+          containerRegistry: 'costocksregistry'
+          repository: 'backenda'
+          command: 'buildAndPush'
+          Dockerfile: '**/Dockerfile'
+          tags: 'latest'
+
